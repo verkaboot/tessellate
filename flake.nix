@@ -7,19 +7,12 @@
     flake-utils.url  = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, ... }:
+  outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
-          inherit system overlays;
+          inherit system;
         };
-        rust = pkgs.rust-bin.selectLatestNightlyWith (
-          toolchain: toolchain.default.override { 
-            extensions = [ "rust-analyzer" "rust-src" ];
-            targets = [];
-          }
-        );
       in
       with pkgs;
       {
@@ -30,7 +23,6 @@
             pkg-config
             llvmPackages.bintools
             clang
-            rust
             udev
             alsa-lib
             vulkan-loader
