@@ -1,9 +1,0 @@
-{
-    "recommendations": [
-        "fill-labs.dependi",
-        "editorconfig.editorconfig",
-        "tamasfe.even-better-toml",
-        "rust-lang.rust-analyzer",
-        "a5huynh.vscode-ron"
-    ]
-}
