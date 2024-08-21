@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, winit::WinitSettings};
 
 use bevy_framepace::{FramepaceSettings, Limiter};
 use ease::Ease;
@@ -27,6 +27,7 @@ fn main() {
         .insert_resource(FramepaceSettings {
             limiter: Limiter::from_framerate(144.0),
         })
+        .insert_resource(WinitSettings::desktop_app())
         .add_plugins(SickleUiPlugin)
         .add_plugins(UiFooterRootNodePlugin)
         .add_plugins(OutlinedBlockPlugin)
