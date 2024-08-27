@@ -17,7 +17,6 @@ tracing = { version = "0.1", features = [
     "max_level_debug",
     "release_max_level_warn",
 ] }
-sickle_ui = "0.2.3"
 bevy_framepace = "0.17.1"
 
 [features]
