@@ -35,6 +35,7 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     };
 
     image.resize(size);
+    image.data = vec![100; (size.width * size.height * 4) as usize];
 
     let image_handle = images.add(image);
 
