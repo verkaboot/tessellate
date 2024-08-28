@@ -4,7 +4,7 @@ use bevy::{
         Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
     },
 };
-use bevy_mod_picking::PickableBundle;
+use bevy_mod_picking::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup);
@@ -46,5 +46,14 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             ..default()
         },
         PickableBundle::default(),
+        On::<Pointer<Drag>>::run(
+            |event: Listener<Pointer<Drag>>,
+             texture_q: Query<&Handle<Image>>,
+             mut images: ResMut<Assets<Image>>| {
+                let handle = texture_q.get(event.listener()).unwrap();
+                let texture = images.get_mut(handle).unwrap();
+                texture.data = vec![200; (512 * 512 * 4) as usize]
+            },
+        ),
     ));
 }
