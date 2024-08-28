@@ -8,6 +8,6 @@ pub fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("Camera"),
         Camera2dBundle::default(),
-        IsDefaultUiCamera,
+        // IsDefaultUiCamera,
     ));
 }

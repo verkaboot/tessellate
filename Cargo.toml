@@ -18,6 +18,8 @@ tracing = { version = "0.1", features = [
     "release_max_level_warn",
 ] }
 bevy_framepace = "0.17.1"
+bevy-inspector-egui = "0.25.2"
+bevy_mod_picking = "0.20.1"
 
 [features]
 default = [
