@@ -1,7 +1,7 @@
 # Features
 
-## PSD
-- Parse psd to get each layer as a png
+## OpenRaster
+- Parse .ora to get each layer as a png
   - Trim all png files and record their offset to keep them in place
 
 ## Bones
@@ -14,3 +14,8 @@ I'm not loving SickleUI, because I have too many opinions about little UX intera
 
 In Blender and that course, the guy differentiated between bones that distorted the mesh, bones that were complex mechanisms with constraints, and UI bones for the actual control of the rig. I wonder if these all are really necessary if we focus on a good system of constraints.
 
+## Tessellation
+I am still really interested in being able to advance on Asesprite's drawing across instanced tiles, but with a better brush engine that works for high-res drawing and painting.
+
+- Figure out basic drawing engine.
+- Multiple mesh instance drawing.
