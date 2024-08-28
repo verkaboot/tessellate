@@ -1,4 +1,5 @@
 mod camera;
+mod canvas;
 mod color;
 mod draw;
 
