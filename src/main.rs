@@ -20,7 +20,7 @@ fn main() {
         .insert_resource(FramepaceSettings {
             limiter: Limiter::from_framerate(144.0),
         })
-        .insert_resource(ClearColor(color::background()))
+        .insert_resource(ClearColor(color::BACKGROUND))
         .insert_resource(WinitSettings::desktop_app())
         .add_plugins(camera::plugin)
         .run();

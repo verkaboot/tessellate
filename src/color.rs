@@ -1,5 +1,3 @@
 use bevy::prelude::*;
 
-pub fn background() -> Color {
-    Color::srgb_u8(32, 28, 36)
-}
+pub const BACKGROUND: Color = Color::srgb(0.15, 0.1, 0.19);
