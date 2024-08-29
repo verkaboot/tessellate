@@ -4,9 +4,6 @@ use bevy::{
         Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
     },
 };
-use bevy_mod_picking::prelude::*;
-
-use crate::canvas;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup);
@@ -41,21 +38,20 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 
     let image_handle = images.add(image);
 
-    commands.spawn((
-        Name::new("DrawableSprite"),
-        SpriteBundle {
-            texture: image_handle.clone(),
-            ..default()
-        },
-        PickableBundle::default(),
-        On::<Pointer<Drag>>::run(
-            |event: Listener<Pointer<Drag>>,
-             texture_q: Query<&Handle<Image>>,
-             mut images: ResMut<Assets<Image>>| {
-                let handle = texture_q.get(event.listener()).unwrap();
-                let texture = images.get_mut(handle).unwrap();
-                canvas::draw(event.pointer_location.position, &mut texture.data);
+    commands
+        .spawn((
+            Name::new("DrawableSprite"),
+            SpriteBundle {
+                texture: image_handle.clone(),
+                ..default()
             },
-        ),
-    ));
+        ))
+        .observe(pointer_down);
 }
+
+#[derive(Event)]
+pub struct OnDraw;
+
+fn trigger_on_draw(mut commands: Commands) {}
+
+fn pointer_down(trigger: Trigger<OnDraw>) {}

@@ -19,3 +19,7 @@ I am still really interested in being able to advance on Asesprite's drawing acr
 
 - Figure out basic drawing engine.
 - Multiple mesh instance drawing.
+
+## GPU for Drawing
+Look into using compute shaders for drawing to the texture.
+https://github.com/bevyengine/bevy/blob/release-0.14.1/examples/shader/compute_shader_game_of_life.rs
