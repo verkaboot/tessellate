@@ -37,7 +37,7 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         },
         TextureDimension::D2,
         &[0, 0, 0, 255],
-        TextureFormat::R32Float,
+        TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     );
     image.texture_descriptor.usage =
@@ -149,8 +149,8 @@ impl FromWorld for GameOfLifePipeline {
             &BindGroupLayoutEntries::sequential(
                 ShaderStages::COMPUTE,
                 (
-                    texture_storage_2d(TextureFormat::R32Float, StorageTextureAccess::ReadOnly),
-                    texture_storage_2d(TextureFormat::R32Float, StorageTextureAccess::WriteOnly),
+                    texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::ReadOnly),
+                    texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
                 ),
             ),
         );
