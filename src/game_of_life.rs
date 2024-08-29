@@ -19,8 +19,7 @@ const SIZE: (u32, u32) = (1280, 720);
 const WORKGROUP_SIZE: u32 = 8;
 
 pub(super) fn plugin(app: &mut App) {
-    app.insert_resource(ClearColor(Color::BLACK))
-        .add_plugins(GameOfLifeComputePlugin)
+    app.add_plugins(GameOfLifeComputePlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, switch_textures);
 }
