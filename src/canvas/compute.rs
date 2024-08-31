@@ -41,7 +41,9 @@ impl Plugin for CanvasComputePlugin {
 }
 
 #[derive(Resource)]
-struct CanvasImageBindGroups([BindGroup; 2]);
+struct CanvasImageBindGroups {
+    bind_groups: [BindGroup; 2],
+}
 
 fn prepare_bind_group(
     mut commands: Commands,
@@ -62,7 +64,9 @@ fn prepare_bind_group(
         &pipeline.texture_bind_group_layout,
         &BindGroupEntries::sequential((&view_b.texture_view, &view_a.texture_view)),
     );
-    commands.insert_resource(CanvasImageBindGroups([bind_group_0, bind_group_1]));
+    commands.insert_resource(CanvasImageBindGroups {
+        bind_groups: [bind_group_0, bind_group_1],
+    });
 }
 
 #[derive(Resource)]
@@ -171,7 +175,7 @@ impl render_graph::Node for CanvasNode {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
-        let bind_groups = &world.resource::<CanvasImageBindGroups>().0;
+        let bind_groups = &world.resource::<CanvasImageBindGroups>().bind_groups;
         let pipeline_cache = world.resource::<PipelineCache>();
         let pipeline = world.resource::<CanvasPipeline>();
 
