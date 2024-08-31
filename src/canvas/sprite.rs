@@ -3,6 +3,7 @@ use bevy::{
     render::{
         extract_resource::ExtractResource, render_asset::RenderAssetUsages, render_resource::*,
     },
+    window::PrimaryWindow,
 };
 
 use super::SIZE;
@@ -56,7 +57,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     });
 
     commands.insert_resource(MousePosition {
-        position: Vec2 { x: 20.0, y: 10.0 },
+        position: Vec2 { x: 1.0, y: 1.0 },
     })
 }
 
@@ -69,5 +70,22 @@ pub fn switch_textures(
         *displayed = canvas_texture.texture_b.clone_weak();
     } else {
         *displayed = canvas_texture.texture_a.clone_weak();
+    }
+}
+
+pub fn update_mouse_position(
+    mut mouse_position: ResMut<MousePosition>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
+    q_camera: Query<(&Camera, &GlobalTransform)>,
+) {
+    let (camera, camera_transform) = q_camera.single();
+
+    let window = q_window.single();
+
+    if let Some(world_position) = window
+        .cursor_position()
+        .and_then(|cursor| camera.viewport_to_world_2d(camera_transform, cursor))
+    {
+        mouse_position.position = world_position;
     }
 }

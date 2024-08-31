@@ -14,5 +14,8 @@ const WORKGROUP_SIZE: u32 = 8;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
         .add_systems(Startup, sprite::setup)
-        .add_systems(Update, sprite::switch_textures);
+        .add_systems(
+            Update,
+            (sprite::switch_textures, sprite::update_mouse_position),
+        );
 }
