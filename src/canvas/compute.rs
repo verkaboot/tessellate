@@ -1,4 +1,4 @@
-use super::{GameOfLifeImages, SIZE};
+use super::{sprite::CanvasTexture, SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE};
 use bevy::{
     prelude::*,
     render::{
@@ -13,9 +13,6 @@ use bevy::{
 };
 use std::borrow::Cow;
 
-const SHADER_ASSET_PATH: &str = "shaders/game_of_life.wgsl";
-const WORKGROUP_SIZE: u32 = 8;
-
 pub struct GameOfLifeComputePlugin;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
@@ -25,7 +22,7 @@ impl Plugin for GameOfLifeComputePlugin {
     fn build(&self, app: &mut App) {
         // Extract the game of life image resource from the main world into the render world
         // for operation on by the compute shader and display on the sprite.
-        app.add_plugins(ExtractResourcePlugin::<GameOfLifeImages>::default());
+        app.add_plugins(ExtractResourcePlugin::<CanvasTexture>::default());
         let render_app = app.sub_app_mut(RenderApp);
         render_app.add_systems(
             Render,
@@ -50,7 +47,7 @@ fn prepare_bind_group(
     mut commands: Commands,
     pipeline: Res<GameOfLifePipeline>,
     gpu_images: Res<RenderAssets<GpuImage>>,
-    game_of_life_images: Res<GameOfLifeImages>,
+    game_of_life_images: Res<CanvasTexture>,
     render_device: Res<RenderDevice>,
 ) {
     let view_a = gpu_images.get(&game_of_life_images.texture_a).unwrap();
