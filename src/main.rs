@@ -2,7 +2,6 @@ mod camera;
 mod canvas;
 mod color;
 mod draw;
-mod game_of_life;
 
 use bevy::{prelude::*, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};
@@ -33,6 +32,6 @@ fn main() {
         })
         .add_plugins(WorldInspectorPlugin::new())
         // App Plugins
-        .add_plugins((camera::plugin, draw::plugin, game_of_life::plugin))
+        .add_plugins((camera::plugin, draw::plugin, canvas::plugin))
         .run();
 }
