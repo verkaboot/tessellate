@@ -1,4 +1,9 @@
-use super::{bind_groups, node::CanvasNode, pipeline::CanvasPipeline, sprite::CanvasImages};
+use super::{
+    bind_groups,
+    node::CanvasNode,
+    pipeline::CanvasPipeline,
+    sprite::{CanvasImages, MousePosition},
+};
 use bevy::{
     prelude::*,
     render::{
@@ -17,7 +22,10 @@ impl Plugin for CanvasComputePlugin {
     fn build(&self, app: &mut App) {
         // Extract the game of life image resource from the main world into the render world
         // for operation on by the compute shader and display on the sprite.
-        app.add_plugins(ExtractResourcePlugin::<CanvasImages>::default());
+        app.add_plugins((
+            ExtractResourcePlugin::<CanvasImages>::default(),
+            ExtractResourcePlugin::<MousePosition>::default(),
+        ));
         let render_app = app.sub_app_mut(RenderApp);
         render_app.add_systems(
             Render,

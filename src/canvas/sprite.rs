@@ -16,6 +16,11 @@ pub struct CanvasImages {
     pub texture_b: Handle<Image>,
 }
 
+#[derive(Resource, Clone, Copy, ExtractResource)]
+pub struct MousePosition {
+    pub position: Vec2,
+}
+
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     let mut image = Image::new_fill(
         Extent3d {
@@ -49,6 +54,10 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         texture_a: image0,
         texture_b: image1,
     });
+
+    commands.insert_resource(MousePosition {
+        position: Vec2 { x: 20.0, y: 10.0 },
+    })
 }
 
 pub fn switch_textures(

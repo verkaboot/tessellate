@@ -6,6 +6,7 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
+use binding_types::uniform_buffer;
 use std::borrow::Cow;
 
 #[derive(Resource)]
@@ -25,6 +26,7 @@ impl FromWorld for CanvasPipeline {
                 (
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::ReadOnly),
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
+                    uniform_buffer::<Vec2>(false),
                 ),
             ),
         );
