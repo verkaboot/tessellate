@@ -1,4 +1,7 @@
+mod bind_groups;
 mod compute;
+mod node;
+mod pipeline;
 mod sprite;
 
 use bevy::prelude::*;
