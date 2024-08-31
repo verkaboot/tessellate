@@ -11,7 +11,7 @@ use super::SIZE;
 pub struct CanvasSprite;
 
 #[derive(Resource, Clone, ExtractResource)]
-pub struct CanvasTexture {
+pub struct CanvasImages {
     pub texture_a: Handle<Image>,
     pub texture_b: Handle<Image>,
 }
@@ -45,14 +45,14 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         CanvasSprite,
     ));
 
-    commands.insert_resource(CanvasTexture {
+    commands.insert_resource(CanvasImages {
         texture_a: image0,
         texture_b: image1,
     });
 }
 
 pub fn switch_textures(
-    canvas_texture: Res<CanvasTexture>,
+    canvas_texture: Res<CanvasImages>,
     mut current_texture_q: Query<&mut Handle<Image>, With<CanvasSprite>>,
 ) {
     let mut displayed = current_texture_q.single_mut();

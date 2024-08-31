@@ -1,4 +1,4 @@
-use super::{sprite::CanvasTexture, SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE};
+use super::{sprite::CanvasImages, SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE};
 use bevy::{
     prelude::*,
     render::{
@@ -13,16 +13,16 @@ use bevy::{
 };
 use std::borrow::Cow;
 
-pub struct GameOfLifeComputePlugin;
+pub struct CanvasComputePlugin;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
-pub struct GameOfLifeLabel;
+pub struct CanvasComputeLabel;
 
-impl Plugin for GameOfLifeComputePlugin {
+impl Plugin for CanvasComputePlugin {
     fn build(&self, app: &mut App) {
         // Extract the game of life image resource from the main world into the render world
         // for operation on by the compute shader and display on the sprite.
-        app.add_plugins(ExtractResourcePlugin::<CanvasTexture>::default());
+        app.add_plugins(ExtractResourcePlugin::<CanvasImages>::default());
         let render_app = app.sub_app_mut(RenderApp);
         render_app.add_systems(
             Render,
@@ -30,28 +30,28 @@ impl Plugin for GameOfLifeComputePlugin {
         );
 
         let mut render_graph = render_app.world_mut().resource_mut::<RenderGraph>();
-        render_graph.add_node(GameOfLifeLabel, GameOfLifeNode::default());
-        render_graph.add_node_edge(GameOfLifeLabel, bevy::render::graph::CameraDriverLabel);
+        render_graph.add_node(CanvasComputeLabel, CanvasNode::default());
+        render_graph.add_node_edge(CanvasComputeLabel, bevy::render::graph::CameraDriverLabel);
     }
 
     fn finish(&self, app: &mut App) {
         let render_app = app.sub_app_mut(RenderApp);
-        render_app.init_resource::<GameOfLifePipeline>();
+        render_app.init_resource::<CanvasPipeline>();
     }
 }
 
 #[derive(Resource)]
-struct GameOfLifeImageBindGroups([BindGroup; 2]);
+struct CanvasImageBindGroups([BindGroup; 2]);
 
 fn prepare_bind_group(
     mut commands: Commands,
-    pipeline: Res<GameOfLifePipeline>,
+    pipeline: Res<CanvasPipeline>,
     gpu_images: Res<RenderAssets<GpuImage>>,
-    game_of_life_images: Res<CanvasTexture>,
+    canvas_images: Res<CanvasImages>,
     render_device: Res<RenderDevice>,
 ) {
-    let view_a = gpu_images.get(&game_of_life_images.texture_a).unwrap();
-    let view_b = gpu_images.get(&game_of_life_images.texture_b).unwrap();
+    let view_a = gpu_images.get(&canvas_images.texture_a).unwrap();
+    let view_b = gpu_images.get(&canvas_images.texture_b).unwrap();
     let bind_group_0 = render_device.create_bind_group(
         None,
         &pipeline.texture_bind_group_layout,
@@ -62,21 +62,21 @@ fn prepare_bind_group(
         &pipeline.texture_bind_group_layout,
         &BindGroupEntries::sequential((&view_b.texture_view, &view_a.texture_view)),
     );
-    commands.insert_resource(GameOfLifeImageBindGroups([bind_group_0, bind_group_1]));
+    commands.insert_resource(CanvasImageBindGroups([bind_group_0, bind_group_1]));
 }
 
 #[derive(Resource)]
-struct GameOfLifePipeline {
+struct CanvasPipeline {
     texture_bind_group_layout: BindGroupLayout,
     init_pipeline: CachedComputePipelineId,
     update_pipeline: CachedComputePipelineId,
 }
 
-impl FromWorld for GameOfLifePipeline {
+impl FromWorld for CanvasPipeline {
     fn from_world(world: &mut World) -> Self {
         let render_device = world.resource::<RenderDevice>();
         let texture_bind_group_layout = render_device.create_bind_group_layout(
-            "GameOfLifeImages",
+            "CanvasImages",
             &BindGroupLayoutEntries::sequential(
                 ShaderStages::COMPUTE,
                 (
@@ -104,7 +104,7 @@ impl FromWorld for GameOfLifePipeline {
             entry_point: Cow::from("update"),
         });
 
-        GameOfLifePipeline {
+        CanvasPipeline {
             texture_bind_group_layout,
             init_pipeline,
             update_pipeline,
@@ -112,35 +112,35 @@ impl FromWorld for GameOfLifePipeline {
     }
 }
 
-enum GameOfLifeState {
+enum CanvasState {
     Loading,
     Init,
     Update(usize),
 }
 
-struct GameOfLifeNode {
-    state: GameOfLifeState,
+struct CanvasNode {
+    state: CanvasState,
 }
 
-impl Default for GameOfLifeNode {
+impl Default for CanvasNode {
     fn default() -> Self {
         Self {
-            state: GameOfLifeState::Loading,
+            state: CanvasState::Loading,
         }
     }
 }
 
-impl render_graph::Node for GameOfLifeNode {
+impl render_graph::Node for CanvasNode {
     fn update(&mut self, world: &mut World) {
-        let pipeline = world.resource::<GameOfLifePipeline>();
+        let pipeline = world.resource::<CanvasPipeline>();
         let pipeline_cache = world.resource::<PipelineCache>();
 
         // if the corresponding pipeline has loaded, transition to the next stage
         match self.state {
-            GameOfLifeState::Loading => {
+            CanvasState::Loading => {
                 match pipeline_cache.get_compute_pipeline_state(pipeline.init_pipeline) {
                     CachedPipelineState::Ok(_) => {
-                        self.state = GameOfLifeState::Init;
+                        self.state = CanvasState::Init;
                     }
                     CachedPipelineState::Err(err) => {
                         panic!("Initializing assets/{SHADER_ASSET_PATH}:\n{err}")
@@ -148,20 +148,20 @@ impl render_graph::Node for GameOfLifeNode {
                     _ => {}
                 }
             }
-            GameOfLifeState::Init => {
+            CanvasState::Init => {
                 if let CachedPipelineState::Ok(_) =
                     pipeline_cache.get_compute_pipeline_state(pipeline.update_pipeline)
                 {
-                    self.state = GameOfLifeState::Update(1);
+                    self.state = CanvasState::Update(1);
                 }
             }
-            GameOfLifeState::Update(0) => {
-                self.state = GameOfLifeState::Update(1);
+            CanvasState::Update(0) => {
+                self.state = CanvasState::Update(1);
             }
-            GameOfLifeState::Update(1) => {
-                self.state = GameOfLifeState::Update(0);
+            CanvasState::Update(1) => {
+                self.state = CanvasState::Update(0);
             }
-            GameOfLifeState::Update(_) => unreachable!(),
+            CanvasState::Update(_) => unreachable!(),
         }
     }
 
@@ -171,9 +171,9 @@ impl render_graph::Node for GameOfLifeNode {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
-        let bind_groups = &world.resource::<GameOfLifeImageBindGroups>().0;
+        let bind_groups = &world.resource::<CanvasImageBindGroups>().0;
         let pipeline_cache = world.resource::<PipelineCache>();
-        let pipeline = world.resource::<GameOfLifePipeline>();
+        let pipeline = world.resource::<CanvasPipeline>();
 
         let mut pass = render_context
             .command_encoder()
@@ -181,8 +181,8 @@ impl render_graph::Node for GameOfLifeNode {
 
         // select the pipeline based on the current state
         match self.state {
-            GameOfLifeState::Loading => {}
-            GameOfLifeState::Init => {
+            CanvasState::Loading => {}
+            CanvasState::Init => {
                 let init_pipeline = pipeline_cache
                     .get_compute_pipeline(pipeline.init_pipeline)
                     .unwrap();
@@ -190,7 +190,7 @@ impl render_graph::Node for GameOfLifeNode {
                 pass.set_pipeline(init_pipeline);
                 pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
             }
-            GameOfLifeState::Update(index) => {
+            CanvasState::Update(index) => {
                 let update_pipeline = pipeline_cache
                     .get_compute_pipeline(pipeline.update_pipeline)
                     .unwrap();
