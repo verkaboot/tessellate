@@ -42,6 +42,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
+                flip_y: true,
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
                 ..default()
             },
