@@ -1,6 +1,6 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, SHADER_ASSET_PATH, SIZE,
-    WORKGROUP_SIZE,
+    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, sprite::MousePosition,
+    SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{
     prelude::*,
@@ -62,27 +62,28 @@ impl render_graph::Node for CanvasNode {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
-        let bind_groups = &world.resource::<CanvasImageBindGroups>().bind_groups;
-        let pipeline_cache = world.resource::<PipelineCache>();
-        let pipeline = world.resource::<CanvasPipeline>();
+        let mouse = world.resource::<MousePosition>();
+        if mouse.left_button_pressed {
+            let bind_groups = &world.resource::<CanvasImageBindGroups>().bind_groups;
+            let pipeline_cache = world.resource::<PipelineCache>();
+            let pipeline = world.resource::<CanvasPipeline>();
 
-        let mut pass = render_context
-            .command_encoder()
-            .begin_compute_pass(&ComputePassDescriptor::default());
+            let mut pass = render_context
+                .command_encoder()
+                .begin_compute_pass(&ComputePassDescriptor::default());
 
-        // select the pipeline based on the current state
-        match self.state {
-            CanvasState::Loading => {}
-            CanvasState::Update(index) => {
-                let update_pipeline = pipeline_cache
-                    .get_compute_pipeline(pipeline.update_pipeline)
-                    .unwrap();
-                pass.set_bind_group(0, &bind_groups[index], &[]);
-                pass.set_pipeline(update_pipeline);
-                pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
+            match self.state {
+                CanvasState::Loading => {}
+                CanvasState::Update(index) => {
+                    let update_pipeline = pipeline_cache
+                        .get_compute_pipeline(pipeline.update_pipeline)
+                        .unwrap();
+                    pass.set_bind_group(0, &bind_groups[index], &[]);
+                    pass.set_pipeline(update_pipeline);
+                    pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
+                }
             }
         }
-
         Ok(())
     }
 }
