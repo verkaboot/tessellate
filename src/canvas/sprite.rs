@@ -30,7 +30,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
-        &[0, 0, 0, 255],
+        &[0, 0, 0, 0],
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     );
@@ -93,6 +93,5 @@ pub fn update_mouse_position(
         .and_then(|cursor| camera.viewport_to_world_2d(camera_transform, cursor))
     {
         mouse_position.position = world_position;
-        println!("{:?}", mouse_position.position);
     }
 }
