@@ -87,5 +87,6 @@ pub fn update_mouse_position(
         .and_then(|cursor| camera.viewport_to_world_2d(camera_transform, cursor))
     {
         mouse_position.position = world_position;
+        println!("{:?}", mouse_position.position);
     }
 }
