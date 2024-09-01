@@ -46,6 +46,11 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
                 ..default()
             },
+            transform: Transform::from_translation(Vec3::new(
+                SIZE.0 as f32 / 2.0,
+                SIZE.1 as f32 / 2.0,
+                0.0,
+            )),
             texture: image0.clone(),
             ..default()
         },
