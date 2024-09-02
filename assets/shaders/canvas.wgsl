@@ -8,8 +8,6 @@ const brush_radius: f32 = 8.0;
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
-    let lerp = mix(previous_mouse_position, mouse_position, 0.5);
-    let mouse = vec2<i32>(i32(lerp.x), i32(lerp.y));
     let current_color: vec4<f32> = textureLoad(input, location);
     var blended_color = current_color;
 
