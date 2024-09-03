@@ -20,8 +20,7 @@ pub struct CanvasImages {
 #[derive(Resource, Clone, Copy, ExtractResource)]
 pub struct MousePosition {
     pub left_button_pressed: bool,
-    pub position: Vec2,
-    pub previous_position: Vec2,
+    pub positions: [Vec2; 2],
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
@@ -66,8 +65,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 
     commands.insert_resource(MousePosition {
         left_button_pressed: false,
-        position: Vec2 { x: 0.0, y: 0.0 },
-        previous_position: Vec2 { x: 0.0, y: 0.0 },
+        positions: [Vec2::ZERO; 2],
     })
 }
 
@@ -96,8 +94,7 @@ pub fn update_mouse_position(
         .cursor_position()
         .and_then(|cursor| camera.viewport_to_world_2d(camera_transform, cursor))
     {
-        mouse_position.previous_position = mouse_position.position;
-        mouse_position.position = world_position;
+        mouse_position.positions = [world_position, mouse_position.positions[0]];
     }
 }
 

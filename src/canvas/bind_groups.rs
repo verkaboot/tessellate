@@ -25,10 +25,9 @@ pub fn prepare(
     let view_a = gpu_images.get(&canvas_images.texture_a).unwrap();
     let view_b = gpu_images.get(&canvas_images.texture_b).unwrap();
 
-    let mouse_positions = [mouse_position.position, mouse_position.previous_position];
     let mouse_position_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[mouse_positions]),
+        contents: bytemuck::cast_slice(&[mouse_position.positions]),
         usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
     });
     let mouse_position_binding = BufferBinding {
