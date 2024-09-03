@@ -18,10 +18,12 @@ pub struct CanvasImages {
 }
 
 #[derive(Resource, Clone, Copy, ExtractResource)]
-pub struct MousePosition {
+pub struct MouseData {
     pub left_button_pressed: bool,
-    pub positions: [Vec2; 2],
+    pub pos: MousePositions,
 }
+
+pub type MousePositions = [Vec2; 4];
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     let mut image = Image::new_fill(
@@ -63,9 +65,9 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         texture_b: image1,
     });
 
-    commands.insert_resource(MousePosition {
+    commands.insert_resource(MouseData {
         left_button_pressed: false,
-        positions: [Vec2::ZERO; 2],
+        pos: [Vec2::ZERO; 4],
     })
 }
 
@@ -82,7 +84,7 @@ pub fn switch_textures(
 }
 
 pub fn update_mouse_position(
-    mut mouse_position: ResMut<MousePosition>,
+    mut m: ResMut<MouseData>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform)>,
 ) {
@@ -94,13 +96,13 @@ pub fn update_mouse_position(
         .cursor_position()
         .and_then(|cursor| camera.viewport_to_world_2d(camera_transform, cursor))
     {
-        mouse_position.positions = [world_position, mouse_position.positions[0]];
+        m.pos = [world_position, m.pos[0], m.pos[1], m.pos[2]];
     }
 }
 
 pub fn update_mouse_button_state(
     mouse_button_input: Res<ButtonInput<MouseButton>>,
-    mut mouse_position: ResMut<MousePosition>,
+    mut mouse_position: ResMut<MouseData>,
 ) {
     mouse_position.left_button_pressed = mouse_button_input.pressed(MouseButton::Left);
 }

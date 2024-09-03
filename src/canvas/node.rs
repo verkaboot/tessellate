@@ -1,5 +1,5 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, sprite::MousePosition,
+    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, sprite::MouseData,
     SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{
@@ -62,7 +62,7 @@ impl render_graph::Node for CanvasNode {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
-        let mouse = world.resource::<MousePosition>();
+        let mouse = world.resource::<MouseData>();
         if mouse.left_button_pressed {
             let bind_groups = &world.resource::<CanvasImageBindGroups>().bind_groups;
             let pipeline_cache = world.resource::<PipelineCache>();

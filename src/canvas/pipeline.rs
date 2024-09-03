@@ -1,4 +1,4 @@
-use super::SHADER_ASSET_PATH;
+use super::{sprite::MousePositions, SHADER_ASSET_PATH};
 use bevy::{
     prelude::*,
     render::{
@@ -25,7 +25,7 @@ impl FromWorld for CanvasPipeline {
                 (
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::ReadOnly),
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
-                    storage_buffer_read_only::<[Vec2; 2]>(false),
+                    storage_buffer_read_only::<MousePositions>(false),
                 ),
             ),
         );

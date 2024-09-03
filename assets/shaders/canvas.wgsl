@@ -1,6 +1,6 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(1) var output: texture_storage_2d<rgba8unorm, write>;
-@group(0) @binding(2) var<storage> mouse_positions: array<vec2<f32>, 2>;
+@group(0) @binding(2) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
 const brush_radius: f32 = 4.0;
 

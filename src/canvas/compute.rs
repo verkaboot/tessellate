@@ -2,7 +2,7 @@ use super::{
     bind_groups,
     node::CanvasNode,
     pipeline::CanvasPipeline,
-    sprite::{CanvasImages, MousePosition},
+    sprite::{CanvasImages, MouseData},
 };
 use bevy::{
     prelude::*,
@@ -24,7 +24,7 @@ impl Plugin for CanvasComputePlugin {
         // for operation on by the compute shader and display on the sprite.
         app.add_plugins((
             ExtractResourcePlugin::<CanvasImages>::default(),
-            ExtractResourcePlugin::<MousePosition>::default(),
+            ExtractResourcePlugin::<MouseData>::default(),
         ));
         let render_app = app.sub_app_mut(RenderApp);
         render_app.add_systems(

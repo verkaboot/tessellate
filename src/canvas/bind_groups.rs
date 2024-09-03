@@ -1,6 +1,6 @@
 use super::{
     pipeline::CanvasPipeline,
-    sprite::{CanvasImages, MousePosition},
+    sprite::{CanvasImages, MouseData},
 };
 use bevy::{
     prelude::*,
@@ -19,7 +19,7 @@ pub fn prepare(
     pipeline: Res<CanvasPipeline>,
     gpu_images: Res<RenderAssets<GpuImage>>,
     canvas_images: Res<CanvasImages>,
-    mouse_position: Res<MousePosition>,
+    mouse_position: Res<MouseData>,
     render_device: Res<RenderDevice>,
 ) {
     let view_a = gpu_images.get(&canvas_images.texture_a).unwrap();
@@ -27,7 +27,7 @@ pub fn prepare(
 
     let mouse_position_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[mouse_position.positions]),
+        contents: bytemuck::cast_slice(&[mouse_position.pos]),
         usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
     });
     let mouse_position_binding = BufferBinding {
