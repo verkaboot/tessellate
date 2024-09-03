@@ -1,7 +1,6 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read>;
 @group(0) @binding(1) var output: texture_storage_2d<rgba8unorm, write>;
-@group(0) @binding(2) var<uniform> mouse_position: vec2<f32>;
-@group(0) @binding(3) var<uniform> previous_mouse_position: vec2<f32>;
+@group(0) @binding(2) var<storage> mouse_positions: array<vec2<f32>, 2>;
 
 const brush_radius: f32 = 4.0;
 
@@ -12,17 +11,17 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     var blended_color = current_color;
 
     // Calculate the vector from the previous mouse position to the current mouse position
-    let line_vector = mouse_position - previous_mouse_position;
+    let line_vector = mouse_positions[0] - mouse_positions[1];
     let line_length = length(line_vector);
     let line_direction = line_vector / line_length;
 
     // Calculate the vector from the previous mouse position to the current texture location
-    let location_vector = vec2<f32>(f32(location.x), f32(location.y)) - previous_mouse_position;
+    let location_vector = vec2<f32>(f32(location.x), f32(location.y)) - mouse_positions[1];
 
     // Project the location vector onto the line direction to find the nearest point on the line segment
     let projection_length = dot(location_vector, line_direction);
     let clamped_projection_length = clamp(projection_length, 0.0, line_length);
-    let nearest_point = previous_mouse_position + line_direction * clamped_projection_length;
+    let nearest_point = mouse_positions[1] + line_direction * clamped_projection_length;
 
     // Calculate the distance from the current texture location to the nearest point on the line segment
     let distance = length(vec2<f32>(f32(location.x), f32(location.y)) - nearest_point);

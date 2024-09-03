@@ -25,25 +25,14 @@ pub fn prepare(
     let view_a = gpu_images.get(&canvas_images.texture_a).unwrap();
     let view_b = gpu_images.get(&canvas_images.texture_b).unwrap();
 
+    let mouse_positions = [mouse_position.position, mouse_position.previous_position];
     let mouse_position_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[mouse_position.position]),
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        contents: bytemuck::cast_slice(&[mouse_positions]),
+        usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
     });
     let mouse_position_binding = BufferBinding {
         buffer: &mouse_position_buffer,
-        offset: 0,
-        size: None,
-    };
-
-    let mouse_previous_position_buffer =
-        render_device.create_buffer_with_data(&BufferInitDescriptor {
-            label: None,
-            contents: bytemuck::cast_slice(&[mouse_position.previous_position]),
-            usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
-        });
-    let mouse_previous_position_binding = BufferBinding {
-        buffer: &mouse_previous_position_buffer,
         offset: 0,
         size: None,
     };
@@ -55,7 +44,6 @@ pub fn prepare(
             &view_a.texture_view,
             &view_b.texture_view,
             mouse_position_binding.clone(),
-            mouse_previous_position_binding.clone(),
         )),
     );
     let bind_group_1 = render_device.create_bind_group(
@@ -65,7 +53,6 @@ pub fn prepare(
             &view_b.texture_view,
             &view_a.texture_view,
             mouse_position_binding,
-            mouse_previous_position_binding,
         )),
     );
     commands.insert_resource(CanvasImageBindGroups {
