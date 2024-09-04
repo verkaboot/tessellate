@@ -6,12 +6,13 @@ use crate::canvas::SIZE;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
         .add_systems(Startup, setup)
-        .add_systems(Update, pan);
+        .add_systems(Update, (pan, zoom));
 }
 
 pub fn setup(mut commands: Commands) {
     let input_map = InputMap::default()
         .with(CameraMovement::ActivatePan, MouseButton::Right)
+        .with_axis(CameraMovement::Zoom, MouseScrollAxis::Y)
         .with_dual_axis(CameraMovement::Pan, MouseMove::default());
 
     commands.spawn((
@@ -33,6 +34,7 @@ pub fn setup(mut commands: Commands) {
 enum CameraMovement {
     ActivatePan,
     Pan,
+    Zoom,
 }
 
 impl Actionlike for CameraMovement {
@@ -40,6 +42,7 @@ impl Actionlike for CameraMovement {
         match self {
             CameraMovement::ActivatePan => InputControlKind::Button,
             CameraMovement::Pan => InputControlKind::DualAxis,
+            CameraMovement::Zoom => InputControlKind::Axis,
         }
     }
 }
@@ -55,4 +58,15 @@ fn pan(mut query: Query<(&mut Transform, &ActionState<CameraMovement>), With<Cam
         camera_transform.translation.x -= CAMERA_PAN_RATE * camera_pan_vector.x;
         camera_transform.translation.y += CAMERA_PAN_RATE * camera_pan_vector.y;
     }
+}
+
+fn zoom(
+    mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
+) {
+    const CAMERA_ZOOM_RATE: f32 = 0.05;
+
+    let (mut camera_projection, action_state) = query.single_mut();
+    let zoom_delta = action_state.value(&CameraMovement::Zoom);
+
+    camera_projection.scale *= 1. - zoom_delta * CAMERA_ZOOM_RATE;
 }
