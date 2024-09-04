@@ -1,4 +1,4 @@
-use bevy::{color::palettes::css::MINT_CREAM, prelude::*};
+use bevy::{input::mouse::MouseWheel, prelude::*};
 use leafwing_input_manager::prelude::*;
 
 use crate::canvas::SIZE;
@@ -7,7 +7,14 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
         .insert_resource(ClashStrategy::PrioritizeLongest)
         .add_systems(Startup, setup)
-        .add_systems(Update, (pan, zoom, zoom_scroll));
+        .add_systems(
+            Update,
+            (
+                pan.run_if(not(is_zooming)),
+                zoom,
+                zoom_scroll.run_if(on_event::<MouseWheel>()),
+            ),
+        );
 }
 
 pub fn setup(mut commands: Commands) {
@@ -78,14 +85,21 @@ fn pan(
     camera_transform.translation.y += camera_projection.scale * camera_pan_vector.y;
 }
 
+fn is_zooming(query: Query<&ActionState<CameraMovement>, With<Camera2d>>) -> bool {
+    let action_state = query.single();
+    action_state.pressed(&CameraMovement::ZoomModifier)
+}
+
 fn zoom(
     mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
 ) {
-    const CAMERA_ZOOM_RATE: f32 = 0.005;
+    const CAMERA_ZOOM_RATE: f32 = -0.005;
     let (mut camera_projection, action_state) = query.single_mut();
 
     if let Some(mouse_y) = action_state.axis_data(&CameraMovement::Zoom) {
-        camera_projection.scale *= 1.0 - (mouse_y.value * CAMERA_ZOOM_RATE);
+        camera_projection.scale = (camera_projection.scale
+            * (1.0 - (mouse_y.value * CAMERA_ZOOM_RATE)))
+            .clamp(MIN_ZOOM, MAX_ZOOM);
     }
 }
 
