@@ -11,7 +11,7 @@ use bevy::{
 
 #[derive(Resource)]
 pub struct CanvasImageBindGroups {
-    pub bind_groups: [BindGroup; 2],
+    pub bind_group: BindGroup,
 }
 
 pub fn prepare(
@@ -22,8 +22,7 @@ pub fn prepare(
     mouse_position: Res<MouseData>,
     render_device: Res<RenderDevice>,
 ) {
-    let view_a = gpu_images.get(&canvas_images.texture_a).unwrap();
-    let view_b = gpu_images.get(&canvas_images.texture_b).unwrap();
+    let view = gpu_images.get(&canvas_images.texture).unwrap();
 
     let mouse_position_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
@@ -39,22 +38,9 @@ pub fn prepare(
     let bind_group_0 = render_device.create_bind_group(
         None,
         &pipeline.texture_bind_group_layout,
-        &BindGroupEntries::sequential((
-            &view_a.texture_view,
-            &view_b.texture_view,
-            mouse_position_binding.clone(),
-        )),
-    );
-    let bind_group_1 = render_device.create_bind_group(
-        None,
-        &pipeline.texture_bind_group_layout,
-        &BindGroupEntries::sequential((
-            &view_b.texture_view,
-            &view_a.texture_view,
-            mouse_position_binding,
-        )),
+        &BindGroupEntries::sequential((&view.texture_view, mouse_position_binding.clone())),
     );
     commands.insert_resource(CanvasImageBindGroups {
-        bind_groups: [bind_group_0, bind_group_1],
+        bind_group: bind_group_0,
     });
 }

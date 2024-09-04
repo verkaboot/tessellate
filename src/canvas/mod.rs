@@ -17,7 +17,6 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(
             Update,
             (
-                sprite::switch_textures,
                 sprite::update_mouse_position,
                 sprite::update_mouse_button_state,
             ),

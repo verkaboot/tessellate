@@ -17,7 +17,7 @@ pub struct CanvasNode {
 
 enum CanvasState {
     Loading,
-    Update(usize),
+    Update,
 }
 
 impl Default for CanvasNode {
@@ -38,7 +38,7 @@ impl render_graph::Node for CanvasNode {
             CanvasState::Loading => {
                 match pipeline_cache.get_compute_pipeline_state(pipeline.update_pipeline) {
                     CachedPipelineState::Ok(_) => {
-                        self.state = CanvasState::Update(1);
+                        self.state = CanvasState::Update;
                     }
                     CachedPipelineState::Err(err) => {
                         panic!("Initializing assets/{SHADER_ASSET_PATH}:\n{err}")
@@ -46,13 +46,7 @@ impl render_graph::Node for CanvasNode {
                     _ => {}
                 }
             }
-            CanvasState::Update(0) => {
-                self.state = CanvasState::Update(1);
-            }
-            CanvasState::Update(1) => {
-                self.state = CanvasState::Update(0);
-            }
-            CanvasState::Update(_) => unreachable!(),
+            CanvasState::Update => (),
         }
     }
 
@@ -64,7 +58,7 @@ impl render_graph::Node for CanvasNode {
     ) -> Result<(), render_graph::NodeRunError> {
         let mouse = world.resource::<MouseData>();
         if mouse.left_button_pressed {
-            let bind_groups = &world.resource::<CanvasImageBindGroups>().bind_groups;
+            let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
             let pipeline_cache = world.resource::<PipelineCache>();
             let pipeline = world.resource::<CanvasPipeline>();
 
@@ -74,11 +68,11 @@ impl render_graph::Node for CanvasNode {
 
             match self.state {
                 CanvasState::Loading => {}
-                CanvasState::Update(index) => {
+                CanvasState::Update => {
                     let update_pipeline = pipeline_cache
                         .get_compute_pipeline(pipeline.update_pipeline)
                         .unwrap();
-                    pass.set_bind_group(0, &bind_groups[index], &[]);
+                    pass.set_bind_group(0, &bind_group, &[]);
                     pass.set_pipeline(update_pipeline);
                     pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
                 }
