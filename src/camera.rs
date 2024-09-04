@@ -95,18 +95,22 @@ const MAX_ZOOM: f32 = 8.0;
 fn zoom_scroll(
     mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
 ) {
-    let (mut proj, action_state) = query.single_mut();
-    if let Some(data) = action_state.axis_data(&CameraMovement::ZoomWheel) {
-        let new_scale = match proj.scale {
-            x if x < 1.0 => snap_zoom_level(x, 16.0, data.value),
-            x if x >= 1.0 && x < 4.0 => snap_zoom_level(x, 8.0, data.value),
-            x => snap_zoom_level(x, 4.0, data.value),
-        };
-
-        proj.scale = new_scale.clamp(MIN_ZOOM, MAX_ZOOM);
+    let (mut camera_projection, action_state) = query.single_mut();
+    if let Some(mouse_wheel_data) = action_state.axis_data(&CameraMovement::ZoomWheel) {
+        camera_projection.scale = calculate_zoom(camera_projection.scale, mouse_wheel_data.value)
+            .clamp(MIN_ZOOM, MAX_ZOOM);
     }
 }
 
-fn snap_zoom_level(scale: f32, increment: f32, steps: f32) -> f32 {
-    ((scale + (-steps / increment)) * increment).round() / increment
+fn calculate_zoom(camera_projection_scale: f32, scroll_amount: f32) -> f32 {
+    let new_scale = match camera_projection_scale {
+        x if x < 1.0 => snap_zoom_level(x, 16.0, scroll_amount),
+        x if x >= 1.0 && x < 4.0 => snap_zoom_level(x, 8.0, scroll_amount),
+        x => snap_zoom_level(x, 4.0, scroll_amount),
+    };
+    new_scale
+}
+
+fn snap_zoom_level(scale: f32, snap_increments: f32, scroll_amount: f32) -> f32 {
+    ((scale + (-scroll_amount / snap_increments)) * snap_increments).round() / snap_increments
 }
