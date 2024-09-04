@@ -23,3 +23,9 @@ I am still really interested in being able to advance on Asesprite's drawing acr
 ## GPU for Drawing
 Look into using compute shaders for drawing to the texture.
 https://github.com/bevyengine/bevy/blob/release-0.14.1/examples/shader/compute_shader_game_of_life.rs
+
+We have a fast drawing shader! Some thoughts on next steps:
+- Add some camera controls - pan, zoom
+- Add sprite movement controls to change the transform
+- Figure out drawing on multiple sprites, and multiple instances of the same sprite
+- Add different brush modes, sizes, and color picking

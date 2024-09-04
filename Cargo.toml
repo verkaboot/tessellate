@@ -20,6 +20,7 @@ tracing = { version = "0.1", features = [
 bevy_framepace = "0.17.1"
 bevy-inspector-egui = "0.25.2"
 bytemuck = "1.17.1"
+leafwing-input-manager = "0.15.0"
 
 [features]
 default = [
