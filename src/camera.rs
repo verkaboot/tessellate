@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::css::MINT_CREAM, prelude::*};
 use leafwing_input_manager::prelude::*;
 
 use crate::canvas::SIZE;
@@ -89,13 +89,24 @@ fn zoom(
     }
 }
 
+const MIN_ZOOM: f32 = 1. / 16.;
+const MAX_ZOOM: f32 = 8.0;
+
 fn zoom_scroll(
     mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
 ) {
-    const CAMERA_ZOOM_RATE: f32 = 0.05;
+    let (mut proj, action_state) = query.single_mut();
+    if let Some(data) = action_state.axis_data(&CameraMovement::ZoomWheel) {
+        let new_scale = match proj.scale {
+            x if x < 1.0 => snap_zoom_level(x, 16.0, data.value),
+            x if x >= 1.0 && x < 4.0 => snap_zoom_level(x, 8.0, data.value),
+            x => snap_zoom_level(x, 4.0, data.value),
+        };
 
-    let (mut camera_projection, action_state) = query.single_mut();
-    let zoom_delta = action_state.value(&CameraMovement::ZoomWheel);
+        proj.scale = new_scale.clamp(MIN_ZOOM, MAX_ZOOM);
+    }
+}
 
-    camera_projection.scale *= 1. - zoom_delta * CAMERA_ZOOM_RATE;
+fn snap_zoom_level(scale: f32, increment: f32, steps: f32) -> f32 {
+    ((scale + (-steps / increment)) * increment).round() / increment
 }
