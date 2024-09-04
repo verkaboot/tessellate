@@ -62,14 +62,20 @@ impl Actionlike for CameraMovement {
     }
 }
 
-fn pan(mut query: Query<(&mut Transform, &ActionState<CameraMovement>), With<Camera2d>>) {
-    const CAMERA_PAN_RATE: f32 = 1.0; // TODO: factor in screen ui scale and camera zoom
-
-    let (mut camera_transform, action_state) = query.single_mut();
-
+fn pan(
+    mut query: Query<
+        (
+            &mut Transform,
+            &OrthographicProjection,
+            &ActionState<CameraMovement>,
+        ),
+        With<Camera2d>,
+    >,
+) {
+    let (mut camera_transform, camera_projection, action_state) = query.single_mut();
     let camera_pan_vector = action_state.axis_pair(&CameraMovement::Pan);
-    camera_transform.translation.x -= CAMERA_PAN_RATE * camera_pan_vector.x;
-    camera_transform.translation.y += CAMERA_PAN_RATE * camera_pan_vector.y;
+    camera_transform.translation.x -= camera_projection.scale * camera_pan_vector.x;
+    camera_transform.translation.y += camera_projection.scale * camera_pan_vector.y;
 }
 
 fn zoom(

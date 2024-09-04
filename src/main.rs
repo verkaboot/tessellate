@@ -2,7 +2,7 @@ mod camera;
 mod canvas;
 mod color;
 
-use bevy::{prelude::*, winit::WinitSettings};
+use bevy::{prelude::*, window::WindowResolution, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
@@ -14,7 +14,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Animaboot".into(),
-                        resolution: (1280., 720.).into(),
+                        resolution: WindowResolution::new(1920., 1080.)
+                            .with_scale_factor_override(1.0),
                         present_mode: bevy::window::PresentMode::AutoNoVsync,
                         ..default()
                     }),
