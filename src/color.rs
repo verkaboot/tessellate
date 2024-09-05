@@ -1,3 +1,3 @@
 use bevy::prelude::*;
 
-pub const BACKGROUND: Color = Color::srgb(0.21, 0.2, 0.19);
+pub const BACKGROUND: Color = Color::srgb(0.51, 0.5, 0.59);
