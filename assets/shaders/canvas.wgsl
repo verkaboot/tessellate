@@ -25,7 +25,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     // Calculate the distance from the current texture location to the nearest point on the line segment
     let distance = length(vec2<f32>(f32(location.x), f32(location.y)) - nearest_point);
 
-    let alpha = clamp((brush_radius - distance) / brush_radius, 0.0, 1.0);
+    let alpha = (brush_radius - distance) / brush_radius;
 
     // Apply the brush color based on the alpha value
     if alpha > 0.0 {
