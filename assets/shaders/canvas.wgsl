@@ -11,7 +11,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 
     // Calculate the vector from the previous mouse position to the current mouse position
     let line_vector = mouse_positions[0] - mouse_positions[1];
-    let line_length = length(line_vector);
+    let line_length = max(length(line_vector), 0.0001);
     let line_direction = line_vector / line_length;
 
     // Calculate the vector from the previous mouse position to the current texture location
