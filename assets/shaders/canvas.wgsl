@@ -1,7 +1,7 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
-const brush_radius: f32 = 8.0;
+const brush_radius: f32 = 3.0;
 
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -12,11 +12,10 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     // Apply the brush color based on the alpha value
     if alpha >= 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(0.1, 0.4, 0.8, 1.0);
-        fg = vec4<f32>(fg.rgb * alpha, alpha);
+        var fg = vec4<f32>(0.4, 0.5, 0.8, alpha);
         let blend = vec4<f32>(
-            fg.rgb + bg.rgb * (1.0 - fg.a),
-            fg.a + bg.a * (1.0 - fg.a)
+            mix(bg.rgb, fg.rgb, (1 - bg.a)) * (1 - fg.a) + fg.rgb * fg.a,
+            clamp(bg.a + fg.a, 0.0, 1.0)
         );
         textureStore(input, location, blend);
     }
