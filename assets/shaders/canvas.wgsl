@@ -12,9 +12,15 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     // Apply the brush color based on the alpha value
     if alpha >= 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(0.4, 0.5, 0.8, alpha);
+        var fg = vec4<f32>(0.7, 0.5, 0.8, alpha);
         let blend = vec4<f32>(
-            mix(bg.rgb, fg.rgb, (1 - bg.a)) * (1 - fg.a) + fg.rgb * fg.a,
+            // Interpolate between bg color and fg color based on bg alpha.
+            // This prevents invisible color data from leaking through,
+            // like if the bg is (1.0, 0.0, 0.0, 0.0), drawing over it
+            // would produce red edges in the alpha blend.
+            mix(fg.rgb, bg.rgb, bg.a)
+            * (1 - fg.a)
+            + fg.rgb * fg.a,
             clamp(bg.a + fg.a, 0.0, 1.0)
         );
         textureStore(input, location, blend);
