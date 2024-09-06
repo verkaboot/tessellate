@@ -7,6 +7,26 @@ const brush_radius: f32 = 8.0;
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
 
+    let alpha = brush_alpha(location, mouse_positions);
+
+    // Apply the brush color based on the alpha value
+    if alpha >= 0.0 {
+        let bg: vec4<f32> = textureLoad(input, location);
+        var fg = vec4<f32>(0.1, 0.4, 0.8, 1.0);
+        fg = vec4<f32>(fg.rgb * alpha, alpha);
+        let blend = vec4<f32>(
+            fg.rgb + bg.rgb * (1.0 - fg.a),
+            fg.a + bg.a * (1.0 - fg.a)
+        );
+        textureStore(input, location, blend);
+    }
+}
+
+fn brush_alpha(
+    location: vec2<i32>,
+    mouse_positions: array<vec2<f32>, 4>
+) -> f32 {
+    
     // Calculate the vector from the previous mouse position to the current mouse position
     let line_vector = mouse_positions[0] - mouse_positions[1];
 
@@ -25,17 +45,5 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     // Calculate the distance from the current texture location to the nearest point on the line segment
     let distance = length(vec2<f32>(f32(location.x), f32(location.y)) - nearest_point);
 
-    let alpha = (brush_radius - distance) / brush_radius;
-
-    // Apply the brush color based on the alpha value
-    if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(0.1, 0.4, 0.8, 1.0);
-        fg = vec4<f32>(fg.rgb * alpha, alpha);
-        let blend = vec4<f32>(
-            fg.rgb + bg.rgb * (1.0 - fg.a),
-            fg.a + bg.a * (1.0 - fg.a)
-        );
-        textureStore(input, location, blend);
-    }
+    return (brush_radius - distance) / brush_radius;
 }
