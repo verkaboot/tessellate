@@ -1,7 +1,7 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
-const brush_radius: f32 = 50.0;
+const brush_radius: f32 = 5.0;
 
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -9,10 +9,9 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 
     let alpha = brush_alpha(location, mouse_positions);
 
-    // Apply the brush color based on the alpha value
     if alpha >= 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(0.3, 0.0, 0.8, alpha);
+        var fg = vec4<f32>(0.9, 0.9, 0.0, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, blend);
     }
@@ -33,28 +32,30 @@ fn blend_erase(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
     );
 }
 
+fn catmull_rom(p0: vec2<f32>, p1: vec2<f32>, p2: vec2<f32>, p3: vec2<f32>, t: f32) -> vec2<f32> {
+    let t2 = t * t;
+    let t3 = t2 * t;
+    return 0.5 * (
+        (2.0 * p1) +
+        (-p0 + p2) * t +
+        (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 +
+        (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t3
+    );
+}
+
 fn brush_alpha(
     location: vec2<i32>,
     mouse_positions: array<vec2<f32>, 4>
 ) -> f32 {
-    
-    // Calculate the vector from the previous mouse position to the current mouse position
-    let line_vector = mouse_positions[0] - mouse_positions[1];
+    let loc = vec2<f32>(f32(location.x), f32(location.y));
+    var min_distance = f32(brush_radius);
 
-    // Get line length with a minimum value to make sure draw happens even on zero length.
-    let line_length = max(length(line_vector), 0.0001);
-    let line_direction = line_vector / line_length;
+    for (var i = 0u; i < 100u; i = i + 1u) {
+        let t = f32(i) / 100.0;
+        let spline_point = catmull_rom(mouse_positions[0], mouse_positions[1], mouse_positions[2], mouse_positions[3], t);
+        let distance = length(loc - spline_point);
+        min_distance = min(min_distance, distance);
+    }
 
-    // Calculate the vector from the previous mouse position to the current texture location
-    let location_vector = vec2<f32>(f32(location.x), f32(location.y)) - mouse_positions[1];
-
-    // Project the location vector onto the line direction to find the nearest point on the line segment
-    let projection_length = dot(location_vector, line_direction);
-    let clamped_projection_length = clamp(projection_length, 0.0, line_length);
-    let nearest_point = mouse_positions[1] + line_direction * clamped_projection_length;
-
-    // Calculate the distance from the current texture location to the nearest point on the line segment
-    let distance = length(vec2<f32>(f32(location.x), f32(location.y)) - nearest_point);
-
-    return (brush_radius - (distance)) / brush_radius;
+    return (brush_radius - min_distance) / brush_radius;
 }
