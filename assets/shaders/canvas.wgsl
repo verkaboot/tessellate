@@ -1,7 +1,8 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
-const brush_radius: f32 = 10.0;
+const brush_radius: f32 = 12.0;
+const brush_color: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -11,7 +12,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 
     if alpha >= 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(1.0, 0.2, 0.5, alpha);
+        var fg = vec4<f32>(brush_color, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, blend);
     }
@@ -58,6 +59,6 @@ fn brush_alpha(
         min_distance = min(min_distance, distance);
     }
 
-    let alpha = (brush_radius - min_distance) / brush_radius;
+    let alpha = (brush_radius - min_distance);
     return smoothstep(0.0, 1.0, alpha);
 }

@@ -7,7 +7,7 @@ mod sprite;
 use bevy::prelude::*;
 use compute::CanvasComputePlugin;
 
-pub const SIZE: (u32, u32) = (1280, 720);
+pub const SIZE: (u32, u32) = (1920 * 3, 1920 * 3);
 const SHADER_ASSET_PATH: &str = "shaders/canvas.wgsl";
 const WORKGROUP_SIZE: u32 = 8;
 
