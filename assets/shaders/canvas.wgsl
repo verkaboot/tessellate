@@ -1,7 +1,7 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
-const brush_radius: f32 = 12.0;
+const brush_radius: f32 = 15.0;
 const brush_color: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
 
 @compute @workgroup_size(8, 8, 1)
@@ -10,7 +10,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 
     let alpha = brush_alpha(location, mouse_positions);
 
-    if alpha >= 0.0 {
+    if alpha > 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
         var fg = vec4<f32>(brush_color, alpha);
         let blend = blend_normal(bg, fg);
@@ -49,8 +49,17 @@ fn brush_alpha(
     mouse_positions: array<vec2<f32>, 4>
 ) -> f32 {
     let loc = vec2<f32>(f32(location.x), f32(location.y));
-    var min_distance = f32(brush_radius);
 
+    let buffer = brush_radius + 5.0;
+    let left = min(mouse_positions[1].x, mouse_positions[2].x) - buffer;
+    let right = max(mouse_positions[1].x, mouse_positions[2].x) + buffer;
+    let top = min(mouse_positions[1].y, mouse_positions[2].y) - buffer;
+    let bottom = max(mouse_positions[1].y, mouse_positions[2].y) + buffer;
+    if loc.x < left || loc.x > right || loc.y < top || loc.y > bottom {
+        return 0.0;
+    }
+
+    var min_distance = f32(brush_radius);
     let count = 100u;
     for (var i = 0u; i < count; i = i + 1u) {
         let t = f32(i) / f32(count);
