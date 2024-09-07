@@ -1,7 +1,7 @@
 @group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
 
-const brush_radius: f32 = 5.0;
+const brush_radius: f32 = 10.0;
 
 @compute @workgroup_size(8, 8, 1)
 fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -11,7 +11,7 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 
     if alpha >= 0.0 {
         let bg: vec4<f32> = textureLoad(input, location);
-        var fg = vec4<f32>(0.9, 0.9, 0.0, alpha);
+        var fg = vec4<f32>(1.0, 0.2, 0.5, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, blend);
     }
@@ -50,12 +50,14 @@ fn brush_alpha(
     let loc = vec2<f32>(f32(location.x), f32(location.y));
     var min_distance = f32(brush_radius);
 
-    for (var i = 0u; i < 100u; i = i + 1u) {
-        let t = f32(i) / 100.0;
+    let count = 100u;
+    for (var i = 0u; i < count; i = i + 1u) {
+        let t = f32(i) / f32(count);
         let spline_point = catmull_rom(mouse_positions[0], mouse_positions[1], mouse_positions[2], mouse_positions[3], t);
         let distance = length(loc - spline_point);
         min_distance = min(min_distance, distance);
     }
 
-    return (brush_radius - min_distance) / brush_radius;
+    let alpha = (brush_radius - min_distance) / brush_radius;
+    return smoothstep(0.0, 1.0, alpha);
 }
