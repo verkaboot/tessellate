@@ -1,3 +1,4 @@
+mod background;
 mod camera;
 mod canvas;
 mod color;
@@ -24,7 +25,6 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
-        .insert_resource(ClearColor(color::BACKGROUND))
         .insert_resource(WinitSettings::desktop_app())
         // 3rd Party Plugins
         .add_plugins(bevy_framepace::FramepacePlugin)
@@ -33,6 +33,6 @@ fn main() {
         })
         .add_plugins(WorldInspectorPlugin::new())
         // App Plugins
-        .add_plugins((camera::plugin, canvas::plugin))
+        .add_plugins((camera::plugin, canvas::plugin, background::plugin))
         .run();
 }
