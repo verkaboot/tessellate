@@ -1,7 +1,7 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use leafwing_input_manager::prelude::*;
 
-use crate::canvas::SIZE;
+use crate::canvas::{sprite::MouseData, SIZE};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
@@ -22,10 +22,7 @@ pub fn setup(mut commands: Commands) {
 
     let input_map = InputMap::default()
         .with(ZoomModifier, ModifierKey::Alt)
-        .with_dual_axis(
-            Pan,
-            DualAxislikeChord::new(MouseButton::Right, MouseMove::default()),
-        )
+        .with(Pan, MouseButton::Right)
         .with_axis(
             Zoom,
             AxislikeChord::new(
@@ -61,7 +58,7 @@ enum CameraMovement {
 impl Actionlike for CameraMovement {
     fn input_control_kind(&self) -> InputControlKind {
         match self {
-            CameraMovement::Pan => InputControlKind::DualAxis,
+            CameraMovement::Pan => InputControlKind::Button,
             CameraMovement::Zoom => InputControlKind::Axis,
             CameraMovement::ZoomModifier => InputControlKind::Button,
             CameraMovement::ZoomWheel => InputControlKind::Axis,
@@ -78,11 +75,14 @@ fn pan(
         ),
         With<Camera2d>,
     >,
+    mouse_data: Res<MouseData>,
 ) {
     let (mut camera_transform, camera_projection, action_state) = query.single_mut();
-    let camera_pan_vector = action_state.axis_pair(&CameraMovement::Pan);
-    camera_transform.translation.x -= camera_projection.scale * camera_pan_vector.x;
-    camera_transform.translation.y += camera_projection.scale * camera_pan_vector.y;
+    if action_state.pressed(&CameraMovement::Pan) {
+        let delta = mouse_data.screen_delta();
+        camera_transform.translation.x -= camera_projection.scale * delta.x;
+        camera_transform.translation.y -= camera_projection.scale * -delta.y;
+    }
 }
 
 fn is_zooming(query: Query<&ActionState<CameraMovement>, With<Camera2d>>) -> bool {

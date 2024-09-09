@@ -9,35 +9,36 @@ bevy = { version = "0.14" }
 rand = "0.8"
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
-    "max_level_debug",
-    "release_max_level_warn",
+  "max_level_debug",
+  "release_max_level_warn",
 ] }
 # Compile low-severity logs out of web builds for performance.
 tracing = { version = "0.1", features = [
-    "max_level_debug",
-    "release_max_level_warn",
+  "max_level_debug",
+  "release_max_level_warn",
 ] }
 bevy_framepace = "0.17.1"
 bevy-inspector-egui = "0.25.2"
 bytemuck = "1.17.1"
 leafwing-input-manager = "0.15.0"
+derive_more = { version = "1.0", features = ["from"] }
 
 [features]
 default = [
-    # Default to a native dev build.
-    "dev_native",
+  # Default to a native dev build.
+  "dev_native",
 ]
 dev = [
-    # Improve compile times for dev builds by linking Bevy as a dynamic library.
-    "bevy/dynamic_linking",
-    "bevy/bevy_dev_tools",
+  # Improve compile times for dev builds by linking Bevy as a dynamic library.
+  "bevy/dynamic_linking",
+  "bevy/bevy_dev_tools",
 ]
 dev_native = [
-    "dev",
-    # Enable asset hot reloading for native dev builds.
-    "bevy/file_watcher",
-    # Enable embedded asset hot reloading for native dev builds.
-    "bevy/embedded_watcher",
+  "dev",
+  # Enable asset hot reloading for native dev builds.
+  "bevy/file_watcher",
+  # Enable embedded asset hot reloading for native dev builds.
+  "bevy/embedded_watcher",
 ]
 
 

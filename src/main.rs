@@ -1,6 +1,7 @@
 mod camera;
 mod canvas;
 mod color;
+mod error;
 
 use bevy::{prelude::*, window::WindowResolution, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};

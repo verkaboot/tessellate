@@ -2,9 +2,9 @@ mod bind_groups;
 mod compute;
 mod node;
 mod pipeline;
-mod sprite;
+pub mod sprite;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::warn};
 use compute::CanvasComputePlugin;
 
 pub const SIZE: (u32, u32) = (1920 * 3, 1920 * 3);
@@ -17,7 +17,7 @@ pub(super) fn plugin(app: &mut App) {
         .add_systems(
             Update,
             (
-                sprite::update_mouse_position,
+                sprite::update_mouse_position.map(warn),
                 sprite::update_mouse_button_state,
             ),
         );

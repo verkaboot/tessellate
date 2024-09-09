@@ -26,7 +26,7 @@ pub fn prepare(
 
     let mouse_position_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[mouse_position.pos]),
+        contents: bytemuck::cast_slice(&[mouse_position.world_pos]),
         usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
     });
     let mouse_position_binding = BufferBinding {
