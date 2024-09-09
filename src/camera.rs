@@ -23,12 +23,9 @@ pub fn setup(mut commands: Commands) {
     let input_map = InputMap::default()
         .with(ZoomModifier, ModifierKey::Alt)
         .with(Pan, MouseButton::Right)
-        .with_axis(
+        .with(
             Zoom,
-            AxislikeChord::new(
-                ButtonlikeChord::from_single(MouseButton::Right).with(ModifierKey::Alt),
-                MouseMoveAxis::Y,
-            ),
+            ButtonlikeChord::from_single(MouseButton::Right).with(ModifierKey::Alt),
         )
         .with_axis(ZoomWheel, MouseScrollAxis::Y);
 
@@ -59,7 +56,7 @@ impl Actionlike for CameraMovement {
     fn input_control_kind(&self) -> InputControlKind {
         match self {
             CameraMovement::Pan => InputControlKind::Button,
-            CameraMovement::Zoom => InputControlKind::Axis,
+            CameraMovement::Zoom => InputControlKind::Button,
             CameraMovement::ZoomModifier => InputControlKind::Button,
             CameraMovement::ZoomWheel => InputControlKind::Axis,
         }
@@ -92,13 +89,13 @@ fn is_zooming(query: Query<&ActionState<CameraMovement>, With<Camera2d>>) -> boo
 
 fn zoom(
     mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
+    mouse_data: Res<MouseData>,
 ) {
     const CAMERA_ZOOM_RATE: f32 = -0.005;
     let (mut camera_projection, action_state) = query.single_mut();
-
-    if let Some(mouse_y) = action_state.axis_data(&CameraMovement::Zoom) {
-        camera_projection.scale = (camera_projection.scale
-            * (1.0 - (mouse_y.value * CAMERA_ZOOM_RATE)))
+    if action_state.pressed(&CameraMovement::Zoom) {
+        let delta_y = mouse_data.screen_delta().y;
+        camera_projection.scale = (camera_projection.scale * (1.0 - (delta_y * CAMERA_ZOOM_RATE)))
             .clamp(MIN_ZOOM, MAX_ZOOM);
     }
 }
