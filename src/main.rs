@@ -16,8 +16,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Animaboot".into(),
-                        resolution: WindowResolution::new(1920., 1080.),
-                        // .with_scale_factor_override(1.0),
+                        resolution: WindowResolution::new(1920., 1080.)
+                            .with_scale_factor_override(1.0),
                         present_mode: bevy::window::PresentMode::AutoNoVsync,
                         ..default()
                     }),

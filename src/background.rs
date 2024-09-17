@@ -31,20 +31,7 @@ fn checkered_background(
     let window = windows.get_single()?;
     let size: UVec2 = window.physical_size();
 
-    let image = Image::new(
-        Extent3d {
-            width: 2,
-            height: 2,
-            depth_or_array_layers: 1,
-        },
-        TextureDimension::D2,
-        vec![
-            125, 125, 125, 255, 100, 100, 100, 255, 100, 100, 100, 255, 125, 125, 125, 255,
-        ],
-        TextureFormat::Rgba8Unorm,
-        RenderAssetUsages::RENDER_WORLD,
-    );
-
+    let image = generate_background_image();
     let image_handle = images.add(image);
 
     commands.spawn((
@@ -57,20 +44,38 @@ fn checkered_background(
                 }),
                 ..default()
             },
-            texture: image_handle,
-            transform: Transform::from_scale(Vec3::new(15.0, 15.0, 1.0)),
+            texture: image_handle.clone(),
             ..default()
         },
         ImageScaleMode::Tiled {
             tile_x: true,
             tile_y: true,
-            stretch_value: 4.0, // The image will tile every 128px
+            stretch_value: 128.0,
         },
         RenderLayers::from_layers(&[1]),
         BackgroundImage,
     ));
 
     Ok(())
+}
+
+fn generate_background_image() -> Image {
+    Image::new(
+        Extent3d {
+            width: 2,
+            height: 2,
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        vec![
+            125, 125, 125, 255, //
+            100, 100, 100, 255, //
+            100, 100, 100, 255, //
+            125, 125, 125, 255,
+        ],
+        TextureFormat::Rgba8Unorm,
+        RenderAssetUsages::RENDER_WORLD,
+    )
 }
 
 #[derive(Component)]
@@ -95,13 +100,18 @@ fn background_camera(mut commands: Commands) {
 fn on_window_resize(
     mut window_resize_evr: EventReader<WindowResized>,
     windows: Query<&Window>,
-    mut background_q: Query<&mut Sprite, With<BackgroundImage>>,
+    mut background_q: Query<(Entity, &mut Sprite), With<BackgroundImage>>,
+    mut images: ResMut<Assets<Image>>,
+    mut commands: Commands,
 ) -> Result<()> {
     for e in window_resize_evr.read() {
+        let image = generate_background_image();
+        let image_handle = images.add(image);
         let window = windows.get(e.window)?;
         let size: UVec2 = window.physical_size();
-        let mut background_sprite = background_q.get_single_mut()?;
-        background_sprite.custom_size = Some(Vec2::new(size.x as f32, size.y as f32));
+        let (entity, mut sprite) = background_q.get_single_mut()?;
+        sprite.custom_size = Some(Vec2::new(size.x as f32, size.y as f32));
+        commands.entity(entity).insert(image_handle);
     }
 
     Ok(())
