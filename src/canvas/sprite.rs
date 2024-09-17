@@ -95,7 +95,7 @@ pub fn update_mouse_position(
     let world_pos = camera
         .viewport_to_world_2d(camera_transform, screen_pos)
         .ok_or(Error::Custom(
-            "Unable do get world position of cursor".to_owned(),
+            "Unable to get world position of cursor".to_owned(),
         ))?;
     m.world_pos = [world_pos, m.world_pos[0], m.world_pos[1], m.world_pos[2]];
     m.screen_pos = [
