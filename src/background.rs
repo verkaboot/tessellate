@@ -3,15 +3,19 @@ use bevy::{
     render::{
         render_asset::RenderAssetUsages,
         render_resource::{Extent3d, TextureDimension, TextureFormat},
+        view::RenderLayers,
     },
     utils,
 };
 
-use crate::{color, error::Result};
+use crate::error::Result;
 
 pub(super) fn plugin(app: &mut App) {
-    app.insert_resource(ClearColor(color::BACKGROUND))
-        .add_systems(Startup, checkered_background.map(utils::warn))
+    app.insert_resource(ClearColor(Color::NONE))
+        .add_systems(
+            Startup,
+            (checkered_background.map(utils::warn), (background_camera)),
+        )
         .add_systems(Update, on_window_resize.map(utils::warn));
 }
 
@@ -26,14 +30,16 @@ fn checkered_background(
     let window = windows.get_single()?;
     let size: UVec2 = window.physical_size();
 
-    let image = Image::new_fill(
+    let image = Image::new(
         Extent3d {
-            width: 100,
-            height: 100,
+            width: 2,
+            height: 2,
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
-        &[25, 89, 135, 255],
+        vec![
+            25, 25, 26, 255, 100, 100, 100, 255, 100, 100, 100, 255, 25, 25, 26, 255,
+        ],
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     );
@@ -52,10 +58,30 @@ fn checkered_background(
             tile_y: true,
             stretch_value: 0.5, // The image will tile every 128px
         },
+        RenderLayers::from_layers(&[1]),
         BackgroundImage,
     ));
 
     Ok(())
+}
+
+#[derive(Component)]
+pub struct BackgroundCamera;
+
+fn background_camera(mut commands: Commands) {
+    commands.spawn((
+        Name::new("BackgroundCamera"),
+        Camera2dBundle {
+            camera: Camera {
+                order: -1,
+                clear_color: ClearColorConfig::Custom(Color::srgb(1.0, 0.3, 0.2)),
+                ..default()
+            },
+            ..default()
+        },
+        RenderLayers::from_layers(&[1]),
+        BackgroundCamera,
+    ));
 }
 
 fn on_window_resize(

@@ -83,7 +83,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 pub fn update_mouse_position(
     mut m: ResMut<MouseData>,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    q_camera: Query<(&Camera, &GlobalTransform)>,
+    q_camera: Query<(&Camera, &GlobalTransform), With<IsDefaultUiCamera>>,
 ) -> Result<()> {
     let (camera, camera_transform) = q_camera.single();
 
