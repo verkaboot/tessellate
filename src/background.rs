@@ -59,6 +59,9 @@ fn checkered_background(
     Ok(())
 }
 
+const LIGHT: [u8; 4] = [125, 125, 125, 255];
+const DARK: [u8; 4] = [110, 110, 110, 255];
+
 fn generate_background_image() -> Image {
     Image::new(
         Extent3d {
@@ -67,12 +70,7 @@ fn generate_background_image() -> Image {
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
-        vec![
-            125, 125, 125, 255, //
-            100, 100, 100, 255, //
-            100, 100, 100, 255, //
-            125, 125, 125, 255,
-        ],
+        [LIGHT, DARK, DARK, LIGHT].as_flattened().to_vec(),
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     )
