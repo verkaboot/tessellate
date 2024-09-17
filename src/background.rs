@@ -6,6 +6,7 @@ use bevy::{
         view::RenderLayers,
     },
     utils,
+    window::WindowResized,
 };
 
 use crate::error::Result;
@@ -38,7 +39,7 @@ fn checkered_background(
         },
         TextureDimension::D2,
         vec![
-            25, 25, 26, 255, 100, 100, 100, 255, 100, 100, 100, 255, 25, 25, 26, 255,
+            125, 125, 125, 255, 100, 100, 100, 255, 100, 100, 100, 255, 125, 125, 125, 255,
         ],
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
@@ -49,14 +50,21 @@ fn checkered_background(
     commands.spawn((
         Name::new("BackgroundImage"),
         SpriteBundle {
+            sprite: Sprite {
+                custom_size: Some(Vec2 {
+                    x: size.x as f32,
+                    y: size.y as f32,
+                }),
+                ..default()
+            },
             texture: image_handle,
-            transform: Transform::from_scale(Vec3::new(size.x as f32, size.y as f32, f32::MIN)),
+            transform: Transform::from_scale(Vec3::new(15.0, 15.0, 1.0)),
             ..default()
         },
         ImageScaleMode::Tiled {
             tile_x: true,
             tile_y: true,
-            stretch_value: 0.5, // The image will tile every 128px
+            stretch_value: 4.0, // The image will tile every 128px
         },
         RenderLayers::from_layers(&[1]),
         BackgroundImage,
@@ -74,7 +82,7 @@ fn background_camera(mut commands: Commands) {
         Camera2dBundle {
             camera: Camera {
                 order: -1,
-                clear_color: ClearColorConfig::Custom(Color::srgb(1.0, 0.3, 0.2)),
+                clear_color: ClearColorConfig::Custom(Color::srgb(0.9, 0.9, 0.9)),
                 ..default()
             },
             ..default()
@@ -85,14 +93,16 @@ fn background_camera(mut commands: Commands) {
 }
 
 fn on_window_resize(
+    mut window_resize_evr: EventReader<WindowResized>,
     windows: Query<&Window>,
-    mut background_q: Query<&mut Transform, With<BackgroundImage>>,
+    mut background_q: Query<&mut Sprite, With<BackgroundImage>>,
 ) -> Result<()> {
-    let window = windows.get_single()?;
-    let size: UVec2 = window.physical_size();
-    let mut background_transform = background_q.get_single_mut()?;
-    *background_transform = Transform::from_scale(Vec3::new(size.x as f32, size.y as f32, 1.0))
-        .with_translation(Vec3::new(0.0, 0.0, -100.0));
+    for e in window_resize_evr.read() {
+        let window = windows.get(e.window)?;
+        let size: UVec2 = window.physical_size();
+        let mut background_sprite = background_q.get_single_mut()?;
+        background_sprite.custom_size = Some(Vec2::new(size.x as f32, size.y as f32));
+    }
 
     Ok(())
 }

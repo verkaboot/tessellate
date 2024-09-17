@@ -1,4 +1,4 @@
-use bevy::ecs::query::QuerySingleError;
+use bevy::ecs::query::{QueryEntityError, QuerySingleError};
 use derive_more::derive::From;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -10,4 +10,7 @@ pub enum Error {
 
     #[from]
     QuerySingleError(QuerySingleError),
+
+    #[from]
+    QueryEntityError(QueryEntityError),
 }
