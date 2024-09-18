@@ -1,5 +1,5 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, sprite::MouseData,
+    bind_groups::CanvasImageBindGroups, mouse::MouseData, pipeline::CanvasPipeline,
     SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{

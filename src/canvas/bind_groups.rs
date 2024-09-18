@@ -1,7 +1,4 @@
-use super::{
-    pipeline::CanvasPipeline,
-    sprite::{CanvasImages, MouseData},
-};
+use super::{mouse::MouseData, pipeline::CanvasPipeline, sprite::CanvasImages};
 use bevy::{
     prelude::*,
     render::{

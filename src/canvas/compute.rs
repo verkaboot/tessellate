@@ -1,8 +1,5 @@
 use super::{
-    bind_groups,
-    node::CanvasNode,
-    pipeline::CanvasPipeline,
-    sprite::{CanvasImages, MouseData},
+    bind_groups, mouse::MouseData, node::CanvasNode, pipeline::CanvasPipeline, sprite::CanvasImages,
 };
 use bevy::{
     prelude::*,
