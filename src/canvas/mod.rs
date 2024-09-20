@@ -1,4 +1,5 @@
 mod bind_groups;
+mod brush;
 mod compute;
 pub mod mouse;
 mod node;
@@ -14,7 +15,7 @@ const WORKGROUP_SIZE: u32 = 8;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
-        .add_systems(Startup, (sprite::setup, mouse::setup))
+        .add_systems(Startup, (sprite::setup, mouse::setup, brush::setup))
         .add_systems(
             Update,
             (mouse::update_position.map(warn), mouse::update_button_state),

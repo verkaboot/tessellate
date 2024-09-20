@@ -1,4 +1,4 @@
-use super::{mouse::MousePositions, SHADER_ASSET_PATH};
+use super::{brush::BrushData, mouse::MousePositions, SHADER_ASSET_PATH};
 use bevy::{
     prelude::*,
     render::{
@@ -6,7 +6,7 @@ use bevy::{
         renderer::RenderDevice,
     },
 };
-use binding_types::storage_buffer_read_only;
+use binding_types::{storage_buffer_read_only, uniform_buffer};
 use std::borrow::Cow;
 
 #[derive(Resource)]
@@ -25,6 +25,7 @@ impl FromWorld for CanvasPipeline {
                 (
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::ReadWrite),
                     storage_buffer_read_only::<MousePositions>(false),
+                    uniform_buffer::<f32>(false),
                 ),
             ),
         );

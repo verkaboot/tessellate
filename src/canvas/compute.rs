@@ -1,5 +1,10 @@
 use super::{
-    bind_groups, mouse::MouseData, node::CanvasNode, pipeline::CanvasPipeline, sprite::CanvasImages,
+    bind_groups::{self},
+    brush::BrushData,
+    mouse::MouseData,
+    node::CanvasNode,
+    pipeline::CanvasPipeline,
+    sprite::CanvasImages,
 };
 use bevy::{
     prelude::*,
@@ -17,12 +22,12 @@ pub struct CanvasComputeLabel;
 
 impl Plugin for CanvasComputePlugin {
     fn build(&self, app: &mut App) {
-        // Extract the game of life image resource from the main world into the render world
-        // for operation on by the compute shader and display on the sprite.
         app.add_plugins((
             ExtractResourcePlugin::<CanvasImages>::default(),
             ExtractResourcePlugin::<MouseData>::default(),
+            ExtractResourcePlugin::<BrushData>::default(),
         ));
+
         let render_app = app.sub_app_mut(RenderApp);
         render_app.add_systems(
             Render,

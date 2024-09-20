@@ -10,9 +10,6 @@ pub struct MouseData {
 }
 
 impl MouseData {
-    pub fn world_delta(&self) -> Vec2 {
-        self.world_pos[0] - self.world_pos[1]
-    }
     pub fn screen_delta(&self) -> Vec2 {
         self.screen_pos[0] - self.screen_pos[1]
     }
