@@ -1,6 +1,6 @@
 use super::{
     bind_groups::{self},
-    brush::BrushData,
+    brush::BrushSize,
     mouse::MouseData,
     node::CanvasNode,
     pipeline::CanvasPipeline,
@@ -25,7 +25,7 @@ impl Plugin for CanvasComputePlugin {
         app.add_plugins((
             ExtractResourcePlugin::<CanvasImages>::default(),
             ExtractResourcePlugin::<MouseData>::default(),
-            ExtractResourcePlugin::<BrushData>::default(),
+            ExtractResourcePlugin::<BrushSize>::default(),
         ));
 
         let render_app = app.sub_app_mut(RenderApp);

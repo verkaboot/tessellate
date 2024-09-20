@@ -1,4 +1,4 @@
-use super::{brush::BrushData, mouse::MouseData, pipeline::CanvasPipeline, sprite::CanvasImages};
+use super::{brush::BrushSize, mouse::MouseData, pipeline::CanvasPipeline, sprite::CanvasImages};
 use bevy::{
     prelude::*,
     render::{
@@ -17,7 +17,7 @@ pub fn prepare(
     gpu_images: Res<RenderAssets<GpuImage>>,
     canvas_images: Res<CanvasImages>,
     mouse_data: Res<MouseData>,
-    brush_data: Res<BrushData>,
+    brush_data: Res<BrushSize>,
     render_device: Res<RenderDevice>,
 ) {
     let texture = gpu_images.get(&canvas_images.texture).unwrap();
@@ -36,7 +36,7 @@ pub fn prepare(
 
     let brush_size_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[brush_data.size]),
+        contents: bytemuck::cast_slice(&[brush_data.0]),
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     });
 

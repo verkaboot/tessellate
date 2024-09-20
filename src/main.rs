@@ -1,8 +1,8 @@
 mod background;
 mod camera;
 mod canvas;
-mod color;
 mod error;
+mod ui;
 
 use bevy::{prelude::*, window::WindowResolution, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};
@@ -33,6 +33,11 @@ fn main() {
         })
         .add_plugins(WorldInspectorPlugin::new())
         // App Plugins
-        .add_plugins((camera::plugin, canvas::plugin, background::plugin))
+        .add_plugins((
+            camera::plugin,
+            canvas::plugin,
+            background::plugin,
+            ui::plugin,
+        ))
         .run();
 }

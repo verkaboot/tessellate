@@ -1,4 +1,4 @@
-use super::{brush::BrushData, mouse::MousePositions, SHADER_ASSET_PATH};
+use super::{mouse::MousePositions, SHADER_ASSET_PATH};
 use bevy::{
     prelude::*,
     render::{

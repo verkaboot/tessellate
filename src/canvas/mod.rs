@@ -1,5 +1,5 @@
 mod bind_groups;
-mod brush;
+pub mod brush;
 mod compute;
 pub mod mouse;
 mod node;
