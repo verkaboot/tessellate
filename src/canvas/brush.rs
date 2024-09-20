@@ -4,5 +4,5 @@ use bevy::{prelude::*, render::extract_resource::ExtractResource};
 pub struct BrushSize(pub f32);
 
 pub fn setup(mut commands: Commands) {
-    commands.insert_resource(BrushSize(1.0))
+    commands.insert_resource(BrushSize(8.0))
 }
