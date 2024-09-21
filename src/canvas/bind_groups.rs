@@ -52,15 +52,9 @@ pub fn prepare(
         size: None,
     };
 
-    let srgb_color = brush_color.to_srgba();
     let brush_color_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: bytemuck::cast_slice(&[
-            srgb_color.red,
-            srgb_color.green,
-            srgb_color.blue,
-            srgb_color.alpha,
-        ]),
+        contents: bytemuck::cast_slice(&brush_color.to_srgba().to_f32_array()),
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     });
 
