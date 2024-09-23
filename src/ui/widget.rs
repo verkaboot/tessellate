@@ -2,6 +2,7 @@ use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
 use super::{
     icon::Icon,
+    interaction::InteractionPalette,
     theme::{BUTTON_BACKGROUND, PANEL_BACKGROUND},
 };
 
@@ -27,6 +28,7 @@ impl<T: Spawn> Widget for T {
                 background_color: BackgroundColor(BUTTON_BACKGROUND),
                 ..default()
             },
+            InteractionPalette::default(BUTTON_BACKGROUND),
         ));
         entity
     }
@@ -78,9 +80,10 @@ impl<T: Spawn> Widget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::srgba(0.8, 0.2, 0.1, 0.3)),
+                background_color: BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.0)),
                 ..default()
             },
+            Interaction::default(),
         ));
         entity
     }
