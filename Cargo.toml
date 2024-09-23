@@ -22,7 +22,6 @@ bevy-inspector-egui = "0.25.2"
 bytemuck = "1.17.1"
 leafwing-input-manager = "0.15.0"
 derive_more = { version = "1.0", features = ["from"] }
-sickle_ui = { version = "0.3.0", features = ["observable"] }
 
 [features]
 default = [
