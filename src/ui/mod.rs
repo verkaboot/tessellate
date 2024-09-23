@@ -15,5 +15,6 @@ fn setup(mut commands: Commands) {
         ui_root.top_bar().with_children(|top_bar| {
             top_bar.button(Icon::Brush);
         });
+        ui_root.canvas();
     });
 }
