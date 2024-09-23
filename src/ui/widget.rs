@@ -7,10 +7,9 @@ use super::{
 
 pub trait Widget {
     fn button(&mut self, icon: Icon) -> EntityCommands;
-
     fn top_bar(&mut self) -> EntityCommands;
-
     fn canvas(&mut self) -> EntityCommands;
+    fn bottom_bar(&mut self) -> EntityCommands;
 }
 
 impl<T: Spawn> Widget for T {
@@ -25,7 +24,7 @@ impl<T: Spawn> Widget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(PANEL_BACKGROUND),
+                background_color: BackgroundColor(BUTTON_BACKGROUND),
                 ..default()
             },
         ));
@@ -43,7 +42,25 @@ impl<T: Spawn> Widget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(BUTTON_BACKGROUND),
+                background_color: BackgroundColor(PANEL_BACKGROUND),
+                ..default()
+            },
+        ));
+        entity
+    }
+
+    fn bottom_bar(&mut self) -> EntityCommands {
+        let entity = self.spawn((
+            Name::new("Bottom Bar"),
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Px(75.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(PANEL_BACKGROUND),
                 ..default()
             },
         ));
