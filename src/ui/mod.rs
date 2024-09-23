@@ -11,7 +11,9 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn setup(mut commands: Commands) {
-    commands.ui_root().with_children(|children| {
-        children.button(Icon::Brush);
+    commands.ui_root().with_children(|ui_root| {
+        ui_root.top_bar().with_children(|top_bar| {
+            top_bar.button(Icon::Brush);
+        });
     });
 }

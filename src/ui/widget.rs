@@ -1,9 +1,14 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use super::{icon::Icon, theme::BUTTON_BACKGROUND};
+use super::{
+    icon::Icon,
+    theme::{BUTTON_BACKGROUND, PANEL_BACKGROUND},
+};
 
 pub trait Widget {
     fn button(&mut self, icon: Icon) -> EntityCommands;
+
+    fn top_bar(&mut self) -> EntityCommands;
 }
 
 impl<T: Spawn> Widget for T {
@@ -18,6 +23,24 @@ impl<T: Spawn> Widget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
+                background_color: BackgroundColor(PANEL_BACKGROUND),
+                ..default()
+            },
+        ));
+        entity
+    }
+
+    fn top_bar(&mut self) -> EntityCommands {
+        let entity = self.spawn((
+            Name::new("Top Bar"),
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Px(75.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
                 background_color: BackgroundColor(BUTTON_BACKGROUND),
                 ..default()
             },
@@ -25,6 +48,7 @@ impl<T: Spawn> Widget for T {
         entity
     }
 }
+
 /// An extension trait for spawning UI containers.
 pub trait Containers {
     /// Spawns a root node that covers the full screen
@@ -40,8 +64,8 @@ impl Containers for Commands<'_, '_> {
                 style: Style {
                     width: Percent(100.0),
                     height: Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Start,
+                    align_items: AlignItems::Start,
                     flex_direction: FlexDirection::Column,
                     row_gap: Px(10.0),
                     position_type: PositionType::Absolute,
