@@ -1,4 +1,8 @@
-use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
+use bevy::{
+    ecs::system::{EntityCommand, EntityCommands},
+    prelude::*,
+    ui::Val::*,
+};
 
 use super::{
     interaction::InteractionPalette,
@@ -17,25 +21,23 @@ pub enum PanelDirection {
     Tall,
 }
 
-pub trait Icon {
-    fn icon(&mut self, asset_server: Res<AssetServer>, icon_type: IconType) -> EntityCommands;
-}
-
-pub enum IconType {
+pub enum Icon {
     Brush,
 }
 
-impl<T: Spawn> Icon for T {
-    fn icon(&mut self, asset_server: Res<AssetServer>, icon_type: IconType) -> EntityCommands {
-        match icon_type {
-            IconType::Brush => self.spawn(ImageBundle {
-                image: UiImage {
-                    texture: asset_server.load("icons/brush.png"),
-                    ..default()
-                },
+impl EntityCommand for Icon {
+    fn apply(self, entity: Entity, world: &mut World) {
+        let asset_server = world.resource::<AssetServer>();
+        let image_handle: Handle<Image> = match self {
+            Icon::Brush => asset_server.load("icons/brush.png"),
+        };
+        world.entity_mut(entity).insert(ImageBundle {
+            image: UiImage {
+                texture: image_handle,
                 ..default()
-            }),
-        }
+            },
+            ..default()
+        });
     }
 }
 
