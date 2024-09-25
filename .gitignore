@@ -1,8 +1,10 @@
 # Rust builds
 /target
-# Trunk builds
-/web/dist/
 
-# This file contains environment-specific configuration like linker settings
+# Assets
+# Krita backup files
+*.kra~
+
+# Dev Environment
 .cargo/config.toml
 .direnv
