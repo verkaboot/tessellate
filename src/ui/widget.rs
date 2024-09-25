@@ -17,9 +17,31 @@ pub enum PanelDirection {
     Tall,
 }
 
+pub trait Icon {
+    fn icon(&mut self, asset_server: Res<AssetServer>, icon_type: IconType) -> EntityCommands;
+}
+
+pub enum IconType {
+    Brush,
+}
+
+impl<T: Spawn> Icon for T {
+    fn icon(&mut self, asset_server: Res<AssetServer>, icon_type: IconType) -> EntityCommands {
+        match icon_type {
+            IconType::Brush => self.spawn(ImageBundle {
+                image: UiImage {
+                    texture: asset_server.load("icons/brush.png"),
+                    ..default()
+                },
+                ..default()
+            }),
+        }
+    }
+}
+
 impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
-        let entity = self.spawn((
+        self.spawn((
             Name::new("Button"),
             ButtonBundle {
                 style: Style {
@@ -33,12 +55,11 @@ impl<T: Spawn> Widget for T {
                 ..default()
             },
             InteractionPalette::default(BUTTON_BACKGROUND),
-        ));
-        entity
+        ))
     }
 
     fn canvas(&mut self) -> EntityCommands {
-        let entity = self.spawn((
+        self.spawn((
             Name::new("Canvas"),
             NodeBundle {
                 style: Style {
@@ -52,12 +73,11 @@ impl<T: Spawn> Widget for T {
                 ..default()
             },
             Interaction::default(),
-        ));
-        entity
+        ))
     }
 
     fn flex(&mut self) -> EntityCommands {
-        let entity = self.spawn((
+        self.spawn((
             Name::new("Flex"),
             NodeBundle {
                 style: Style {
@@ -69,8 +89,7 @@ impl<T: Spawn> Widget for T {
                 },
                 ..default()
             },
-        ));
-        entity
+        ))
     }
 
     fn panel(&mut self, direction: PanelDirection) -> EntityCommands {
@@ -78,7 +97,7 @@ impl<T: Spawn> Widget for T {
             PanelDirection::Wide => (Percent(100.0), Px(75.0)),
             PanelDirection::Tall => (Px(75.0), Percent(100.0)),
         };
-        let entity = self.spawn((
+        self.spawn((
             Name::new("Panel"),
             NodeBundle {
                 style: Style {
@@ -91,8 +110,7 @@ impl<T: Spawn> Widget for T {
                 background_color: BackgroundColor(PANEL_BACKGROUND),
                 ..default()
             },
-        ));
-        entity
+        ))
     }
 }
 
