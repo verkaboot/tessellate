@@ -1,20 +1,24 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
 use super::{
-    icon::Icon,
     interaction::InteractionPalette,
     theme::{BUTTON_BACKGROUND, PANEL_BACKGROUND},
 };
 
 pub trait Widget {
-    fn button(&mut self, icon: Icon) -> EntityCommands;
-    fn top_bar(&mut self) -> EntityCommands;
+    fn button(&mut self) -> EntityCommands;
     fn canvas(&mut self) -> EntityCommands;
-    fn bottom_bar(&mut self) -> EntityCommands;
+    fn flex(&mut self) -> EntityCommands;
+    fn panel(&mut self, direction: PanelDirection) -> EntityCommands;
+}
+
+pub enum PanelDirection {
+    Wide,
+    Tall,
 }
 
 impl<T: Spawn> Widget for T {
-    fn button(&mut self, icon: Icon) -> EntityCommands {
+    fn button(&mut self) -> EntityCommands {
         let entity = self.spawn((
             Name::new("Button"),
             ButtonBundle {
@@ -29,42 +33,6 @@ impl<T: Spawn> Widget for T {
                 ..default()
             },
             InteractionPalette::default(BUTTON_BACKGROUND),
-        ));
-        entity
-    }
-
-    fn top_bar(&mut self) -> EntityCommands {
-        let entity = self.spawn((
-            Name::new("Top Bar"),
-            NodeBundle {
-                style: Style {
-                    width: Percent(100.0),
-                    height: Px(75.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: BackgroundColor(PANEL_BACKGROUND),
-                ..default()
-            },
-        ));
-        entity
-    }
-
-    fn bottom_bar(&mut self) -> EntityCommands {
-        let entity = self.spawn((
-            Name::new("Bottom Bar"),
-            NodeBundle {
-                style: Style {
-                    width: Percent(100.0),
-                    height: Px(75.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                background_color: BackgroundColor(PANEL_BACKGROUND),
-                ..default()
-            },
         ));
         entity
     }
@@ -84,6 +52,45 @@ impl<T: Spawn> Widget for T {
                 ..default()
             },
             Interaction::default(),
+        ));
+        entity
+    }
+
+    fn flex(&mut self) -> EntityCommands {
+        let entity = self.spawn((
+            Name::new("Flex"),
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+        entity
+    }
+
+    fn panel(&mut self, direction: PanelDirection) -> EntityCommands {
+        let (width, height) = match direction {
+            PanelDirection::Wide => (Percent(100.0), Px(75.0)),
+            PanelDirection::Tall => (Px(75.0), Percent(100.0)),
+        };
+        let entity = self.spawn((
+            Name::new("Panel"),
+            NodeBundle {
+                style: Style {
+                    width,
+                    height,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(PANEL_BACKGROUND),
+                ..default()
+            },
         ));
         entity
     }

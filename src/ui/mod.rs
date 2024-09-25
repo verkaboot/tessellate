@@ -1,11 +1,9 @@
-mod icon;
 mod interaction;
 mod theme;
 mod widget;
 
 use bevy::prelude::*;
-use icon::Icon;
-use widget::{Containers, Widget};
+use widget::{Containers, PanelDirection, Widget};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(interaction::plugin)
@@ -14,10 +12,16 @@ pub(super) fn plugin(app: &mut App) {
 
 fn setup(mut commands: Commands) {
     commands.ui_root().with_children(|ui_root| {
-        ui_root.top_bar().with_children(|top_bar| {
-            top_bar.button(Icon::Brush);
+        ui_root
+            .panel(PanelDirection::Wide)
+            .with_children(|top_bar| {
+                top_bar.button();
+            });
+        ui_root.flex().with_children(|flex| {
+            flex.panel(PanelDirection::Tall);
+            flex.canvas();
+            flex.panel(PanelDirection::Tall);
         });
-        ui_root.canvas();
-        ui_root.bottom_bar();
+        ui_root.panel(PanelDirection::Wide);
     });
 }
