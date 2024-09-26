@@ -51,10 +51,3 @@ pub fn update_position(
 
     Ok(())
 }
-
-pub fn update_button_state(
-    mouse_button_input: Res<ButtonInput<MouseButton>>,
-    mut mouse_position: ResMut<MouseData>,
-) {
-    mouse_position.left_button_pressed = mouse_button_input.pressed(MouseButton::Left);
-}

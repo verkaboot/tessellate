@@ -2,7 +2,14 @@ use bevy::prelude::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
-    app.add_systems(Update, (trigger_on_press, apply_interaction_palette));
+    app.add_systems(
+        Update,
+        (
+            trigger_on_press,
+            trigger_on_release,
+            apply_interaction_palette,
+        ),
+    );
 }
 
 /// Palette for widget interactions. Add this to an entity that supports
@@ -26,6 +33,9 @@ impl InteractionPalette {
     }
 }
 
+#[derive(Component)]
+pub struct PreviousInteraction(Interaction);
+
 /// Event triggered on a UI entity when the [`Interaction`] component on the same entity changes to
 /// [`Interaction::Pressed`]. Observe this event to detect e.g. button presses.
 #[derive(Event)]
@@ -38,6 +48,30 @@ fn trigger_on_press(
     for (entity, interaction) in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
             commands.trigger_targets(OnPress, entity);
+            commands
+                .entity(entity)
+                .insert(PreviousInteraction(*interaction));
+        }
+    }
+}
+
+#[derive(Event)]
+pub struct OnRelease;
+
+fn trigger_on_release(
+    interaction_query: Query<
+        (Entity, &Interaction, Option<&PreviousInteraction>),
+        Changed<Interaction>,
+    >,
+    mut commands: Commands,
+) {
+    for (entity, interaction, previous_interaction) in &interaction_query {
+        if matches!(
+            previous_interaction,
+            Some(PreviousInteraction(Interaction::Pressed))
+        ) && matches!(interaction, Interaction::Hovered | Interaction::None)
+        {
+            commands.trigger_targets(OnRelease, entity);
         }
     }
 }

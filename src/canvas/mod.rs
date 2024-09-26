@@ -19,8 +19,5 @@ pub(super) fn plugin(app: &mut App) {
         .insert_resource(BrushSize(8.0))
         .insert_resource(BrushColor(Color::hsla(0.5, 0.5, 0.5, 1.0)))
         .add_systems(PreStartup, (sprite::setup, mouse::setup))
-        .add_systems(
-            Update,
-            (mouse::update_position.map(warn), mouse::update_button_state),
-        );
+        .add_systems(Update, mouse::update_position.map(warn));
 }
