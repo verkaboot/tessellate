@@ -44,12 +44,29 @@ impl<T: Spawn> Widget for T {
                         position_type: PositionType::Absolute,
                         width: Px(42.0),
                         height: Px(42.0),
-                        top: Px(2.0),
-                        left: Px(2.0),
+                        top: Px(1.0),
+                        left: Px(1.0),
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::srgba(0.013, 0.071, 0.107, 0.5)),
-                    border_radius: BORDER_RADIUS,
+                    background_color: BackgroundColor(Color::srgba(0.013, 0.171, 0.207, 0.33)),
+                    border_radius: BorderRadius::px(7.5, 14.0, 14.0, 10.0),
+                    ..default()
+                },
+            ));
+
+            parent.spawn((
+                Name::new("Light"),
+                NodeBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Px(42.0),
+                        height: Px(42.0),
+                        top: Px(-1.0),
+                        left: Px(-1.0),
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::srgba(1.0, 0.95, 0.9, 0.33)),
+                    border_radius: BorderRadius::px(8.0, 7.3, 15.0, 8.0),
                     ..default()
                 },
             ));
@@ -66,7 +83,7 @@ impl<T: Spawn> Widget for T {
                         ..default()
                     },
                     background_color: BackgroundColor(BUTTON_BACKGROUND),
-                    border_radius: BORDER_RADIUS,
+                    border_radius: BorderRadius::all(Px(7.5)),
                     ..default()
                 },
                 InteractionPalette::default(BUTTON_BACKGROUND),
