@@ -3,7 +3,7 @@
 
 # Assets
 # Krita backup files
-*.kra~
+*.*~
 
 # Dev Environment
 .cargo/config.toml

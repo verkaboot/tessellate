@@ -1,8 +1,4 @@
-use bevy::{
-    ecs::system::{EntityCommand, EntityCommands},
-    prelude::*,
-    ui::Val::*,
-};
+use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
 use super::{
     interaction::InteractionPalette,
@@ -21,39 +17,20 @@ pub enum PanelDirection {
     Tall,
 }
 
-pub enum Icon {
-    Brush,
-}
-
-impl EntityCommand for Icon {
-    fn apply(self, entity: Entity, world: &mut World) {
-        let asset_server = world.resource::<AssetServer>();
-        let image_handle: Handle<Image> = match self {
-            Icon::Brush => asset_server.load("icons/brush.png"),
-        };
-        world.entity_mut(entity).insert(ImageBundle {
-            image: UiImage {
-                texture: image_handle,
-                ..default()
-            },
-            ..default()
-        });
-    }
-}
-
 impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
         self.spawn((
             Name::new("Button"),
             ButtonBundle {
                 style: Style {
-                    width: Px(50.0),
-                    height: Px(50.0),
+                    width: Px(42.0),
+                    height: Px(42.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
                 background_color: BackgroundColor(BUTTON_BACKGROUND),
+                border_radius: BorderRadius::new(Px(7.5), Px(32.0), Px(7.5), Px(32.0)),
                 ..default()
             },
             InteractionPalette::default(BUTTON_BACKGROUND),
@@ -107,6 +84,7 @@ impl<T: Spawn> Widget for T {
                     height,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    padding: UiRect::all(Px(8.0)),
                     ..default()
                 },
                 background_color: BackgroundColor(PANEL_BACKGROUND),

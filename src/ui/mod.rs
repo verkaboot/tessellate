@@ -1,9 +1,11 @@
+mod icon;
 mod interaction;
 mod theme;
 mod widget;
 
 use bevy::prelude::*;
-use widget::{Containers, Icon, PanelDirection, Widget};
+use icon::Icon;
+use widget::{Containers, PanelDirection, Widget};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(interaction::plugin)
