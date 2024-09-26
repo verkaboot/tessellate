@@ -21,9 +21,15 @@ fn setup(mut commands: Commands) {
             .panel(PanelDirection::Wide)
             .with_children(|top_bar| {
                 top_bar.button().add(Icon::Brush);
+                top_bar.button().add(Icon::Brush);
+                top_bar.button().add(Icon::Brush);
             });
         ui_root.flex().with_children(|flex| {
-            flex.panel(PanelDirection::Tall);
+            flex.panel(PanelDirection::Tall).with_children(|top_bar| {
+                top_bar.button().add(Icon::Brush);
+                top_bar.button().add(Icon::Brush);
+                top_bar.button().add(Icon::Brush);
+            });
             flex.canvas().observe(start_painting).observe(stop_painting);
             flex.panel(PanelDirection::Tall);
         });

@@ -17,8 +17,6 @@ pub enum PanelDirection {
     Tall,
 }
 
-const BORDER_RADIUS: BorderRadius = BorderRadius::new(Px(7.5), Px(32.0), Px(7.5), Px(32.0));
-
 impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
         let mut entity = self.spawn((
@@ -128,9 +126,9 @@ impl<T: Spawn> Widget for T {
     }
 
     fn panel(&mut self, direction: PanelDirection) -> EntityCommands {
-        let (width, height) = match direction {
-            PanelDirection::Wide => (Percent(100.0), Px(75.0)),
-            PanelDirection::Tall => (Px(75.0), Percent(100.0)),
+        let (width, height, flex_direction) = match direction {
+            PanelDirection::Wide => (Percent(100.0), Auto, FlexDirection::Row),
+            PanelDirection::Tall => (Auto, Percent(100.0), FlexDirection::Column),
         };
         self.spawn((
             Name::new("Panel"),
@@ -138,9 +136,12 @@ impl<T: Spawn> Widget for T {
                 style: Style {
                     width,
                     height,
-                    justify_content: JustifyContent::Center,
+                    flex_direction,
+                    justify_content: JustifyContent::Start,
                     align_items: AlignItems::Center,
-                    padding: UiRect::all(Px(8.0)),
+                    padding: UiRect::all(Px(4.0)),
+                    row_gap: Px(2.0),
+                    column_gap: Px(2.0),
                     ..default()
                 },
                 background_color: BackgroundColor(PANEL_BACKGROUND),
