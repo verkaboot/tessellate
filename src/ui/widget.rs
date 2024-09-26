@@ -1,9 +1,6 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use super::{
-    interaction::InteractionPalette,
-    theme::{BUTTON_BACKGROUND, PANEL_BACKGROUND},
-};
+use super::{interaction::InteractionPalette, theme::*};
 
 pub trait Widget {
     fn button(&mut self) -> EntityCommands;
@@ -46,7 +43,7 @@ impl<T: Spawn> Widget for T {
                         left: Px(1.0),
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::srgba(0.013, 0.171, 0.207, 0.33)),
+                    background_color: BackgroundColor(SHADOW),
                     border_radius: BorderRadius::px(7.5, 14.0, 14.0, 10.0),
                     ..default()
                 },
@@ -63,7 +60,7 @@ impl<T: Spawn> Widget for T {
                         left: Px(-1.0),
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::srgba(1.0, 0.95, 0.9, 0.33)),
+                    background_color: BackgroundColor(HIGHLIGHT),
                     border_radius: BorderRadius::px(8.0, 7.3, 15.0, 8.0),
                     ..default()
                 },
@@ -140,10 +137,18 @@ impl<T: Spawn> Widget for T {
                     justify_content: JustifyContent::Start,
                     align_items: AlignItems::Center,
                     padding: UiRect::all(Px(4.0)),
+                    // border: UiRect::all(Px(1.0)),
+                    border: UiRect {
+                        left: Px(0.0),
+                        right: Px(1.0),
+                        top: Px(0.0),
+                        bottom: Px(1.0),
+                    },
                     row_gap: Px(2.0),
                     column_gap: Px(2.0),
                     ..default()
                 },
+                border_color: BorderColor(PANEL_OUTLINE),
                 background_color: BackgroundColor(PANEL_BACKGROUND),
                 ..default()
             },
