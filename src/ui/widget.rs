@@ -17,24 +17,63 @@ pub enum PanelDirection {
     Tall,
 }
 
+const BORDER_RADIUS: BorderRadius = BorderRadius::new(Px(7.5), Px(32.0), Px(7.5), Px(32.0));
+
 impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
-        self.spawn((
-            Name::new("Button"),
-            ButtonBundle {
+        let mut entity = self.spawn((
+            Name::new("ButtonParent"),
+            NodeBundle {
                 style: Style {
+                    display: Display::Block,
                     width: Px(42.0),
                     height: Px(42.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(BUTTON_BACKGROUND),
-                border_radius: BorderRadius::new(Px(7.5), Px(32.0), Px(7.5), Px(32.0)),
                 ..default()
             },
-            InteractionPalette::default(BUTTON_BACKGROUND),
-        ))
+        ));
+
+        entity.with_children(|parent| {
+            parent.spawn((
+                Name::new("Shadow"),
+                NodeBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Px(42.0),
+                        height: Px(42.0),
+                        top: Px(2.0),
+                        left: Px(2.0),
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::srgba(0.013, 0.071, 0.107, 0.5)),
+                    border_radius: BORDER_RADIUS,
+                    ..default()
+                },
+            ));
+
+            parent.spawn((
+                Name::new("Button"),
+                ButtonBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Px(42.0),
+                        height: Px(42.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(BUTTON_BACKGROUND),
+                    border_radius: BORDER_RADIUS,
+                    ..default()
+                },
+                InteractionPalette::default(BUTTON_BACKGROUND),
+            ));
+        });
+
+        entity
     }
 
     fn canvas(&mut self) -> EntityCommands {

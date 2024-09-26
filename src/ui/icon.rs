@@ -1,4 +1,4 @@
-use bevy::{ecs::system::EntityCommand, prelude::*};
+use bevy::{ecs::system::EntityCommand, prelude::*, ui::Val::*};
 
 pub enum Icon {
     Brush,
@@ -10,9 +10,24 @@ impl EntityCommand for Icon {
         let image_handle: Handle<Image> = match self {
             Icon::Brush => asset_server.load("icons/brush.png"),
         };
-        world.entity_mut(entity).insert(UiImage {
-            texture: image_handle,
-            ..default()
-        });
+        let icon = world
+            .spawn((
+                Name::new("Icon"),
+                ImageBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Px(42.0),
+                        height: Px(42.0),
+                        ..default()
+                    },
+                    image: UiImage {
+                        texture: image_handle,
+                        ..default()
+                    },
+                    ..default()
+                },
+            ))
+            .id();
+        world.entity_mut(entity).add_child(icon);
     }
 }
