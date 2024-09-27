@@ -43,7 +43,7 @@ pub fn prepare(
     let mouse_pos_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&[mouse_data.world_pos]),
-        usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
+        usage: BufferUsages::STORAGE,
     });
     let mouse_pos_binding = BufferBinding {
         buffer: &mouse_pos_buffer,
@@ -54,7 +54,7 @@ pub fn prepare(
     let brush_size_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&[brush_size.0]),
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        usage: BufferUsages::UNIFORM,
     });
     let brush_size_binding = BufferBinding {
         buffer: &brush_size_buffer,
@@ -65,7 +65,7 @@ pub fn prepare(
     let brush_color_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&brush_color.to_srgba().to_f32_array()),
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        usage: BufferUsages::UNIFORM,
     });
     let brush_color_binding = BufferBinding {
         buffer: &brush_color_buffer,
