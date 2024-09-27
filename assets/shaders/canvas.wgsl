@@ -1,10 +1,9 @@
 @group(0) @binding(0) var input: texture_storage_2d_array<rgba8unorm, read_write>;
 @group(0) @binding(1) var sprite_image: texture_storage_2d<rgba8unorm, write>;
-@group(0) @binding(2) var<storage> mouse_positions: array<vec2<f32>, 4>;
-@group(0) @binding(3) var<uniform> brush_radius: f32;
-@group(0) @binding(4) var<uniform> brush_color: vec4<f32>;
-
-const layer_index = 0;
+@group(0) @binding(2) var<uniform> active_layer: u32;
+@group(0) @binding(3) var<storage> mouse_positions: array<vec2<f32>, 4>;
+@group(0) @binding(4) var<uniform> brush_radius: f32;
+@group(0) @binding(5) var<uniform> brush_color: vec4<f32>;
 
 @compute @workgroup_size(8, 8, 1)
 fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -17,10 +16,10 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let alpha = brush_alpha(location, mouse_positions);
 
     if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location, layer_index);
+        let bg: vec4<f32> = textureLoad(input, location, active_layer);
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
-        textureStore(input, location, layer_index, blend);
+        textureStore(input, location, active_layer, blend);
         textureStore(sprite_image, location, blend);
     }
 }
@@ -32,10 +31,10 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let alpha = brush_alpha(location, mouse_positions);
 
     if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location, layer_index);
+        let bg: vec4<f32> = textureLoad(input, location, active_layer);
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_erase(bg, fg);
-        textureStore(input, location, layer_index, blend);
+        textureStore(input, location, active_layer, blend);
         textureStore(sprite_image, location, blend);
     }
 }

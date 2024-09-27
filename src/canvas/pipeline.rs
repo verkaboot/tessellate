@@ -29,6 +29,7 @@ impl FromWorld for CanvasPipeline {
                         StorageTextureAccess::ReadWrite,
                     ),
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
+                    uniform_buffer::<u32>(false),
                     storage_buffer_read_only::<MousePositions>(false),
                     uniform_buffer::<f32>(false),
                     uniform_buffer::<[f32; 4]>(false),

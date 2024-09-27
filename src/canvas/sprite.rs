@@ -14,6 +14,7 @@ pub struct CanvasSprite;
 pub struct CanvasImages {
     pub layered_texture: Handle<Image>,
     pub sprite_image: Handle<Image>,
+    pub active_layer: u32,
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
@@ -21,7 +22,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         Extent3d {
             width: SIZE.0,
             height: SIZE.1,
-            depth_or_array_layers: 2,
+            depth_or_array_layers: 3,
         },
         TextureDimension::D2,
         &[0, 0, 0, 0],
@@ -68,5 +69,6 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     commands.insert_resource(CanvasImages {
         layered_texture: layered_texture_handle,
         sprite_image: sprite_image_handle,
+        active_layer: 0,
     });
 }

@@ -29,12 +29,22 @@ pub fn prepare(
     let layered_texture = gpu_images.get(&canvas_images.layered_texture).unwrap();
     let sprite_image = gpu_images.get(&canvas_images.sprite_image).unwrap();
 
+    let active_layer_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+        label: None,
+        contents: bytemuck::cast_slice(&[canvas_images.active_layer]),
+        usage: BufferUsages::UNIFORM,
+    });
+    let active_layer_binding = BufferBinding {
+        buffer: &active_layer_buffer,
+        offset: 0,
+        size: None,
+    };
+
     let mouse_pos_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&[mouse_data.world_pos]),
         usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
     });
-
     let mouse_pos_binding = BufferBinding {
         buffer: &mouse_pos_buffer,
         offset: 0,
@@ -46,7 +56,6 @@ pub fn prepare(
         contents: bytemuck::cast_slice(&[brush_size.0]),
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     });
-
     let brush_size_binding = BufferBinding {
         buffer: &brush_size_buffer,
         offset: 0,
@@ -58,7 +67,6 @@ pub fn prepare(
         contents: bytemuck::cast_slice(&brush_color.to_srgba().to_f32_array()),
         usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
     });
-
     let brush_color_binding = BufferBinding {
         buffer: &brush_color_buffer,
         offset: 0,
@@ -71,6 +79,7 @@ pub fn prepare(
         &BindGroupEntries::sequential((
             &layered_texture.texture_view,
             &sprite_image.texture_view,
+            active_layer_binding,
             mouse_pos_binding,
             brush_size_binding,
             brush_color_binding,
