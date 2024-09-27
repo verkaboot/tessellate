@@ -26,7 +26,8 @@ pub fn prepare(
     brush_color: Res<BrushColor>,
     render_device: Res<RenderDevice>,
 ) {
-    let texture = gpu_images.get(&canvas_images.texture).unwrap();
+    let layered_texture = gpu_images.get(&canvas_images.layered_texture).unwrap();
+    let sprite_image = gpu_images.get(&canvas_images.sprite_image).unwrap();
 
     let mouse_pos_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
@@ -68,7 +69,8 @@ pub fn prepare(
         None,
         &pipeline.texture_bind_group_layout,
         &BindGroupEntries::sequential((
-            &texture.texture_view,
+            &layered_texture.texture_view,
+            &sprite_image.texture_view,
             mouse_pos_binding,
             brush_size_binding,
             brush_color_binding,

@@ -12,24 +12,40 @@ pub struct CanvasSprite;
 
 #[derive(Resource, Clone, ExtractResource)]
 pub struct CanvasImages {
-    pub texture: Handle<Image>,
+    pub layered_texture: Handle<Image>,
+    pub sprite_image: Handle<Image>,
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
-    let mut image = Image::new_fill(
+    let mut layered_texture = Image::new_fill(
+        Extent3d {
+            width: SIZE.0,
+            height: SIZE.1,
+            depth_or_array_layers: 2,
+        },
+        TextureDimension::D2,
+        &[0, 0, 0, 0],
+        TextureFormat::Rgba8Unorm,
+        RenderAssetUsages::RENDER_WORLD,
+    );
+    layered_texture.texture_descriptor.usage =
+        TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
+    let layered_texture_handle = images.add(layered_texture);
+
+    let mut sprite_image = Image::new_fill(
         Extent3d {
             width: SIZE.0,
             height: SIZE.1,
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
-        &[255, 0, 0, 0],
+        &[0, 0, 0, 0],
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     );
-    image.texture_descriptor.usage =
+    sprite_image.texture_descriptor.usage =
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
-    let image_handle = images.add(image);
+    let sprite_image_handle = images.add(sprite_image);
 
     commands.spawn((
         SpriteBundle {
@@ -43,13 +59,14 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
                 SIZE.1 as f32 / 2.0,
                 0.0,
             )),
-            texture: image_handle.clone(),
+            texture: sprite_image_handle.clone(),
             ..default()
         },
         CanvasSprite,
     ));
 
     commands.insert_resource(CanvasImages {
-        texture: image_handle,
+        layered_texture: layered_texture_handle,
+        sprite_image: sprite_image_handle,
     });
 }
