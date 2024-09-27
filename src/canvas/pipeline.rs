@@ -12,7 +12,9 @@ use std::borrow::Cow;
 #[derive(Resource)]
 pub struct CanvasPipeline {
     pub texture_bind_group_layout: BindGroupLayout,
-    pub update_pipeline: CachedComputePipelineId,
+    pub init_pipeline: CachedComputePipelineId,
+    pub paint_normal_pipeline: CachedComputePipelineId,
+    pub paint_erase_pipeline: CachedComputePipelineId,
 }
 
 impl FromWorld for CanvasPipeline {
@@ -32,18 +34,40 @@ impl FromWorld for CanvasPipeline {
         );
         let shader = world.load_asset(SHADER_ASSET_PATH);
         let pipeline_cache = world.resource::<PipelineCache>();
-        let update_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
+        let init_pipeline = pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
             label: None,
             layout: vec![texture_bind_group_layout.clone()],
             push_constant_ranges: Vec::new(),
-            shader,
+            shader: shader.clone(),
             shader_defs: vec![],
-            entry_point: Cow::from("update"),
+            entry_point: Cow::from("init"),
         });
+
+        let paint_normal_pipeline =
+            pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
+                label: None,
+                layout: vec![texture_bind_group_layout.clone()],
+                push_constant_ranges: Vec::new(),
+                shader: shader.clone(),
+                shader_defs: vec![],
+                entry_point: Cow::from("paint_normal"),
+            });
+
+        let paint_erase_pipeline =
+            pipeline_cache.queue_compute_pipeline(ComputePipelineDescriptor {
+                label: None,
+                layout: vec![texture_bind_group_layout.clone()],
+                push_constant_ranges: Vec::new(),
+                shader,
+                shader_defs: vec![],
+                entry_point: Cow::from("paint_erase"),
+            });
 
         CanvasPipeline {
             texture_bind_group_layout,
-            update_pipeline,
+            init_pipeline,
+            paint_normal_pipeline,
+            paint_erase_pipeline,
         }
     }
 }

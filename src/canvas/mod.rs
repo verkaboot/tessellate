@@ -7,7 +7,7 @@ mod pipeline;
 pub mod sprite;
 
 use bevy::{prelude::*, utils::warn};
-use brush::{BrushColor, BrushSize};
+use brush::{BrushColor, BrushSize, BrushType};
 use compute::CanvasComputePlugin;
 
 pub const SIZE: (u32, u32) = (1920 * 3, 1920 * 3);
@@ -18,6 +18,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
         .insert_resource(BrushSize(8.0))
         .insert_resource(BrushColor(Color::hsla(0.5, 0.5, 0.5, 1.0)))
+        .init_resource::<BrushType>()
         .add_systems(PreStartup, (sprite::setup, mouse::setup))
         .add_systems(Update, mouse::update_position.map(warn));
 }

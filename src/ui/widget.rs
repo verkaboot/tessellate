@@ -137,7 +137,6 @@ impl<T: Spawn> Widget for T {
                     justify_content: JustifyContent::Start,
                     align_items: AlignItems::Center,
                     padding: UiRect::all(Px(4.0)),
-                    // border: UiRect::all(Px(1.0)),
                     border: UiRect {
                         left: Px(0.0),
                         right: Px(1.0),

@@ -4,7 +4,11 @@
 @group(0) @binding(3) var<uniform> brush_color: vec4<f32>;
 
 @compute @workgroup_size(8, 8, 1)
-fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
+fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
 
     let alpha = brush_alpha(location, mouse_positions);
@@ -13,6 +17,20 @@ fn update(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         let bg: vec4<f32> = textureLoad(input, location);
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
+        textureStore(input, location, blend);
+    }
+}
+
+@compute @workgroup_size(8, 8, 1)
+fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
+    let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
+
+    let alpha = brush_alpha(location, mouse_positions);
+
+    if alpha > 0.0 {
+        let bg: vec4<f32> = textureLoad(input, location);
+        var fg = vec4<f32>(brush_color.rgb, alpha);
+        let blend = blend_erase(bg, fg);
         textureStore(input, location, blend);
     }
 }

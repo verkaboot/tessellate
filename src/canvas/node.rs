@@ -1,6 +1,6 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, mouse::MouseData, pipeline::CanvasPipeline,
-    SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
+    bind_groups::CanvasImageBindGroups, brush::BrushType, mouse::MouseData,
+    pipeline::CanvasPipeline, SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{
     prelude::*,
@@ -36,7 +36,7 @@ impl render_graph::Node for CanvasNode {
         // if the corresponding pipeline has loaded, transition to the next stage
         match self.state {
             CanvasState::Loading => {
-                match pipeline_cache.get_compute_pipeline_state(pipeline.update_pipeline) {
+                match pipeline_cache.get_compute_pipeline_state(pipeline.init_pipeline) {
                     CachedPipelineState::Ok(_) => {
                         self.state = CanvasState::Update;
                     }
@@ -57,6 +57,7 @@ impl render_graph::Node for CanvasNode {
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
         let mouse = world.resource::<MouseData>();
+        let brush_type = world.resource::<BrushType>();
         if mouse.left_button_pressed {
             let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
             let pipeline_cache = world.resource::<PipelineCache>();
@@ -70,7 +71,10 @@ impl render_graph::Node for CanvasNode {
                 CanvasState::Loading => {}
                 CanvasState::Update => {
                     let update_pipeline = pipeline_cache
-                        .get_compute_pipeline(pipeline.update_pipeline)
+                        .get_compute_pipeline(match brush_type {
+                            BrushType::Normal => pipeline.paint_normal_pipeline,
+                            BrushType::Erase => pipeline.paint_erase_pipeline,
+                        })
                         .unwrap();
                     pass.set_bind_group(0, &bind_group, &[]);
                     pass.set_pipeline(update_pipeline);
