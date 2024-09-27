@@ -6,7 +6,7 @@ mod node;
 mod pipeline;
 pub mod sprite;
 
-use bevy::{prelude::*, utils::warn};
+use bevy::{prelude::*, utils};
 use brush::{BrushColor, BrushSize, BrushType};
 use compute::CanvasComputePlugin;
 
@@ -20,5 +20,5 @@ pub(super) fn plugin(app: &mut App) {
         .insert_resource(BrushColor(Color::hsla(0.5, 0.5, 0.5, 1.0)))
         .init_resource::<BrushType>()
         .add_systems(PreStartup, (sprite::setup, mouse::setup))
-        .add_systems(Update, mouse::update_position.map(warn));
+        .add_systems(Update, mouse::update_position.map(utils::dbg));
 }

@@ -18,7 +18,7 @@ impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("ButtonParent"),
-            NodeBundle {
+            ButtonBundle {
                 style: Style {
                     display: Display::Block,
                     width: Px(42.0),
@@ -27,8 +27,11 @@ impl<T: Spawn> Widget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
+                background_color: BackgroundColor(BUTTON_BACKGROUND),
+                border_radius: BorderRadius::all(Px(7.5)),
                 ..default()
             },
+            InteractionPalette::default(BUTTON_BACKGROUND),
         ));
 
         entity.with_children(|parent| {
@@ -44,7 +47,7 @@ impl<T: Spawn> Widget for T {
                         ..default()
                     },
                     background_color: BackgroundColor(SHADOW),
-                    border_radius: BorderRadius::px(7.5, 14.0, 14.0, 10.0),
+                    border_radius: BorderRadius::px(7.5, 14.0, 9.2, 8.6),
                     ..default()
                 },
             ));
@@ -61,27 +64,9 @@ impl<T: Spawn> Widget for T {
                         ..default()
                     },
                     background_color: BackgroundColor(HIGHLIGHT),
-                    border_radius: BorderRadius::px(8.0, 7.3, 15.0, 8.0),
+                    border_radius: BorderRadius::px(8.0, 7.3, 12.7, 8.0),
                     ..default()
                 },
-            ));
-
-            parent.spawn((
-                Name::new("Button"),
-                ButtonBundle {
-                    style: Style {
-                        position_type: PositionType::Absolute,
-                        width: Px(42.0),
-                        height: Px(42.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..default()
-                    },
-                    background_color: BackgroundColor(BUTTON_BACKGROUND),
-                    border_radius: BorderRadius::all(Px(7.5)),
-                    ..default()
-                },
-                InteractionPalette::default(BUTTON_BACKGROUND),
             ));
         });
 
