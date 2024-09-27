@@ -2,6 +2,8 @@ use bevy::{ecs::system::EntityCommand, prelude::*, ui::Val::*};
 
 pub enum Icon {
     Brush,
+    Eraser,
+    Layer,
 }
 
 impl EntityCommand for Icon {
@@ -9,6 +11,8 @@ impl EntityCommand for Icon {
         let asset_server = world.resource::<AssetServer>();
         let image_handle: Handle<Image> = match self {
             Icon::Brush => asset_server.load("icons/brush.png"),
+            Icon::Eraser => asset_server.load("icons/eraser.png"),
+            Icon::Layer => asset_server.load("icons/layer.png"),
         };
         let icon = world
             .spawn((
