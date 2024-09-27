@@ -21,6 +21,7 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, layer_index, blend);
+        textureStore(sprite_image, location, blend);
     }
 }
 
@@ -35,6 +36,7 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_erase(bg, fg);
         textureStore(input, location, layer_index, blend);
+        textureStore(sprite_image, location, blend);
     }
 }
 
