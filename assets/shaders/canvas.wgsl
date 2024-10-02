@@ -42,7 +42,7 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 }
 
 fn composite_layers(location: vec2<i32>) -> vec4<f32> {
-    var composite: vec4<f32> = vec4(1.0, 1.0, 1.0, 0.0);
+    var composite: vec4<f32> = vec4(0.0, 0.0, 0.0, 0.0);
     for (var i: u32 = 0; i < textureNumLayers(input); i++) {
         let texture_layer: vec4<f32> = textureLoad(input, location, i);
         composite = blend_normal(texture_layer, composite);
