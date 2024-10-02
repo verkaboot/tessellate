@@ -38,15 +38,13 @@ fn setup(mut commands: Commands) {
 }
 
 fn set_brush(brush: &BrushType) -> impl Fn(Trigger<OnPress>, ResMut<BrushType>) + '_ {
-    dbg!(brush);
     |_trigger: Trigger<OnPress>, mut brush_type: ResMut<BrushType>| {
         *brush_type = *brush;
-        dbg!(brush_type);
     }
 }
 fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
     canvas.active_layer += 1;
-    println!("{}", canvas.active_layer);
+    println!("active layer: {}", canvas.active_layer);
 }
 
 fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>) {
