@@ -20,12 +20,7 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, active_layer, blend);
-        var composite: vec4<f32> = vec4(0, 0, 0, 0);
-        for (var i: u32 = 0; i < textureNumLayers(input); i++) {
-            let texture_layer = textureLoad(input, location, i);
-            composite = blend_normal(composite, texture_layer);
-        }
-        textureStore(sprite_image, location, composite);
+        textureStore(sprite_image, location, composite_layers(location));
     }
 }
 
@@ -40,13 +35,17 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_erase(bg, fg);
         textureStore(input, location, active_layer, blend);
-        var composite: vec4<f32> = vec4(0, 0, 0, 0);
-        for (var i: u32 = 0; i < textureNumLayers(input); i++) {
-            let texture_layer = textureLoad(input, location, i);
-            composite = blend_normal(composite, texture_layer);
-        }
-        textureStore(sprite_image, location, composite);
+        textureStore(sprite_image, location, composite_layers(location));
     }
+}
+
+fn composite_layers(location: vec2<i32>) -> vec4<f32> {
+    var composite: vec4<f32> = vec4(1.0, 1.0, 1.0, 0.0);
+    for (var i: u32 = 0; i < textureNumLayers(input); i++) {
+        let texture_layer: vec4<f32> = textureLoad(input, location, i);
+        composite = blend_normal(texture_layer, composite);
+    }
+    return composite;
 }
 
 fn blend_normal(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
