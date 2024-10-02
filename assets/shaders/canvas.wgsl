@@ -20,8 +20,9 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
         textureStore(input, location, active_layer, blend);
-        textureStore(sprite_image, location, composite_layers(location));
     }
+
+    textureStore(sprite_image, location, composite_layers(location));
 }
 
 @compute @workgroup_size(8, 8, 1)
@@ -35,8 +36,9 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_erase(bg, fg);
         textureStore(input, location, active_layer, blend);
-        textureStore(sprite_image, location, composite_layers(location));
     }
+
+    textureStore(sprite_image, location, composite_layers(location));
 }
 
 fn composite_layers(location: vec2<i32>) -> vec4<f32> {
