@@ -17,7 +17,9 @@ const WORKGROUP_SIZE: u32 = 8;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
         .insert_resource(BrushSize(8.0))
-        .insert_resource(BrushColor(Color::hsla(0.5, 0.5, 0.5, 1.0)))
+        .insert_resource(BrushColor::new(
+            Color::linear_rgba(1.0, 0.2, 0.5, 1.0).to_linear(),
+        ))
         .init_resource::<BrushType>()
         .add_systems(PreStartup, (sprite::setup, mouse::setup))
         .add_systems(Update, mouse::update_position.map(utils::dbg));

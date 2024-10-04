@@ -23,7 +23,7 @@ fn main() {
                     }),
                     ..default()
                 })
-                .set(ImagePlugin::default_nearest()),
+                .set(ImagePlugin::default_linear()),
         )
         .insert_resource(WinitSettings::desktop_app())
         // 3rd Party Plugins

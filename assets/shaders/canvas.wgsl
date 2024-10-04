@@ -45,7 +45,10 @@ fn composite_layers(location: vec2<i32>) -> vec4<f32> {
     var composite: vec4<f32> = vec4(0.0, 0.0, 0.0, 0.0);
     for (var i: u32 = 0; i < textureNumLayers(input); i++) {
         let texture_layer: vec4<f32> = textureLoad(input, location, i);
-        composite = blend_normal(texture_layer, composite);
+        // composite = blend_normal(texture_layer, composite);
+        let fg = vec4(texture_layer.rgb * texture_layer.a, texture_layer.a);
+        let bg = vec4(composite.rgb * composite.a, composite.a);
+        composite = fg + bg * (1 - fg.a);
     }
     return composite;
 }
@@ -56,6 +59,9 @@ fn blend_normal(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
         ((fg.rgb * fg.a) + (bg.rgb * bg.a * (1 - fg.a))) / alpha,
         alpha
     );
+    // return vec4<f32>(
+    //     fg + bg * (1 - fg.a)
+    // );
 }
 
 fn blend_erase(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
@@ -101,5 +107,5 @@ fn brush_alpha(
     }
 
     let alpha = (brush_radius - min_distance);
-    return smoothstep(0.0, 1.0, alpha);
+    return smoothstep(0.0, 5.0, alpha);
 }
