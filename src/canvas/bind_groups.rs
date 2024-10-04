@@ -26,14 +26,25 @@ pub fn prepare(
     brush_color: Res<BrushColor>,
     render_device: Res<RenderDevice>,
 ) {
-    let texture = gpu_images.get(&canvas_images.texture).unwrap();
+    let layered_texture = gpu_images.get(&canvas_images.layered_texture).unwrap();
+    let sprite_image = gpu_images.get(&canvas_images.sprite_image).unwrap();
+
+    let active_layer_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+        label: None,
+        contents: bytemuck::cast_slice(&[canvas_images.active_layer]),
+        usage: BufferUsages::UNIFORM,
+    });
+    let active_layer_binding = BufferBinding {
+        buffer: &active_layer_buffer,
+        offset: 0,
+        size: None,
+    };
 
     let mouse_pos_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&[mouse_data.world_pos]),
-        usage: BufferUsages::STORAGE | BufferUsages::COPY_DST,
+        usage: BufferUsages::STORAGE,
     });
-
     let mouse_pos_binding = BufferBinding {
         buffer: &mouse_pos_buffer,
         offset: 0,
@@ -43,9 +54,8 @@ pub fn prepare(
     let brush_size_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&[brush_size.0]),
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        usage: BufferUsages::UNIFORM,
     });
-
     let brush_size_binding = BufferBinding {
         buffer: &brush_size_buffer,
         offset: 0,
@@ -55,9 +65,8 @@ pub fn prepare(
     let brush_color_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&brush_color.to_srgba().to_f32_array()),
-        usage: BufferUsages::UNIFORM | BufferUsages::COPY_DST,
+        usage: BufferUsages::UNIFORM,
     });
-
     let brush_color_binding = BufferBinding {
         buffer: &brush_color_buffer,
         offset: 0,
@@ -68,7 +77,9 @@ pub fn prepare(
         None,
         &pipeline.texture_bind_group_layout,
         &BindGroupEntries::sequential((
-            &texture.texture_view,
+            &layered_texture.texture_view,
+            &sprite_image.texture_view,
+            active_layer_binding,
             mouse_pos_binding,
             brush_size_binding,
             brush_color_binding,

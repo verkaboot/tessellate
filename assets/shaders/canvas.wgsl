@@ -1,7 +1,9 @@
-@group(0) @binding(0) var input: texture_storage_2d<rgba8unorm, read_write>;
-@group(0) @binding(1) var<storage> mouse_positions: array<vec2<f32>, 4>;
-@group(0) @binding(2) var<uniform> brush_radius: f32;
-@group(0) @binding(3) var<uniform> brush_color: vec4<f32>;
+@group(0) @binding(0) var input: texture_storage_2d_array<rgba8unorm, read_write>;
+@group(0) @binding(1) var sprite_image: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(2) var<uniform> active_layer: u32;
+@group(0) @binding(3) var<storage> mouse_positions: array<vec2<f32>, 4>;
+@group(0) @binding(4) var<uniform> brush_radius: f32;
+@group(0) @binding(5) var<uniform> brush_color: vec4<f32>;
 
 @compute @workgroup_size(8, 8, 1)
 fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -14,11 +16,13 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let alpha = brush_alpha(location, mouse_positions);
 
     if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location);
+        let bg: vec4<f32> = textureLoad(input, location, active_layer);
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_normal(bg, fg);
-        textureStore(input, location, blend);
+        textureStore(input, location, active_layer, blend);
     }
+
+    textureStore(sprite_image, location, composite_layers(location));
 }
 
 @compute @workgroup_size(8, 8, 1)
@@ -28,11 +32,35 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let alpha = brush_alpha(location, mouse_positions);
 
     if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location);
+        let bg: vec4<f32> = textureLoad(input, location, active_layer);
         var fg = vec4<f32>(brush_color.rgb, alpha);
         let blend = blend_erase(bg, fg);
-        textureStore(input, location, blend);
+        textureStore(input, location, active_layer, blend);
     }
+
+    textureStore(sprite_image, location, composite_layers(location));
+}
+
+fn composite_layers(location: vec2<i32>) -> vec4<f32> {
+    var composite: vec4<f32> = vec4(0.0, 0.0, 0.0, 0.0);
+    for (var i: u32 = 0; i < textureNumLayers(input); i++) {
+        let texture_layer: vec4<f32> = premultiply(textureLoad(input, location, i));
+        composite = blend_premultiplied(texture_layer, composite);
+    }
+    composite = unpremultiply(composite);
+    return composite;
+}
+
+fn premultiply(color: vec4<f32>) -> vec4<f32> {
+    return vec4(color.rgb * color.a, color.a);
+}
+
+fn unpremultiply(color: vec4<f32>) -> vec4<f32> {
+    return vec4(color.rgb / color.a, color.a);
+}
+
+fn blend_premultiplied(s: vec4<f32>, d: vec4<f32>) -> vec4<f32> {
+    return s + d * (1 - s.a);
 }
 
 fn blend_normal(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
@@ -86,5 +114,5 @@ fn brush_alpha(
     }
 
     let alpha = (brush_radius - min_distance);
-    return smoothstep(0.0, 1.0, alpha);
+    return clamp(0.0, 1.0, alpha);
 }

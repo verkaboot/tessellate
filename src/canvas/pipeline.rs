@@ -1,12 +1,11 @@
 use super::{mouse::MousePositions, SHADER_ASSET_PATH};
 use bevy::{
     prelude::*,
-    render::{
-        render_resource::{binding_types::texture_storage_2d, *},
-        renderer::RenderDevice,
-    },
+    render::{render_resource::*, renderer::RenderDevice},
 };
-use binding_types::{storage_buffer_read_only, uniform_buffer};
+use binding_types::{
+    storage_buffer_read_only, texture_storage_2d, texture_storage_2d_array, uniform_buffer,
+};
 use std::borrow::Cow;
 
 #[derive(Resource)]
@@ -25,7 +24,12 @@ impl FromWorld for CanvasPipeline {
             &BindGroupLayoutEntries::sequential(
                 ShaderStages::COMPUTE,
                 (
-                    texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::ReadWrite),
+                    texture_storage_2d_array(
+                        TextureFormat::Rgba8Unorm,
+                        StorageTextureAccess::ReadWrite,
+                    ),
+                    texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
+                    uniform_buffer::<u32>(false),
                     storage_buffer_read_only::<MousePositions>(false),
                     uniform_buffer::<f32>(false),
                     uniform_buffer::<[f32; 4]>(false),

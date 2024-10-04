@@ -8,7 +8,11 @@ use icon::Icon;
 use interaction::{OnPress, OnRelease};
 use widget::{Containers, PanelDirection, Widget};
 
-use crate::canvas::{brush::BrushType, mouse::MouseData};
+use crate::canvas::{
+    brush::{BrushColor, BrushType},
+    mouse::MouseData,
+    sprite::CanvasImages,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(interaction::plugin)
@@ -23,27 +27,34 @@ fn setup(mut commands: Commands) {
                 side_bar
                     .button()
                     .add(Icon::Brush)
-                    .observe(set_brush(&BrushType::Normal))
-                    .observe(test_observer);
-                side_bar.button().observe(set_brush(&BrushType::Erase));
+                    .observe(set_brush(&BrushType::Normal));
+                side_bar
+                    .button()
+                    .add(Icon::Eraser)
+                    .observe(set_brush(&BrushType::Erase));
+                side_bar.button().add(Icon::Layer).observe(select_layer);
             });
             flex.canvas().observe(start_painting).observe(stop_painting);
-            flex.panel(PanelDirection::Tall);
+            flex.panel(PanelDirection::Tall)
+                .with_children(|side_bar_right| {
+                    side_bar_right
+                        .button()
+                        .add(Icon::ColorPicker)
+                        .observe(change_color);
+                });
         });
         ui_root.panel(PanelDirection::Wide);
     });
 }
 
-fn test_observer(_trigger: Trigger<OnPress>) {
-    println!("Helloi");
-}
-
 fn set_brush(brush: &BrushType) -> impl Fn(Trigger<OnPress>, ResMut<BrushType>) + '_ {
-    dbg!(brush);
     |_trigger: Trigger<OnPress>, mut brush_type: ResMut<BrushType>| {
         *brush_type = *brush;
-        dbg!(brush_type);
     }
+}
+fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
+    canvas.active_layer += 1;
+    println!("active layer: {}", canvas.active_layer);
 }
 
 fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>) {
@@ -52,4 +63,8 @@ fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>)
 
 fn stop_painting(_trigger: Trigger<OnRelease>, mut mouse_data: ResMut<MouseData>) {
     mouse_data.left_button_pressed = false;
+}
+
+fn change_color(_trigger: Trigger<OnRelease>, mut brush_color: ResMut<BrushColor>) {
+    brush_color.0 = Color::rotate_hue(&brush_color.0, 10.0);
 }
