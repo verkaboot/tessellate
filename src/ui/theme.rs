@@ -1,15 +1,13 @@
-use bevy::prelude::*;
-
-// Color Palette
-pub const LIGHT_GRAY: Color = Color::srgb(0.66, 0.65, 0.66);
-pub const GRAY: Color = Color::srgb(0.5, 0.5, 0.5);
-pub const DARK_GRAY: Color = Color::srgb(0.45, 0.45, 0.45);
-pub const SHADOW: Color = Color::srgba(0.013, 0.171, 0.207, 0.33);
-pub const HIGHLIGHT: Color = Color::srgba(1.0, 0.95, 0.9, 0.33);
+use bevy::{color::palettes::tailwind::*, prelude::*};
 
 // Container Colors
-pub const PANEL_BACKGROUND: Color = GRAY;
-pub const PANEL_OUTLINE: Color = DARK_GRAY;
+pub const PANEL_BACKGROUND: Color = Color::Srgba(STONE_600);
+pub const PANEL_OUTLINE: Color = Color::Srgba(STONE_800);
+pub const TEXT: Color = Color::Srgba(STONE_50);
 
 // Widget Colors
-pub const BUTTON_BACKGROUND: Color = LIGHT_GRAY;
+pub const BUTTON_BACKGROUND: Color = Color::Srgba(STONE_400);
+pub const SLIDER_BACKGROUND: Color = Color::Srgba(STONE_700);
+pub const SLIDER_SLOT: Color = Color::Srgba(STONE_800);
+pub const SLIDER_KNOB: Color = Color::Srgba(STONE_400);
+pub const SLIDER_KNOB_OUTLINE: Color = Color::Srgba(STONE_500);

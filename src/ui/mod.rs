@@ -41,6 +41,7 @@ fn setup(mut commands: Commands) {
                         .button()
                         .add(Icon::ColorPicker)
                         .observe(change_color);
+                    side_bar_right.slider("Brush Size");
                 });
         });
         ui_root.panel(PanelDirection::Wide);
