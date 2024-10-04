@@ -114,5 +114,5 @@ fn brush_alpha(
     }
 
     let alpha = (brush_radius - min_distance);
-    return smoothstep(0.0, 5.0, alpha);
+    return clamp(0.0, 1.0, alpha);
 }
