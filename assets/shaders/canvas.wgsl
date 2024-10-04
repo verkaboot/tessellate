@@ -44,16 +44,23 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 fn composite_layers(location: vec2<i32>) -> vec4<f32> {
     var composite: vec4<f32> = vec4(0.0, 0.0, 0.0, 0.0);
     for (var i: u32 = 0; i < textureNumLayers(input); i++) {
-        let texture_layer: vec4<f32> = textureLoad(input, location, i);
+        let texture_layer: vec4<f32> = premultiply(textureLoad(input, location, i));
         composite = blend_premultiplied(composite, texture_layer);
     }
+    composite = unpremultiply(composite);
     return composite;
 }
 
-fn blend_premultiplied(bg_raw: vec4<f32>, fg_raw: vec4<f32>) -> vec4<f32> {
-    let bg = vec4(bg_raw.rgb * bg_raw.a, bg_raw.a);
-    let fg = vec4(fg_raw.rgb * fg_raw.a, fg_raw.a);
-    return fg + bg * (1 - fg.a);
+fn premultiply(color: vec4<f32>) -> vec4<f32> {
+    return vec4(color.rgb * color.a, color.a);
+}
+
+fn unpremultiply(color: vec4<f32>) -> vec4<f32> {
+    return vec4(color.rgb / color.a, color.a);
+}
+
+fn blend_premultiplied(s: vec4<f32>, d: vec4<f32>) -> vec4<f32> {
+    return s + d * (1 - s.a);
 }
 
 fn blend_normal(bg: vec4<f32>, fg: vec4<f32>) -> vec4<f32> {
