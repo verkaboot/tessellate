@@ -4,17 +4,11 @@ use bevy::{prelude::*, render::extract_resource::ExtractResource};
 pub struct BrushSize(pub f32);
 
 #[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
-pub struct BrushColor(Color);
+pub struct BrushColor(pub Color);
 
 impl BrushColor {
     pub fn new(color: LinearRgba) -> Self {
-        let premultiplied_color = Color::srgba(
-            color.red * color.alpha,
-            color.green * color.alpha,
-            color.blue * color.alpha,
-            color.alpha,
-        );
-        BrushColor(premultiplied_color)
+        BrushColor(color.into())
     }
 }
 

@@ -45,7 +45,7 @@ fn composite_layers(location: vec2<i32>) -> vec4<f32> {
     var composite: vec4<f32> = vec4(0.0, 0.0, 0.0, 0.0);
     for (var i: u32 = 0; i < textureNumLayers(input); i++) {
         let texture_layer: vec4<f32> = premultiply(textureLoad(input, location, i));
-        composite = blend_premultiplied(composite, texture_layer);
+        composite = blend_premultiplied(texture_layer, composite);
     }
     composite = unpremultiply(composite);
     return composite;
@@ -114,5 +114,5 @@ fn brush_alpha(
     }
 
     let alpha = (brush_radius - min_distance);
-    return smoothstep(0.0, 1.0, alpha);
+    return smoothstep(0.0, 5.0, alpha);
 }

@@ -18,7 +18,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
         .insert_resource(BrushSize(8.0))
         .insert_resource(BrushColor::new(
-            Color::linear_rgba(1.0, 0.2, 0.5, 1.0).to_linear(),
+            Color::linear_rgba(1.0, 0.0, 0.0, 1.0).to_linear(),
         ))
         .init_resource::<BrushType>()
         .add_systems(PreStartup, (sprite::setup, mouse::setup))

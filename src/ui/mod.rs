@@ -8,7 +8,11 @@ use icon::Icon;
 use interaction::{OnPress, OnRelease};
 use widget::{Containers, PanelDirection, Widget};
 
-use crate::canvas::{brush::BrushType, mouse::MouseData, sprite::CanvasImages};
+use crate::canvas::{
+    brush::{BrushColor, BrushType},
+    mouse::MouseData,
+    sprite::CanvasImages,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(interaction::plugin)
@@ -31,7 +35,13 @@ fn setup(mut commands: Commands) {
                 side_bar.button().add(Icon::Layer).observe(select_layer);
             });
             flex.canvas().observe(start_painting).observe(stop_painting);
-            flex.panel(PanelDirection::Tall);
+            flex.panel(PanelDirection::Tall)
+                .with_children(|side_bar_right| {
+                    side_bar_right
+                        .button()
+                        .add(Icon::ColorPicker)
+                        .observe(change_color);
+                });
         });
         ui_root.panel(PanelDirection::Wide);
     });
@@ -53,4 +63,8 @@ fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>)
 
 fn stop_painting(_trigger: Trigger<OnRelease>, mut mouse_data: ResMut<MouseData>) {
     mouse_data.left_button_pressed = false;
+}
+
+fn change_color(_trigger: Trigger<OnRelease>, mut brush_color: ResMut<BrushColor>) {
+    brush_color.0 = Color::rotate_hue(&brush_color.0, 10.0);
 }
