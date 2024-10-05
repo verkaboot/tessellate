@@ -6,7 +6,7 @@ mod widget;
 use bevy::prelude::*;
 use icon::Icon;
 use interaction::{OnPress, OnRelease};
-use widget::{Containers, PanelDirection, Widget};
+use widget::prelude::*;
 
 use crate::canvas::{
     brush::{BrushColor, BrushType},
