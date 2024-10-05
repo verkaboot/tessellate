@@ -17,7 +17,7 @@ pub enum PanelDirection {
 
 impl<T: Spawn> Widget for T {
     fn button(&mut self) -> EntityCommands {
-        let mut entity = self.spawn((
+        self.spawn((
             Name::new("ButtonParent"),
             ButtonBundle {
                 style: Style {
@@ -33,9 +33,7 @@ impl<T: Spawn> Widget for T {
                 ..default()
             },
             InteractionPalette::default(BUTTON_BACKGROUND),
-        ));
-
-        entity
+        ))
     }
 
     fn canvas(&mut self) -> EntityCommands {
@@ -87,20 +85,17 @@ impl<T: Spawn> Widget for T {
                     justify_content: JustifyContent::Start,
                     align_items: AlignItems::Center,
                     padding: UiRect::all(Px(4.0)),
-                    border: UiRect {
-                        left: Px(0.0),
-                        right: Px(1.0),
-                        top: Px(0.0),
-                        bottom: Px(1.0),
-                    },
+                    margin: UiRect::px(0.0, 0.0, 1.0, 1.0),
+                    border: UiRect::px(1.0, 0.0, 1.0, 0.0),
                     row_gap: Px(2.0),
                     column_gap: Px(2.0),
                     ..default()
                 },
-                border_color: BorderColor(PANEL_OUTLINE),
+                border_color: BorderColor(PANEL_HIGHLIGHT),
                 background_color: BackgroundColor(PANEL_BACKGROUND),
                 ..default()
             },
+            Outline::new(Px(1.0), Val::ZERO, PANEL_OUTLINE),
         ))
     }
 
@@ -158,7 +153,7 @@ impl<T: Spawn> Widget for T {
                             style: Style {
                                 width: Px(12.0),
                                 height: Px(12.0),
-                                border: UiRect::all(Px(1.0)),
+                                border: UiRect::all(Px(0.5)),
                                 ..default()
                             },
                             border_radius: BorderRadius::all(Percent(100.0)),
