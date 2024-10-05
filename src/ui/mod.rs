@@ -1,6 +1,6 @@
 mod icon;
 mod interaction;
-mod theme;
+pub mod theme;
 mod widget;
 
 use bevy::prelude::*;

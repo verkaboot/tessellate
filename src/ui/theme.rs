@@ -1,5 +1,8 @@
 use bevy::{color::palettes::tailwind::*, prelude::*};
 
+// Background Transparency Pattern
+pub const TRANSPARENCY_BLOCKS: Color = Color::Srgba(NEUTRAL_600);
+
 // Container Colors
 pub const PANEL_BACKGROUND: Color = Color::Srgba(STONE_600);
 pub const PANEL_OUTLINE: Color = Color::Srgba(STONE_800);
