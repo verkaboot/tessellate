@@ -5,11 +5,11 @@ use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
 pub trait SliderWidget {
-    fn slider(&mut self, label: &str) -> EntityCommands;
+    fn slider<R: Resource + std::fmt::Debug>(&mut self, label: &str) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider(&mut self, label: &str) -> EntityCommands {
+    fn slider<R: Resource + std::fmt::Debug>(&mut self, label: &str) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
             NodeBundle {
@@ -47,6 +47,7 @@ impl<T: Spawn> SliderWidget for T {
                             width: Percent(100.0),
                             height: Px(4.0),
                             margin: UiRect::vertical(Px(4.0)),
+                            padding: UiRect::right(Px(12.0)),
                             align_items: AlignItems::Center,
                             justify_content: JustifyContent::Start,
                             ..default()
@@ -59,7 +60,7 @@ impl<T: Spawn> SliderWidget for T {
                 .with_children(|slot| {
                     slot.spawn((
                         Name::new("Slider Knob"),
-                        NodeBundle {
+                        ButtonBundle {
                             style: Style {
                                 width: Px(12.0),
                                 height: Px(12.0),
@@ -71,11 +72,19 @@ impl<T: Spawn> SliderWidget for T {
                             border_color: BorderColor(SLIDER_KNOB_OUTLINE),
                             ..default()
                         },
+                        SliderValue,
                     ))
-                    .observe(|_trigger: Trigger<OnPress>| {});
+                    .observe(
+                        |_trigger: Trigger<OnPress>, resource: Res<R>| {
+                            println!("Slider: {:?}", resource);
+                        },
+                    );
                 });
         });
 
         entity
     }
 }
+
+#[derive(Component)]
+pub struct SliderValue;

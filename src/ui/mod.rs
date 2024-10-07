@@ -9,7 +9,7 @@ use interaction::{OnPress, OnRelease};
 use widget::prelude::*;
 
 use crate::canvas::{
-    brush::{BrushColor, BrushType},
+    brush::{BrushColor, BrushSize, BrushType},
     mouse::MouseData,
     sprite::CanvasImages,
 };
@@ -41,7 +41,7 @@ fn setup(mut commands: Commands) {
                         .button()
                         .add(Icon::ColorPicker)
                         .observe(change_color);
-                    side_bar_right.slider("Brush Size");
+                    side_bar_right.slider::<BrushSize>("Brush Size");
                 });
         });
         ui_root.panel(PanelDirection::Wide);
