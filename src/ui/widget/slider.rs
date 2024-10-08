@@ -1,15 +1,18 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::ui::interaction::OnPress;
+use crate::ui::interaction::{AsVal, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
+#[derive(Component)]
+pub struct SliderKnob;
+
 pub trait SliderWidget {
-    fn slider<R: Resource + std::fmt::Debug>(&mut self, label: &str) -> EntityCommands;
+    fn slider<R: Resource + std::fmt::Debug + AsVal>(&mut self, label: &str) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider<R: Resource + std::fmt::Debug>(&mut self, label: &str) -> EntityCommands {
+    fn slider<R: Resource + std::fmt::Debug + AsVal>(&mut self, label: &str) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
             NodeBundle {
@@ -72,11 +75,17 @@ impl<T: Spawn> SliderWidget for T {
                             border_color: BorderColor(SLIDER_KNOB_OUTLINE),
                             ..default()
                         },
-                        SliderValue,
+                        WatchResource {
+                            resource: std::marker::PhantomData::<R>,
+                        },
                     ))
                     .observe(
-                        |_trigger: Trigger<OnPress>, resource: Res<R>| {
-                            println!("Slider: {:?}", resource);
+                        |_trigger: Trigger<OnResourceUpdated<R>>,
+                         resource: Res<R>,
+                         mut knob_q: Query<&mut Style, With<SliderKnob>>| {
+                            for mut style in &mut knob_q {
+                                style.left = resource.as_val();
+                            }
                         },
                     );
                 });
@@ -85,6 +94,3 @@ impl<T: Spawn> SliderWidget for T {
         entity
     }
 }
-
-#[derive(Component)]
-pub struct SliderValue;

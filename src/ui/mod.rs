@@ -1,5 +1,5 @@
 mod icon;
-mod interaction;
+pub mod interaction;
 pub mod theme;
 mod widget;
 

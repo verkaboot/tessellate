@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::canvas::brush::BrushSize;
+
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
     app.add_systems(
@@ -8,6 +10,7 @@ pub(super) fn plugin(app: &mut App) {
             trigger_on_press,
             trigger_on_release,
             apply_interaction_palette,
+            trigger_on_resource_updated::<BrushSize>,
         ),
     );
 }
@@ -90,4 +93,35 @@ fn apply_interaction_palette(
         }
         .into();
     }
+}
+
+#[derive(Event)]
+pub struct OnResourceUpdated<R: Resource> {
+    resource: std::marker::PhantomData<R>,
+}
+
+#[derive(Component)]
+pub struct WatchResource<R: Resource> {
+    pub resource: std::marker::PhantomData<R>,
+}
+
+fn trigger_on_resource_updated<R: Resource>(
+    watcher_q: Query<Entity, With<WatchResource<R>>>,
+    resource: Res<R>,
+    mut commands: Commands,
+) {
+    if resource.is_changed() {
+        for entity in &watcher_q {
+            commands.trigger_targets(
+                OnResourceUpdated {
+                    resource: std::marker::PhantomData::<R>,
+                },
+                entity,
+            );
+        }
+    }
+}
+
+pub trait AsVal {
+    fn as_val(&self) -> Val;
 }
