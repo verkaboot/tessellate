@@ -1,11 +1,9 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::ui::interaction::{OnPress, OnResourceUpdated, WatchResource};
+use crate::canvas::mouse::MouseData;
+use crate::ui::interaction::{OnDrag, OnPress, OnRelease, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
-
-#[derive(Component)]
-pub struct SliderKnob;
 
 pub trait SliderWidget {
     fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
@@ -65,6 +63,7 @@ impl<T: Spawn> SliderWidget for T {
                         border_radius: BorderRadius::all(Px(4.0)),
                         ..default()
                     },
+                    SliderSlot,
                 ))
                 .with_children(|slot| {
                     slot.spawn((
@@ -88,8 +87,14 @@ impl<T: Spawn> SliderWidget for T {
                     ))
                     .observe(update_knob_position::<R>)
                     .observe(
-                        |_trigger: Trigger<OnPress>, mut resource: ResMut<R>| {
-                            *resource = R::from(25.0)
+                        |trigger: Trigger<OnDrag>,
+                         mut resource: ResMut<R>,
+                         mouse_data: Res<MouseData>,
+                         knob_q: Query<&Parent, With<SliderKnob>>,
+                         slot_q: Query<&GlobalTransform, With<SliderSlot>>| {
+                            let parent = knob_q.get(trigger.entity()).unwrap();
+                            let slot_transform = slot_q.get(parent.get()).unwrap();
+                            *resource = (mouse_data.screen_pos[0].x - slot_transform.translation().x).into();
                         },
                     );
                 });
@@ -99,14 +104,20 @@ impl<T: Spawn> SliderWidget for T {
     }
 }
 
+#[derive(Component)]
+pub struct SliderKnob;
+
+#[derive(Component)]
+pub struct SliderSlot;
+
 fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone>(
-    _trigger: Trigger<OnResourceUpdated<R>>,
+    trigger: Trigger<OnResourceUpdated<R>>,
     resource: Res<R>,
     mut knob_q: Query<&mut Style, With<SliderKnob>>,
 ) {
     println!("OnResourceUpdate: {:?}", resource);
-    for mut style in &mut knob_q {
-        let v = *resource;
-        style.left = Px(v.into());
-    }
+    let mut style = knob_q.get_mut(trigger.entity()).unwrap();
+    style.left = Px((*resource).into());
 }
+
+// TODO: In order to get the bounds of the slot, add two node components to the beginning and end of the row. Make them 1x1 pixels, then you can get their GlobalTransforms

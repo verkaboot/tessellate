@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::canvas::brush::BrushSize;
+use crate::canvas::{brush::BrushSize, mouse::MouseData};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
@@ -9,6 +9,7 @@ pub(super) fn plugin(app: &mut App) {
         (
             trigger_on_press,
             trigger_on_release,
+            trigger_on_drag.run_if(resource_changed::<MouseData>),
             apply_interaction_palette,
             trigger_on_resource_updated::<BrushSize>,
         ),
@@ -54,6 +55,17 @@ fn trigger_on_press(
             commands
                 .entity(entity)
                 .insert(PreviousInteraction(*interaction));
+        }
+    }
+}
+
+#[derive(Event)]
+pub struct OnDrag;
+
+fn trigger_on_drag(interaction_query: Query<(Entity, &Interaction)>, mut commands: Commands) {
+    for (entity, interaction) in &interaction_query {
+        if matches!(interaction, Interaction::Pressed) {
+            commands.trigger_targets(OnDrag, entity);
         }
     }
 }
