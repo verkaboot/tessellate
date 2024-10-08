@@ -121,7 +121,3 @@ fn trigger_on_resource_updated<R: Resource>(
         }
     }
 }
-
-pub trait AsVal {
-    fn as_val(&self) -> Val;
-}

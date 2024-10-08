@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::ui::interaction::{AsVal, OnResourceUpdated, WatchResource};
+use crate::ui::interaction::{OnPress, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
@@ -8,11 +8,17 @@ use crate::ui::widget::Spawn;
 pub struct SliderKnob;
 
 pub trait SliderWidget {
-    fn slider<R: Resource + std::fmt::Debug + AsVal>(&mut self, label: &str) -> EntityCommands;
+    fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
+        &mut self,
+        label: &str,
+    ) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider<R: Resource + std::fmt::Debug + AsVal>(&mut self, label: &str) -> EntityCommands {
+    fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
+        &mut self,
+        label: &str,
+    ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
             NodeBundle {
@@ -75,22 +81,32 @@ impl<T: Spawn> SliderWidget for T {
                             border_color: BorderColor(SLIDER_KNOB_OUTLINE),
                             ..default()
                         },
+                        SliderKnob,
                         WatchResource {
                             resource: std::marker::PhantomData::<R>,
                         },
                     ))
+                    .observe(update_knob_position::<R>)
                     .observe(
-                        |_trigger: Trigger<OnResourceUpdated<R>>,
-                         resource: Res<R>,
-                         mut knob_q: Query<&mut Style, With<SliderKnob>>| {
-                            for mut style in &mut knob_q {
-                                style.left = resource.as_val();
-                            }
+                        |_trigger: Trigger<OnPress>, mut resource: ResMut<R>| {
+                            *resource = R::from(25.0)
                         },
                     );
                 });
         });
 
         entity
+    }
+}
+
+fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone>(
+    _trigger: Trigger<OnResourceUpdated<R>>,
+    resource: Res<R>,
+    mut knob_q: Query<&mut Style, With<SliderKnob>>,
+) {
+    println!("OnResourceUpdate: {:?}", resource);
+    for mut style in &mut knob_q {
+        let v = *resource;
+        style.left = Px(v.into());
     }
 }

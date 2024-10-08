@@ -1,13 +1,17 @@
 use bevy::{prelude::*, render::extract_resource::ExtractResource};
 
-use crate::ui::interaction::AsVal;
-
 #[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
 pub struct BrushSize(pub f32);
 
-impl AsVal for BrushSize {
-    fn as_val(&self) -> Val {
-        Val::Px(self.0)
+impl Into<f32> for BrushSize {
+    fn into(self) -> f32 {
+        self.0
+    }
+}
+
+impl From<f32> for BrushSize {
+    fn from(value: f32) -> Self {
+        BrushSize(value)
     }
 }
 
