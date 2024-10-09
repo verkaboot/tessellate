@@ -1,7 +1,11 @@
+use bevy::color::palettes::css::WHITE;
+use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
+use bevy_inspector_egui::egui::lerp;
 
 use crate::canvas::mouse::MouseData;
-use crate::ui::interaction::{OnDrag, OnPress, OnRelease, OnResourceUpdated, WatchResource};
+use crate::error::{Error, Result};
+use crate::ui::interaction::{OnDrag, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
@@ -54,9 +58,8 @@ impl<T: Spawn> SliderWidget for T {
                             width: Percent(100.0),
                             height: Px(4.0),
                             margin: UiRect::vertical(Px(4.0)),
-                            padding: UiRect::right(Px(12.0)),
                             align_items: AlignItems::Center,
-                            justify_content: JustifyContent::Start,
+                            justify_content: JustifyContent::SpaceBetween,
                             ..default()
                         },
                         background_color: BackgroundColor(SLIDER_SLOT),
@@ -67,9 +70,24 @@ impl<T: Spawn> SliderWidget for T {
                 ))
                 .with_children(|slot| {
                     slot.spawn((
+                        Name::new("Slider Left Bound"),
+                        NodeBundle {
+                            style: Style {
+                                width: Px(5.),
+                                height: Px(5.),
+                                ..default()
+                            },
+                            background_color: BackgroundColor(WHITE.into()),
+                            ..default()
+                        },
+                        SliderLeftBound,
+                    ));
+
+                    slot.spawn((
                         Name::new("Slider Knob"),
                         ButtonBundle {
                             style: Style {
+                                position_type: PositionType::Absolute,
                                 width: Px(12.0),
                                 height: Px(12.0),
                                 border: UiRect::all(Px(0.5)),
@@ -85,18 +103,22 @@ impl<T: Spawn> SliderWidget for T {
                             resource: std::marker::PhantomData::<R>,
                         },
                     ))
-                    .observe(update_knob_position::<R>)
-                    .observe(
-                        |trigger: Trigger<OnDrag>,
-                         mut resource: ResMut<R>,
-                         mouse_data: Res<MouseData>,
-                         knob_q: Query<&Parent, With<SliderKnob>>,
-                         slot_q: Query<&GlobalTransform, With<SliderSlot>>| {
-                            let parent = knob_q.get(trigger.entity()).unwrap();
-                            let slot_transform = slot_q.get(parent.get()).unwrap();
-                            *resource = (mouse_data.screen_pos[0].x - slot_transform.translation().x).into();
+                    .observe(update_knob_position::<R>.map(utils::warn))
+                    .observe(on_drag::<R>.map(utils::warn));
+
+                    slot.spawn((
+                        Name::new("Slider Right Bound"),
+                        NodeBundle {
+                            style: Style {
+                                width: Px(5.),
+                                height: Px(5.),
+                                ..default()
+                            },
+                            background_color: BackgroundColor(WHITE.into()),
+                            ..default()
                         },
-                    );
+                        SliderRightBound,
+                    ));
                 });
         });
 
@@ -110,14 +132,66 @@ pub struct SliderKnob;
 #[derive(Component)]
 pub struct SliderSlot;
 
+#[derive(Component)]
+pub struct SliderLeftBound;
+
+#[derive(Component)]
+pub struct SliderRightBound;
+
 fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone>(
     trigger: Trigger<OnResourceUpdated<R>>,
     resource: Res<R>,
-    mut knob_q: Query<&mut Style, With<SliderKnob>>,
-) {
-    println!("OnResourceUpdate: {:?}", resource);
-    let mut style = knob_q.get_mut(trigger.entity()).unwrap();
-    style.left = Px((*resource).into());
+    slot_q: Query<(&GlobalTransform, &Children), With<SliderSlot>>,
+    mut knob_q: Query<(&mut Style, &Parent), With<SliderKnob>>,
+    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
+    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+) -> Result<()> {
+    let (mut knob_style, knob_parent) = knob_q.get_mut(trigger.entity())?;
+    let x: f32 = (*resource).into();
+
+    let percentage = get_percentage(1.0, 200.0, x) * 100.0;
+
+    knob_style.left = Percent(percentage);
+
+    Ok(())
 }
 
-// TODO: In order to get the bounds of the slot, add two node components to the beginning and end of the row. Make them 1x1 pixels, then you can get their GlobalTransforms
+fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
+    trigger: Trigger<OnDrag>,
+    mut resource: ResMut<R>,
+    mouse_data: Res<MouseData>,
+    knob_q: Query<&Parent, With<SliderKnob>>,
+    slot_q: Query<(&GlobalTransform, &Children), With<SliderSlot>>,
+    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
+    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+) -> Result<()> {
+    let parent = knob_q.get(trigger.entity()).unwrap();
+    let (slot_transform, slot_children) = slot_q.get(parent.get()).unwrap();
+    let left_bound: f32 = slot_children
+        .iter()
+        .find_map(|child| left_bound_q.get(*child).ok())
+        .map(|gt| gt.translation().x)
+        .ok_or(Error::Custom("Slider missing a left bound.".into()))?;
+    let right_bound: f32 = slot_children
+        .iter()
+        .find_map(|child| right_bound_q.get(*child).ok())
+        .map(|gt| gt.translation().x)
+        .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
+
+    let percentage = get_percentage(left_bound, right_bound, mouse_data.screen_pos[0].x);
+    println!("{:?}", percentage);
+
+    *resource = lerp(1.0..=200.0, percentage).into();
+
+    Ok(())
+}
+
+// Scale the value in the range of the slider
+// Value has a min and max
+// Slider has a size in Px
+// Get percentage of position on the slider and map
+// to percentage of range for the value
+
+fn get_percentage(min: f32, max: f32, value: f32) -> f32 {
+    (value - min) / (max - min)
+}
