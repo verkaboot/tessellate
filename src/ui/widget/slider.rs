@@ -193,5 +193,5 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
 // to percentage of range for the value
 
 fn get_percentage(min: f32, max: f32, value: f32) -> f32 {
-    (value - min) / (max - min)
+    ((value - min) / (max - min)).clamp(0.0, 1.0)
 }
