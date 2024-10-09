@@ -1,6 +1,7 @@
 use bevy::color::palettes::css::WHITE;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
+use bevy_inspector_egui::egui::emath::inverse_lerp;
 use bevy_inspector_egui::egui::lerp;
 
 use crate::canvas::mouse::MouseData;
@@ -162,7 +163,9 @@ fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone
         .map(|gt| gt.translation().x)
         .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
 
-    let percentage = get_percentage(1.0, 200.0, resource_value);
+    let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
+    let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
+    let percentage = cubic_bezier.ease(percentage);
     let knob_x: f32 = (0.0).lerp(right_bound - left_bound, percentage) - (KNOB_WIDTH * 0.5);
     knob_style.left = Px(knob_x);
 
@@ -191,14 +194,14 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
         .map(|gt| gt.translation().x)
         .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
 
-    let percentage = get_percentage(left_bound, right_bound, mouse_data.screen_pos[0].x);
+    let percentage =
+        f32::inverse_lerp(left_bound, right_bound, mouse_data.screen_pos[0].x).clamp(0.0, 1.0);
     println!("{:?}", percentage);
 
-    *resource = lerp(1.0..=200.0, percentage).into();
+    let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
+    let eased_percentage = cubic_bezier.ease(percentage);
+
+    *resource = lerp(1.0..=200.0, eased_percentage).into();
 
     Ok(())
-}
-
-fn get_percentage(min: f32, max: f32, value: f32) -> f32 {
-    ((value - min) / (max - min)).clamp(0.0, 1.0)
 }
