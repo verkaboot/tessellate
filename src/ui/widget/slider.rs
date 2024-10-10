@@ -154,16 +154,8 @@ fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone
     let (mut knob_style, parent) = knob_q.get_mut(trigger.entity())?;
     let resource_value: f32 = (*resource).into();
     let slot_children = slot_q.get(parent.get()).unwrap();
-    let left_bound: f32 = slot_children
-        .iter()
-        .find_map(|child| left_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x + KNOB_PADDING)
-        .ok_or(Error::Custom("Slider missing a left bound.".into()))?;
-    let right_bound: f32 = slot_children
-        .iter()
-        .find_map(|child| right_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x - KNOB_PADDING)
-        .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
+
+    let (left_bound, right_bound) = get_slider_bounds(slot_children, left_bound_q, right_bound_q)?;
 
     let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
@@ -186,16 +178,8 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
 ) -> Result<()> {
     let parent = knob_q.get(trigger.entity()).unwrap();
     let slot_children = slot_q.get(parent.get()).unwrap();
-    let left_bound: f32 = slot_children
-        .iter()
-        .find_map(|child| left_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x + KNOB_PADDING)
-        .ok_or(Error::Custom("Slider missing a left bound.".into()))?;
-    let right_bound: f32 = slot_children
-        .iter()
-        .find_map(|child| right_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x - KNOB_PADDING)
-        .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
+
+    let (left_bound, right_bound) = get_slider_bounds(slot_children, left_bound_q, right_bound_q)?;
 
     let percentage =
         f32::inverse_lerp(left_bound, right_bound, mouse_data.screen_pos[0].x).clamp(0.0, 1.0);
@@ -206,4 +190,27 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     *resource = lerp(1.0..=200.0, eased_percentage).into();
 
     Ok(())
+}
+
+fn get_slider_bounds(
+    slot_children: &Children,
+    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
+    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+) -> Result<(f32, f32)> {
+    let (left, right) = slot_children.iter().fold(
+        (
+            Err(Error::Custom("No left bound found in Slider".into())),
+            Err(Error::Custom("No right bound found in Slider".into())),
+        ),
+        |mut acc, child| {
+            if let Ok(left) = left_bound_q.get(*child) {
+                acc.0 = Ok(left.translation().x + KNOB_PADDING);
+            }
+            if let Ok(right) = right_bound_q.get(*child) {
+                acc.1 = Ok(right.translation().x - KNOB_PADDING);
+            }
+            acc
+        },
+    );
+    Ok((left?, right?))
 }
