@@ -1,7 +1,6 @@
 use bevy::color::palettes::css::WHITE;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
-use bevy_inspector_egui::egui::emath::inverse_lerp;
 use bevy_inspector_egui::egui::lerp;
 
 use crate::canvas::mouse::MouseData;
@@ -10,7 +9,10 @@ use crate::ui::interaction::{OnDrag, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
-pub const KNOB_WIDTH: f32 = 12.0;
+pub const PHI: f32 = 1.618033988749894848204586834365638118_f32; // 1.61803401f32
+pub const KNOB_HEIGHT: f32 = 14.0;
+pub const KNOB_WIDTH: f32 = KNOB_HEIGHT * PHI;
+pub const KNOB_PADDING: f32 = KNOB_WIDTH * (2.0 - PHI);
 
 pub trait SliderWidget {
     fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
@@ -29,7 +31,7 @@ impl<T: Spawn> SliderWidget for T {
             NodeBundle {
                 style: Style {
                     flex_direction: FlexDirection::Column,
-                    padding: UiRect::axes(Px(4.0), Px(2.0)),
+                    padding: UiRect::axes(Px(10.0), Px(2.0)),
                     min_width: Px(120.0),
                     height: Auto,
                     ..default()
@@ -60,7 +62,7 @@ impl<T: Spawn> SliderWidget for T {
                         style: Style {
                             width: Percent(100.0),
                             height: Px(4.0),
-                            margin: UiRect::vertical(Px(4.0)),
+                            margin: UiRect::px(0.0, 0.0, KNOB_PADDING, KNOB_PADDING),
                             align_items: AlignItems::Center,
                             justify_content: JustifyContent::SpaceBetween,
                             ..default()
@@ -76,8 +78,8 @@ impl<T: Spawn> SliderWidget for T {
                         Name::new("Slider Left Bound"),
                         NodeBundle {
                             style: Style {
-                                width: Px(1.),
-                                height: Px(1.),
+                                width: Px(0.),
+                                height: Px(0.),
                                 ..default()
                             },
                             background_color: BackgroundColor(WHITE.into()),
@@ -91,8 +93,8 @@ impl<T: Spawn> SliderWidget for T {
                         ButtonBundle {
                             style: Style {
                                 position_type: PositionType::Absolute,
+                                height: Px(KNOB_HEIGHT),
                                 width: Px(KNOB_WIDTH),
-                                height: Px(KNOB_WIDTH),
                                 border: UiRect::all(Px(0.5)),
                                 ..default()
                             },
@@ -113,8 +115,8 @@ impl<T: Spawn> SliderWidget for T {
                         Name::new("Slider Right Bound"),
                         NodeBundle {
                             style: Style {
-                                width: Px(1.),
-                                height: Px(1.),
+                                width: Px(0.),
+                                height: Px(0.),
                                 ..default()
                             },
                             background_color: BackgroundColor(WHITE.into()),
@@ -155,18 +157,19 @@ fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone
     let left_bound: f32 = slot_children
         .iter()
         .find_map(|child| left_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x)
+        .map(|gt| gt.translation().x + KNOB_PADDING)
         .ok_or(Error::Custom("Slider missing a left bound.".into()))?;
     let right_bound: f32 = slot_children
         .iter()
         .find_map(|child| right_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x)
+        .map(|gt| gt.translation().x - KNOB_PADDING)
         .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
 
     let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
     let percentage = cubic_bezier.ease(percentage);
-    let knob_x: f32 = (0.0).lerp(right_bound - left_bound, percentage) - (KNOB_WIDTH * 0.5);
+    let knob_x: f32 =
+        (0.0).lerp(right_bound - left_bound, percentage) - (KNOB_WIDTH * 0.5) + KNOB_PADDING;
     knob_style.left = Px(knob_x);
 
     Ok(())
@@ -186,17 +189,16 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     let left_bound: f32 = slot_children
         .iter()
         .find_map(|child| left_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x)
+        .map(|gt| gt.translation().x + KNOB_PADDING)
         .ok_or(Error::Custom("Slider missing a left bound.".into()))?;
     let right_bound: f32 = slot_children
         .iter()
         .find_map(|child| right_bound_q.get(*child).ok())
-        .map(|gt| gt.translation().x)
+        .map(|gt| gt.translation().x - KNOB_PADDING)
         .ok_or(Error::Custom("Slider missing a right bound.".into()))?;
 
     let percentage =
         f32::inverse_lerp(left_bound, right_bound, mouse_data.screen_pos[0].x).clamp(0.0, 1.0);
-    println!("{:?}", percentage);
 
     let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
     let eased_percentage = cubic_bezier.ease(percentage);
