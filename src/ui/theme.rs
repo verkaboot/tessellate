@@ -7,7 +7,7 @@ pub const TRANSPARENCY_BLOCKS: Color = Color::Srgba(NEUTRAL_600);
 pub const PANEL_BACKGROUND: Color = Color::Srgba(STONE_600);
 pub const PANEL_OUTLINE: Color = Color::Srgba(STONE_800);
 pub const PANEL_HIGHLIGHT: Color = Color::Srgba(STONE_500);
-pub const TEXT: Color = Color::Srgba(STONE_50);
+pub const TEXT: Color = Color::Srgba(STONE_100);
 
 // Widget Colors
 pub const BUTTON_BACKGROUND: Color = Color::Srgba(STONE_400);

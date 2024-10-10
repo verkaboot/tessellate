@@ -42,20 +42,58 @@ impl<T: Spawn> SliderWidget for T {
             },
         ));
 
-        entity.with_children(|parent| {
-            parent.spawn((
-                Name::new("Label"),
-                TextBundle::from_section(
-                    label,
-                    TextStyle {
-                        font_size: 16.0,
-                        color: TEXT,
+        entity.with_children(|slider| {
+            slider
+                .spawn((
+                    Name::new("Label Container"),
+                    NodeBundle {
+                        style: Style {
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::SpaceBetween,
+                            ..default()
+                        },
                         ..default()
                     },
-                ),
-            ));
+                ))
+                .with_children(|label_container| {
+                    label_container.spawn((
+                        Name::new("Label"),
+                        TextBundle::from_section(
+                            label,
+                            TextStyle {
+                                font_size: 16.0,
+                                color: TEXT,
+                                ..default()
+                            },
+                        ),
+                    ));
 
-            parent
+                    label_container
+                        .spawn((
+                            Name::new("Value"),
+                            TextBundle::from_section(
+                                "-",
+                                TextStyle {
+                                    font_size: 16.0,
+                                    color: TEXT,
+                                    ..default()
+                                },
+                            )
+                            .with_text_justify(JustifyText::Right)
+                            .with_style(Style {
+                                width: Px(40.0),
+                                overflow: Overflow {
+                                    x: OverflowAxis::Clip,
+                                    y: OverflowAxis::Visible,
+                                },
+                                ..default()
+                            }),
+                            WatchResource::<R>::new(),
+                        ))
+                        .observe(update_text::<R>.map(utils::warn));
+                });
+
+            slider
                 .spawn((
                     Name::new("SliderSlot"),
                     NodeBundle {
@@ -104,9 +142,7 @@ impl<T: Spawn> SliderWidget for T {
                             ..default()
                         },
                         SliderKnob,
-                        WatchResource {
-                            resource: std::marker::PhantomData::<R>,
-                        },
+                        WatchResource::<R>::new(),
                         MouseOffset(0.0),
                     ))
                     .observe(update_knob_position::<R>.map(utils::warn))
@@ -186,6 +222,17 @@ fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone
         (0.0).lerp(right_bound - left_bound, percentage) - (KNOB_WIDTH * 0.5) + KNOB_PADDING;
     knob_style.left = Px(knob_x);
 
+    Ok(())
+}
+
+fn update_text<R: Resource + Into<f32> + Clone + Copy>(
+    trigger: Trigger<OnResourceUpdated<R>>,
+    resource: Res<R>,
+    mut text_q: Query<&mut Text>,
+) -> Result<()> {
+    println!("Hey");
+    let mut text = text_q.get_mut(trigger.entity())?;
+    text.sections[0].value = format!("{0:.2}", (*resource).into());
     Ok(())
 }
 

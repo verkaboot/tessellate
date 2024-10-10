@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use bevy::prelude::*;
 
 use crate::canvas::{brush::BrushSize, mouse::MouseData};
@@ -109,12 +111,20 @@ fn apply_interaction_palette(
 
 #[derive(Event)]
 pub struct OnResourceUpdated<R: Resource> {
-    resource: std::marker::PhantomData<R>,
+    resource: PhantomData<R>,
 }
 
 #[derive(Component)]
 pub struct WatchResource<R: Resource> {
-    pub resource: std::marker::PhantomData<R>,
+    pub resource: PhantomData<R>,
+}
+
+impl<R: Resource> WatchResource<R> {
+    pub fn new() -> Self {
+        Self {
+            resource: PhantomData::<R>,
+        }
+    }
 }
 
 fn trigger_on_resource_updated<R: Resource>(
