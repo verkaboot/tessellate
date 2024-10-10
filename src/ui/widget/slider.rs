@@ -5,7 +5,7 @@ use bevy_inspector_egui::egui::lerp;
 
 use crate::canvas::mouse::MouseData;
 use crate::error::{Error, Result};
-use crate::ui::interaction::{OnDrag, OnResourceUpdated, WatchResource};
+use crate::ui::interaction::{OnDrag, OnPress, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
@@ -109,6 +109,7 @@ impl<T: Spawn> SliderWidget for T {
                         },
                     ))
                     .observe(update_knob_position::<R>.map(utils::warn))
+                    .observe(on_press.map(utils::warn))
                     .observe(on_drag::<R>.map(utils::warn));
 
                     slot.spawn((
@@ -143,6 +144,26 @@ pub struct SliderLeftBound;
 #[derive(Component)]
 pub struct SliderRightBound;
 
+#[derive(Component)]
+pub struct MouseOffset(f32);
+
+fn on_press(
+    trigger: Trigger<OnPress>,
+    mut commands: Commands,
+    mouse_data: Res<MouseData>,
+    knob_q: Query<&GlobalTransform, With<SliderKnob>>,
+) -> Result<()> {
+    let knob_x = knob_q
+        .get(trigger.entity())
+        .map(|global_transform| global_transform.translation().x)?;
+    let mouse_x = mouse_data.screen_pos[0].x;
+    commands
+        .entity(trigger.entity())
+        .insert(MouseOffset(knob_x - mouse_x));
+
+    Ok(())
+}
+
 fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone>(
     trigger: Trigger<OnResourceUpdated<R>>,
     resource: Res<R>,
@@ -171,18 +192,20 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     trigger: Trigger<OnDrag>,
     mut resource: ResMut<R>,
     mouse_data: Res<MouseData>,
-    knob_q: Query<&Parent, With<SliderKnob>>,
+    knob_q: Query<(&Parent, &MouseOffset), With<SliderKnob>>,
     slot_q: Query<&Children, With<SliderSlot>>,
     left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
     right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
 ) -> Result<()> {
-    let parent = knob_q.get(trigger.entity()).unwrap();
+    let (parent, mouse_offset) = knob_q.get(trigger.entity()).unwrap();
     let slot_children = slot_q.get(parent.get()).unwrap();
 
     let (left_bound, right_bound) = get_slider_bounds(slot_children, left_bound_q, right_bound_q)?;
 
-    let percentage =
-        f32::inverse_lerp(left_bound, right_bound, mouse_data.screen_pos[0].x).clamp(0.0, 1.0);
+    let mouse_x = mouse_data.screen_pos[0].x;
+    let x = mouse_x + mouse_offset.0;
+
+    let percentage = f32::inverse_lerp(left_bound, right_bound, x).clamp(0.0, 1.0);
 
     let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
     let eased_percentage = cubic_bezier.ease(percentage);
