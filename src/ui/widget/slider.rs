@@ -107,6 +107,7 @@ impl<T: Spawn> SliderWidget for T {
                         WatchResource {
                             resource: std::marker::PhantomData::<R>,
                         },
+                        MouseOffset(0.0),
                     ))
                     .observe(update_knob_position::<R>.map(utils::warn))
                     .observe(on_press.map(utils::warn))
