@@ -9,7 +9,7 @@ use crate::ui::interaction::{OnDrag, OnPress, OnResourceUpdated, WatchResource};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
-pub const PHI: f32 = 1.618033988749894848204586834365638118_f32; // 1.61803401f32
+pub const PHI: f32 = 1.618;
 pub const KNOB_HEIGHT: f32 = 14.0;
 pub const KNOB_WIDTH: f32 = KNOB_HEIGHT * PHI;
 pub const KNOB_PADDING: f32 = KNOB_WIDTH * (2.0 - PHI);
@@ -48,7 +48,7 @@ impl<T: Spawn> SliderWidget for T {
                 TextBundle::from_section(
                     label,
                     TextStyle {
-                        font_size: 12.0,
+                        font_size: 16.0,
                         color: TEXT,
                         ..default()
                     },
