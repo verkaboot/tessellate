@@ -33,6 +33,8 @@ impl<T: Spawn> SliderWidget for T {
                     padding: UiRect::axes(Px(10.0), Px(2.0)),
                     min_width: Px(120.0),
                     height: Auto,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..default()
                 },
                 background_color: BackgroundColor(SLIDER_BACKGROUND),
@@ -94,52 +96,82 @@ impl<T: Spawn> SliderWidget for T {
 
             slider
                 .spawn((
-                    Name::new("SliderSlot"),
+                    Name::new("Slider Slot"),
                     ButtonBundle {
                         style: Style {
                             width: Percent(100.0),
-                            height: Px(4.0),
-                            margin: UiRect::px(0.0, 0.0, KNOB_PADDING, KNOB_PADDING),
                             align_items: AlignItems::Center,
                             justify_content: JustifyContent::SpaceBetween,
+                            padding: UiRect::vertical(Px(KNOB_PADDING)),
                             ..default()
                         },
-                        background_color: BackgroundColor(SLIDER_SLOT),
-                        border_radius: BorderRadius::all(Px(4.0)),
                         ..default()
                     },
                     SliderSlot,
                     RelativeCursorPosition::default(),
                 ))
-                // Observers
                 .observe(on_drag::<R>.map(utils::warn))
-                // Children
                 .with_children(|slot| {
                     slot.spawn((
-                        Name::new("Slider Knob"),
+                        Name::new("Slot Graphic"),
                         NodeBundle {
                             style: Style {
+                                position_type: PositionType::Absolute,
+                                width: Percent(100.0),
                                 height: Px(KNOB_HEIGHT),
-                                width: Px(KNOB_WIDTH),
-                                border: UiRect::all(Px(0.5)),
                                 ..default()
                             },
+                            background_color: BackgroundColor(SLIDER_SLOT),
                             border_radius: BorderRadius::all(Percent(100.0)),
-                            background_color: BackgroundColor(SLIDER_KNOB),
-                            border_color: BorderColor(SLIDER_KNOB_OUTLINE),
                             ..default()
                         },
-                        SliderKnob,
-                        WatchResource::<R>::new(),
+                    ));
+
+                    slot.spawn((
+                        Name::new("KnobContainer"),
+                        NodeBundle {
+                            style: Style {
+                                width: Percent(100.0),
+                                padding: UiRect::right(Px(KNOB_WIDTH)),
+                                ..default()
+                            },
+                            ..default()
+                        },
+                        KnobContainer,
                     ))
-                    .observe(update_knob_position::<OnUiNodeSizeChange, R>.map(utils::warn))
-                    .observe(update_knob_position::<OnResourceUpdated<R>, R>.map(utils::warn));
+                    .with_children(|knob_container| {
+                        knob_container
+                            .spawn((
+                                Name::new("Slider Knob"),
+                                NodeBundle {
+                                    style: Style {
+                                        height: Px(KNOB_HEIGHT),
+                                        width: Px(KNOB_WIDTH),
+                                        border: UiRect::all(Px(0.5)),
+                                        ..default()
+                                    },
+                                    border_radius: BorderRadius::all(Percent(100.0)),
+                                    background_color: BackgroundColor(SLIDER_KNOB),
+                                    border_color: BorderColor(SLIDER_KNOB_OUTLINE),
+                                    ..default()
+                                },
+                                SliderKnob,
+                                WatchResource::<R>::new(),
+                            ))
+                            .observe(update_knob_position::<OnUiNodeSizeChange, R>.map(utils::warn))
+                            .observe(
+                                update_knob_position::<OnResourceUpdated<R>, R>.map(utils::warn),
+                            );
+                    });
                 });
         });
 
         entity
     }
 }
+
+#[derive(Component)]
+pub struct KnobContainer;
 
 #[derive(Component)]
 pub struct SliderKnob;
@@ -153,22 +185,15 @@ fn update_knob_position<
 >(
     trigger: Trigger<T>,
     resource: Res<R>,
-    mut knob_q: Query<(&mut Style, &Parent), With<SliderKnob>>,
-    slot_q: Query<&Node, With<SliderSlot>>,
+    mut knob_q: Query<&mut Style, With<SliderKnob>>,
 ) -> Result<()> {
-    let (knob_style, knob_parent) = &mut knob_q.get_mut(trigger.entity())?;
-    let slot_node = slot_q.get(knob_parent.get())?;
+    let knob_style = &mut knob_q.get_mut(trigger.entity())?;
     let resource_value: f32 = (*resource).into();
-    let Vec2 {
-        x: slot_width,
-        y: _,
-    } = slot_node.size();
     let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
 
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
     let percentage = cubic_bezier.ease(percentage);
-    let knob_x: f32 = (0.0).lerp(slot_width, percentage) - (KNOB_WIDTH * 0.5) + KNOB_PADDING;
-    knob_style.left = Px(knob_x);
+    knob_style.left = Percent(percentage * 100.0);
 
     Ok(())
 }
@@ -189,7 +214,7 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     slot_q: Query<&RelativeCursorPosition, With<SliderSlot>>,
 ) -> Result<()> {
     let cursor_pos = slot_q.get(trigger.entity())?;
-    if let Some(Vec2 { x, y }) = cursor_pos.normalized {
+    if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
         let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
         let eased_percentage = cubic_bezier.ease(x);
 
