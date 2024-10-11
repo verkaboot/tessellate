@@ -118,10 +118,29 @@ impl<T: Spawn> SliderWidget for T {
                                 position_type: PositionType::Absolute,
                                 width: Percent(100.0),
                                 height: Px(KNOB_HEIGHT),
+                                border: UiRect::all(Px(1.0)),
                                 ..default()
                             },
+                            border_color: BorderColor(SLIDER_BACKGROUND),
                             background_color: BackgroundColor(SLIDER_SLOT),
                             border_radius: BorderRadius::all(Percent(100.0)),
+                            ..default()
+                        },
+                    ));
+
+                    slot.spawn((
+                        Name::new("Slot Graphic Fill"),
+                        NodeBundle {
+                            style: Style {
+                                position_type: PositionType::Absolute,
+                                width: Percent(50.0),
+                                height: Px(KNOB_HEIGHT),
+                                border: UiRect::all(Px(1.0)),
+                                ..default()
+                            },
+                            border_color: BorderColor(SLIDER_BACKGROUND),
+                            background_color: BackgroundColor(SLIDER_SLOT_FILL),
+                            border_radius: BorderRadius::percent(100.0, 0.0, 0.0, 100.0),
                             ..default()
                         },
                     ));
@@ -131,10 +150,10 @@ impl<T: Spawn> SliderWidget for T {
                         NodeBundle {
                             style: Style {
                                 width: Percent(100.0),
+                                // Make container smaller than the graphic to fit knob
                                 margin: UiRect::horizontal(Px(KNOB_WIDTH * 0.5)),
                                 ..default()
                             },
-                            background_color: BackgroundColor(SLATE_BLUE.into()),
                             ..default()
                         },
                         KnobContainer,
@@ -148,7 +167,8 @@ impl<T: Spawn> SliderWidget for T {
                                     style: Style {
                                         height: Px(KNOB_HEIGHT),
                                         width: Px(KNOB_WIDTH),
-                                        border: UiRect::all(Px(0.5)),
+                                        border: UiRect::all(Px(1.0)),
+                                        // Center the knob
                                         margin: UiRect::left(Px(KNOB_WIDTH * -0.5)),
                                         ..default()
                                     },
