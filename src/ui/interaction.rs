@@ -166,7 +166,6 @@ pub struct OnUiNodeSizeChange;
 
 fn trigger_node_updated(watcher_q: Query<Entity, Changed<Node>>, mut commands: Commands) {
     for entity in &watcher_q {
-        println!("trigger node");
         commands.trigger_targets(OnUiNodeSizeChange, entity);
     }
 }

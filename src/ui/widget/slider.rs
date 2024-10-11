@@ -1,3 +1,4 @@
+use bevy::color::palettes::css::SLATE_BLUE;
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
@@ -97,7 +98,7 @@ impl<T: Spawn> SliderWidget for T {
             slider
                 .spawn((
                     Name::new("Slider Slot"),
-                    ButtonBundle {
+                    NodeBundle {
                         style: Style {
                             width: Percent(100.0),
                             align_items: AlignItems::Center,
@@ -108,9 +109,7 @@ impl<T: Spawn> SliderWidget for T {
                         ..default()
                     },
                     SliderSlot,
-                    RelativeCursorPosition::default(),
                 ))
-                .observe(on_drag::<R>.map(utils::warn))
                 .with_children(|slot| {
                     slot.spawn((
                         Name::new("Slot Graphic"),
@@ -132,22 +131,25 @@ impl<T: Spawn> SliderWidget for T {
                         NodeBundle {
                             style: Style {
                                 width: Percent(100.0),
-                                padding: UiRect::right(Px(KNOB_WIDTH)),
+                                margin: UiRect::horizontal(Px(KNOB_WIDTH * 0.5)),
                                 ..default()
                             },
+                            background_color: BackgroundColor(SLATE_BLUE.into()),
                             ..default()
                         },
                         KnobContainer,
+                        RelativeCursorPosition::default(),
                     ))
                     .with_children(|knob_container| {
                         knob_container
                             .spawn((
                                 Name::new("Slider Knob"),
-                                NodeBundle {
+                                ButtonBundle {
                                     style: Style {
                                         height: Px(KNOB_HEIGHT),
                                         width: Px(KNOB_WIDTH),
                                         border: UiRect::all(Px(0.5)),
+                                        margin: UiRect::left(Px(KNOB_WIDTH * -0.5)),
                                         ..default()
                                     },
                                     border_radius: BorderRadius::all(Percent(100.0)),
@@ -158,6 +160,7 @@ impl<T: Spawn> SliderWidget for T {
                                 SliderKnob,
                                 WatchResource::<R>::new(),
                             ))
+                            .observe(on_drag::<R>.map(utils::warn))
                             .observe(update_knob_position::<OnUiNodeSizeChange, R>.map(utils::warn))
                             .observe(
                                 update_knob_position::<OnResourceUpdated<R>, R>.map(utils::warn),
@@ -178,6 +181,24 @@ pub struct SliderKnob;
 
 #[derive(Component)]
 pub struct SliderSlot;
+
+fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
+    trigger: Trigger<OnDrag>,
+    mut resource: ResMut<R>,
+    container_q: Query<&RelativeCursorPosition, With<KnobContainer>>,
+    knob_q: Query<&Parent, With<SliderKnob>>,
+) -> Result<()> {
+    let knob_parent = knob_q.get(trigger.entity())?;
+    let cursor_pos = container_q.get(knob_parent.get())?;
+    if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
+        let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
+        let eased_percentage = cubic_bezier.ease(x);
+
+        *resource = lerp(1.0..=200.0, eased_percentage).into();
+    }
+
+    Ok(())
+}
 
 fn update_knob_position<
     T: Event + std::fmt::Debug,
@@ -205,21 +226,5 @@ fn update_text<R: Resource + Into<f32> + Clone + Copy>(
 ) -> Result<()> {
     let mut text = text_q.get_mut(trigger.entity())?;
     text.sections[0].value = format!("{0:.2}", (*resource).into());
-    Ok(())
-}
-
-fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
-    trigger: Trigger<OnDrag>,
-    mut resource: ResMut<R>,
-    slot_q: Query<&RelativeCursorPosition, With<SliderSlot>>,
-) -> Result<()> {
-    let cursor_pos = slot_q.get(trigger.entity())?;
-    if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
-        let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
-        let eased_percentage = cubic_bezier.ease(x);
-
-        *resource = lerp(1.0..=200.0, eased_percentage).into();
-    }
-
     Ok(())
 }
