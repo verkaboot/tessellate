@@ -15,7 +15,7 @@ pub(super) fn plugin(app: &mut App) {
             apply_interaction_palette,
             trigger_on_resource_updated::<BrushSize>,
             trigger_watch_resource_init::<BrushSize>,
-            trigger_bounds_updated,
+            trigger_node_updated,
         ),
     );
 }
@@ -162,37 +162,11 @@ fn trigger_watch_resource_init<R: Resource>(
 }
 
 #[derive(Event, Debug)]
-pub struct OnBoundsUpdated;
+pub struct OnUiNodeSizeChange;
 
-#[derive(Component)]
-pub struct BoundLeft;
-
-#[derive(Component)]
-pub struct BoundRight;
-
-#[derive(Component)]
-pub struct BoundTop;
-
-#[derive(Component)]
-pub struct BoundBottom;
-
-fn trigger_bounds_updated(
-    watcher_q: Query<
-        Entity,
-        (
-            Or<(
-                With<BoundLeft>,
-                With<BoundRight>,
-                With<BoundTop>,
-                With<BoundBottom>,
-            )>,
-            Changed<GlobalTransform>,
-        ),
-    >,
-    mut commands: Commands,
-) {
+fn trigger_node_updated(watcher_q: Query<Entity, Changed<Node>>, mut commands: Commands) {
     for entity in &watcher_q {
-        println!("trigger bounds");
-        commands.trigger_targets(OnBoundsUpdated, entity);
+        println!("trigger node");
+        commands.trigger_targets(OnUiNodeSizeChange, entity);
     }
 }
