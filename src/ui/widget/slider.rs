@@ -128,22 +128,25 @@ impl<T: Spawn> SliderWidget for T {
                         },
                     ));
 
-                    slot.spawn((
-                        Name::new("Slot Graphic Fill"),
-                        NodeBundle {
-                            style: Style {
-                                position_type: PositionType::Absolute,
-                                width: Percent(50.0),
-                                height: Px(KNOB_HEIGHT),
-                                border: UiRect::all(Px(1.0)),
+                    let graphic_fill = slot
+                        .spawn((
+                            Name::new("Slot Graphic Fill"),
+                            NodeBundle {
+                                style: Style {
+                                    position_type: PositionType::Absolute,
+                                    width: Percent(50.0),
+                                    height: Px(KNOB_HEIGHT),
+                                    border: UiRect::all(Px(1.0)),
+                                    ..default()
+                                },
+                                border_color: BorderColor(SLIDER_BACKGROUND),
+                                background_color: BackgroundColor(SLIDER_SLOT_FILL),
+                                border_radius: BorderRadius::percent(100.0, 0.0, 0.0, 100.0),
                                 ..default()
                             },
-                            border_color: BorderColor(SLIDER_BACKGROUND),
-                            background_color: BackgroundColor(SLIDER_SLOT_FILL),
-                            border_radius: BorderRadius::percent(100.0, 0.0, 0.0, 100.0),
-                            ..default()
-                        },
-                    ));
+                            GraphicFill,
+                        ))
+                        .id();
 
                     slot.spawn((
                         Name::new("KnobContainer"),
@@ -178,6 +181,7 @@ impl<T: Spawn> SliderWidget for T {
                                     ..default()
                                 },
                                 SliderKnob,
+                                FillEntity(graphic_fill),
                                 WatchResource::<R>::new(),
                             ))
                             .observe(on_drag::<R>.map(utils::warn))
@@ -201,6 +205,12 @@ pub struct SliderKnob;
 
 #[derive(Component)]
 pub struct SliderSlot;
+
+#[derive(Component)]
+pub struct GraphicFill;
+
+#[derive(Component)]
+pub struct FillEntity(Entity);
 
 fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     trigger: Trigger<OnDrag>,
@@ -226,15 +236,18 @@ fn update_knob_position<
 >(
     trigger: Trigger<T>,
     resource: Res<R>,
-    mut knob_q: Query<&mut Style, With<SliderKnob>>,
+    mut knob_q: Query<(&mut Style, &FillEntity), With<SliderKnob>>,
+    mut fill_q: Query<&mut Style, (With<GraphicFill>, Without<SliderKnob>)>,
 ) -> Result<()> {
-    let knob_style = &mut knob_q.get_mut(trigger.entity())?;
+    let (knob_style, fill_entity) = &mut knob_q.get_mut(trigger.entity())?;
+    let mut fill_style = fill_q.get_mut(fill_entity.0)?;
     let resource_value: f32 = (*resource).into();
     let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
 
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
     let percentage = cubic_bezier.ease(percentage);
     knob_style.left = Percent(percentage * 100.0);
+    fill_style.width = Percent(percentage * 100.0);
 
     Ok(())
 }
