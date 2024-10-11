@@ -14,6 +14,8 @@ pub(super) fn plugin(app: &mut App) {
             trigger_on_drag.run_if(resource_changed::<MouseData>),
             apply_interaction_palette,
             trigger_on_resource_updated::<BrushSize>,
+            trigger_watch_resource_init::<BrushSize>,
+            trigger_bounds_updated,
         ),
     );
 }
@@ -109,7 +111,7 @@ fn apply_interaction_palette(
     }
 }
 
-#[derive(Event)]
+#[derive(Event, Debug)]
 pub struct OnResourceUpdated<R: Resource> {
     resource: PhantomData<R>,
 }
@@ -134,6 +136,7 @@ fn trigger_on_resource_updated<R: Resource>(
 ) {
     if resource.is_changed() {
         for entity in &watcher_q {
+            println!("trigger resource");
             commands.trigger_targets(
                 OnResourceUpdated {
                     resource: std::marker::PhantomData::<R>,
@@ -141,5 +144,55 @@ fn trigger_on_resource_updated<R: Resource>(
                 entity,
             );
         }
+    }
+}
+
+fn trigger_watch_resource_init<R: Resource>(
+    watcher_q: Query<Entity, Added<WatchResource<R>>>,
+    mut commands: Commands,
+) {
+    for entity in &watcher_q {
+        commands.trigger_targets(
+            OnResourceUpdated {
+                resource: std::marker::PhantomData::<R>,
+            },
+            entity,
+        );
+    }
+}
+
+#[derive(Event, Debug)]
+pub struct OnBoundsUpdated;
+
+#[derive(Component)]
+pub struct BoundLeft;
+
+#[derive(Component)]
+pub struct BoundRight;
+
+#[derive(Component)]
+pub struct BoundTop;
+
+#[derive(Component)]
+pub struct BoundBottom;
+
+fn trigger_bounds_updated(
+    watcher_q: Query<
+        Entity,
+        (
+            Or<(
+                With<BoundLeft>,
+                With<BoundRight>,
+                With<BoundTop>,
+                With<BoundBottom>,
+            )>,
+            Changed<GlobalTransform>,
+        ),
+    >,
+    mut commands: Commands,
+) {
+    for entity in &watcher_q {
+        println!("trigger bounds");
+        commands.trigger_targets(OnBoundsUpdated, entity);
     }
 }

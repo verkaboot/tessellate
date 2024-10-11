@@ -5,7 +5,9 @@ use bevy_inspector_egui::egui::lerp;
 
 use crate::canvas::mouse::MouseData;
 use crate::error::{Error, Result};
-use crate::ui::interaction::{OnDrag, OnPress, OnResourceUpdated, WatchResource};
+use crate::ui::interaction::{
+    BoundLeft, BoundRight, OnBoundsUpdated, OnDrag, OnPress, OnResourceUpdated, WatchResource,
+};
 use crate::ui::theme::*;
 use crate::ui::widget::Spawn;
 
@@ -123,7 +125,7 @@ impl<T: Spawn> SliderWidget for T {
                             background_color: BackgroundColor(WHITE.into()),
                             ..default()
                         },
-                        SliderLeftBound,
+                        BoundLeft,
                     ));
 
                     slot.spawn((
@@ -145,7 +147,8 @@ impl<T: Spawn> SliderWidget for T {
                         WatchResource::<R>::new(),
                         MouseOffset(0.0),
                     ))
-                    .observe(update_knob_position::<R>.map(utils::warn))
+                    .observe(update_knob_position::<OnResourceUpdated<R>, R>.map(utils::warn))
+                    .observe(update_knob_position::<OnBoundsUpdated, R>.map(utils::warn))
                     .observe(on_press.map(utils::warn))
                     .observe(on_drag::<R>.map(utils::warn));
 
@@ -160,7 +163,7 @@ impl<T: Spawn> SliderWidget for T {
                             background_color: BackgroundColor(WHITE.into()),
                             ..default()
                         },
-                        SliderRightBound,
+                        BoundRight,
                     ));
                 });
         });
@@ -174,12 +177,6 @@ pub struct SliderKnob;
 
 #[derive(Component)]
 pub struct SliderSlot;
-
-#[derive(Component)]
-pub struct SliderLeftBound;
-
-#[derive(Component)]
-pub struct SliderRightBound;
 
 #[derive(Component)]
 pub struct MouseOffset(f32);
@@ -201,14 +198,18 @@ fn on_press(
     Ok(())
 }
 
-fn update_knob_position<R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone>(
-    trigger: Trigger<OnResourceUpdated<R>>,
+fn update_knob_position<
+    T: Event + std::fmt::Debug,
+    R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone,
+>(
+    trigger: Trigger<T>,
     resource: Res<R>,
     mut knob_q: Query<(&mut Style, &Parent), With<SliderKnob>>,
     slot_q: Query<&Children, With<SliderSlot>>,
-    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
-    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+    left_bound_q: Query<&GlobalTransform, With<BoundLeft>>,
+    right_bound_q: Query<&GlobalTransform, With<BoundRight>>,
 ) -> Result<()> {
+    println!("update_knob");
     let (mut knob_style, parent) = knob_q.get_mut(trigger.entity())?;
     let resource_value: f32 = (*resource).into();
     let slot_children = slot_q.get(parent.get()).unwrap();
@@ -230,7 +231,6 @@ fn update_text<R: Resource + Into<f32> + Clone + Copy>(
     resource: Res<R>,
     mut text_q: Query<&mut Text>,
 ) -> Result<()> {
-    println!("Hey");
     let mut text = text_q.get_mut(trigger.entity())?;
     text.sections[0].value = format!("{0:.2}", (*resource).into());
     Ok(())
@@ -242,8 +242,8 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
     mouse_data: Res<MouseData>,
     knob_q: Query<(&Parent, &MouseOffset), With<SliderKnob>>,
     slot_q: Query<&Children, With<SliderSlot>>,
-    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
-    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+    left_bound_q: Query<&GlobalTransform, With<BoundLeft>>,
+    right_bound_q: Query<&GlobalTransform, With<BoundRight>>,
 ) -> Result<()> {
     let (parent, mouse_offset) = knob_q.get(trigger.entity()).unwrap();
     let slot_children = slot_q.get(parent.get()).unwrap();
@@ -265,8 +265,8 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
 
 fn get_slider_bounds(
     slot_children: &Children,
-    left_bound_q: Query<&GlobalTransform, With<SliderLeftBound>>,
-    right_bound_q: Query<&GlobalTransform, With<SliderRightBound>>,
+    left_bound_q: Query<&GlobalTransform, With<BoundLeft>>,
+    right_bound_q: Query<&GlobalTransform, With<BoundRight>>,
 ) -> Result<(f32, f32)> {
     let (left, right) = slot_children.iter().fold(
         (
