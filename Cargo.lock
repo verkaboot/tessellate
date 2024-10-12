@@ -178,12 +178,14 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bevy_framepace",
- "bytemuck",
- "derive_more 1.0.0",
+ "canvas",
+ "error",
  "leafwing-input-manager",
  "log",
  "rand",
  "tracing",
+ "ui",
+ "ui_macros",
 ]
 
 [[package]]
@@ -1440,6 +1442,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "canvas"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bytemuck",
+ "error",
+]
+
+[[package]]
 name = "cc"
 version = "1.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1950,6 +1961,14 @@ checksum = "534c5cf6194dfab3db3242765c03bbe257cf92f22b38f6bc0c58d59108a820ba"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "error"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "derive_more 1.0.0",
 ]
 
 [[package]]
@@ -4177,6 +4196,25 @@ name = "typeid"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "059d83cc991e7a42fc37bd50941885db0888e34209f8cfd9aab07ddec03bc9cf"
+
+[[package]]
+name = "ui"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "canvas",
+ "error",
+]
+
+[[package]]
+name = "ui_macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "ui",
+]
 
 [[package]]
 name = "unicode-bidi"

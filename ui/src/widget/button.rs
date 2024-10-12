@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::ui::{interaction::InteractionPalette, theme::*};
+use crate::{interaction::InteractionPalette, theme::BUTTON_BACKGROUND};
 
 use super::Spawn;
 

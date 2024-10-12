@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::extract_resource::ExtractResource, window::PrimaryWindow};
 
-use crate::error::{Error, Result};
+use error::{Error, Result};
 
 #[derive(Resource, Clone, Copy, ExtractResource)]
 pub struct MouseData {

@@ -1,18 +1,21 @@
-use bevy::color::palettes::css::SLATE_BLUE;
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
-use bevy_inspector_egui::egui::lerp;
 
-use crate::error::{Error, Result};
-use crate::ui::interaction::{OnDrag, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
-use crate::ui::theme::*;
-use crate::ui::widget::Spawn;
+use crate::interaction::{OnDrag, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
+use crate::theme::*;
+use crate::widget::Spawn;
+use error::Result;
 
 pub const PHI: f32 = 1.618;
 pub const KNOB_HEIGHT: f32 = 14.0;
 pub const KNOB_WIDTH: f32 = KNOB_HEIGHT * PHI;
 pub const KNOB_PADDING: f32 = KNOB_WIDTH * (2.0 - PHI);
+
+pub trait SliderValue {
+    fn from_f32(input: f32) -> Self;
+    fn to_f32(&self) -> f32;
+}
 
 pub trait SliderWidget {
     fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
@@ -224,7 +227,7 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
         let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
         let eased_percentage = cubic_bezier.ease(x);
 
-        *resource = lerp(1.0..=200.0, eased_percentage).into();
+        *resource = 1.0.lerp(200.0, eased_percentage).into();
     }
 
     Ok(())

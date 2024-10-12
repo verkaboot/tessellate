@@ -14,7 +14,7 @@ pub mod prelude {
         flex::FlexWidget,
         panel::{PanelDirection, PanelWidget},
         root::Containers,
-        slider::SliderWidget,
+        slider::{SliderValue, SliderWidget},
     };
 }
 

@@ -1,0 +1,16 @@
+[package]
+name = "ui_macros"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Proc Macros
+syn = "1.0"
+quote = "1.0"
+proc-macro2 = "1.0"
+
+# Siblings
+ui = { path = "../ui" }
+
+[lib]
+proc-macro = true

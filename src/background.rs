@@ -9,8 +9,8 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::error::Result;
-use crate::ui::theme::*;
+use error::Result;
+use ui::theme::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(ClearColor(Color::NONE))

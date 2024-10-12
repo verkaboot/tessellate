@@ -14,7 +14,7 @@ pub const SIZE: (u32, u32) = (1920 * 3, 1920 * 3);
 const SHADER_ASSET_PATH: &str = "shaders/canvas.wgsl";
 const WORKGROUP_SIZE: u32 = 8;
 
-pub(super) fn plugin(app: &mut App) {
+pub fn plugin(app: &mut App) {
     app.add_plugins(CanvasComputePlugin)
         .insert_resource(BrushSize(8.0))
         .insert_resource(BrushColor::new(

@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use bevy::prelude::*;
 
-use crate::canvas::{brush::BrushSize, mouse::MouseData};
+use canvas::{brush::BrushSize, mouse::MouseData};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
@@ -136,7 +136,6 @@ fn trigger_on_resource_updated<R: Resource>(
 ) {
     if resource.is_changed() {
         for entity in &watcher_q {
-            println!("trigger resource");
             commands.trigger_targets(
                 OnResourceUpdated {
                     resource: std::marker::PhantomData::<R>,

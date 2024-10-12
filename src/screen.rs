@@ -1,25 +1,15 @@
-mod icon;
-pub mod interaction;
-pub mod theme;
-mod widget;
-
 use bevy::prelude::*;
-use icon::Icon;
-use interaction::{OnPress, OnRelease};
-use widget::prelude::*;
+use ui::icon::Icon;
+use ui::interaction::{OnPress, OnRelease};
+use ui::widget::prelude::*;
 
-use crate::canvas::{
+use canvas::{
     brush::{BrushColor, BrushSize, BrushType},
     mouse::MouseData,
     sprite::CanvasImages,
 };
 
-pub(super) fn plugin(app: &mut App) {
-    app.add_plugins(interaction::plugin)
-        .add_systems(Startup, setup);
-}
-
-fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands) {
     commands.ui_root().with_children(|ui_root| {
         ui_root.panel(PanelDirection::Wide);
         ui_root.flex().with_children(|flex| {
@@ -42,6 +32,7 @@ fn setup(mut commands: Commands) {
                         .add(Icon::ColorPicker)
                         .observe(change_color);
                     side_bar_right.slider::<BrushSize>("Brush Size");
+                    // side_bar_right.slider::<BrushColor>("Brush Color");
                 });
         });
         ui_root.panel(PanelDirection::Wide);

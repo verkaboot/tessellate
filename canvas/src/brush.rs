@@ -11,7 +11,7 @@ impl Into<f32> for BrushSize {
 
 impl From<f32> for BrushSize {
     fn from(value: f32) -> Self {
-        BrushSize(value)
+        Self(value)
     }
 }
 
