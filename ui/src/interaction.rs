@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use std::marker::PhantomData;
+
+use bevy::{prelude::*, ui::RelativeCursorPosition};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
@@ -7,7 +9,9 @@ pub(super) fn plugin(app: &mut App) {
         (
             trigger_on_press,
             trigger_on_release,
+            trigger_on_drag,
             apply_interaction_palette,
+            trigger_node_updated,
         ),
     );
 }
@@ -56,6 +60,20 @@ fn trigger_on_press(
 }
 
 #[derive(Event)]
+pub struct OnDrag;
+
+fn trigger_on_drag(
+    interaction_query: Query<(Entity, &Interaction), Changed<RelativeCursorPosition>>,
+    mut commands: Commands,
+) {
+    for (entity, interaction) in &interaction_query {
+        if matches!(interaction, Interaction::Pressed) {
+            commands.trigger_targets(OnDrag, entity);
+        }
+    }
+}
+
+#[derive(Event)]
 pub struct OnRelease;
 
 fn trigger_on_release(
@@ -89,5 +107,63 @@ fn apply_interaction_palette(
             Interaction::Pressed => palette.pressed,
         }
         .into();
+    }
+}
+
+#[derive(Event, Debug)]
+pub struct OnResourceUpdated<R: Resource> {
+    resource: PhantomData<R>,
+}
+
+#[derive(Component)]
+pub struct WatchResource<R: Resource> {
+    pub resource: PhantomData<R>,
+}
+
+impl<R: Resource> WatchResource<R> {
+    pub fn new() -> Self {
+        Self {
+            resource: PhantomData::<R>,
+        }
+    }
+}
+
+pub fn trigger_on_resource_updated<R: Resource>(
+    watcher_q: Query<Entity, With<WatchResource<R>>>,
+    resource: Res<R>,
+    mut commands: Commands,
+) {
+    if resource.is_changed() {
+        for entity in &watcher_q {
+            commands.trigger_targets(
+                OnResourceUpdated {
+                    resource: std::marker::PhantomData::<R>,
+                },
+                entity,
+            );
+        }
+    }
+}
+
+pub fn trigger_watch_resource_init<R: Resource>(
+    watcher_q: Query<Entity, Added<WatchResource<R>>>,
+    mut commands: Commands,
+) {
+    for entity in &watcher_q {
+        commands.trigger_targets(
+            OnResourceUpdated {
+                resource: std::marker::PhantomData::<R>,
+            },
+            entity,
+        );
+    }
+}
+
+#[derive(Event, Debug)]
+pub struct OnUiNodeSizeChange;
+
+fn trigger_node_updated(watcher_q: Query<Entity, Changed<Node>>, mut commands: Commands) {
+    for entity in &watcher_q {
+        commands.trigger_targets(OnUiNodeSizeChange, entity);
     }
 }

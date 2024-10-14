@@ -9,7 +9,8 @@ use bevy::{
     window::WindowResized,
 };
 
-use crate::error::Result;
+use error::Result;
+use ui::theme::*;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(ClearColor(Color::NONE))
@@ -59,8 +60,13 @@ fn checkered_background(
     Ok(())
 }
 
-const LIGHT: [u8; 4] = [125, 125, 125, 255];
-const DARK: [u8; 4] = [110, 110, 110, 255];
+fn dark() -> [u8; 4] {
+    TRANSPARENCY_BLOCKS.to_srgba().to_u8_array()
+}
+
+fn light() -> [u8; 4] {
+    TRANSPARENCY_BLOCKS.lighter(0.02).to_srgba().to_u8_array()
+}
 
 fn generate_background_image() -> Image {
     Image::new(
@@ -70,7 +76,7 @@ fn generate_background_image() -> Image {
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
-        [LIGHT, DARK, DARK, LIGHT].as_flattened().to_vec(),
+        [light(), dark(), dark(), light()].as_flattened().to_vec(),
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     )

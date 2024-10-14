@@ -1,6 +1,8 @@
 use bevy::{prelude::*, render::extract_resource::ExtractResource};
+use ui::macros::SliderValue;
+use ui::widget::prelude::SliderValue;
 
-#[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
+#[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut, SliderValue)]
 pub struct BrushSize(pub f32);
 
 #[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
