@@ -1,19 +1,9 @@
 use bevy::{prelude::*, render::extract_resource::ExtractResource};
+use ui::macros::SliderValue;
+use ui::widget::prelude::SliderValue;
 
-#[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
+#[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut, SliderValue)]
 pub struct BrushSize(pub f32);
-
-impl Into<f32> for BrushSize {
-    fn into(self) -> f32 {
-        self.0
-    }
-}
-
-impl From<f32> for BrushSize {
-    fn from(value: f32) -> Self {
-        Self(value)
-    }
-}
 
 #[derive(Debug, Resource, Clone, Copy, ExtractResource, Deref, DerefMut)]
 pub struct BrushColor(pub Color);

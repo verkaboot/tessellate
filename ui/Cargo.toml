@@ -7,3 +7,4 @@ edition = "2021"
 bevy = { version = "0.14" }
 
 error = { path = "../error" }
+ui_macros = { path = "../ui_macros" }

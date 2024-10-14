@@ -12,23 +12,17 @@ pub const KNOB_HEIGHT: f32 = 14.0;
 pub const KNOB_WIDTH: f32 = KNOB_HEIGHT * PHI;
 pub const KNOB_PADDING: f32 = KNOB_WIDTH * (2.0 - PHI);
 
-pub trait SliderValue {
+pub trait SliderValue: Resource + Copy + Clone + std::fmt::Debug {
     fn from_f32(input: f32) -> Self;
     fn to_f32(&self) -> f32;
 }
 
 pub trait SliderWidget {
-    fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
-        &mut self,
-        label: &str,
-    ) -> EntityCommands;
+    fn slider<V: SliderValue>(&mut self, label: &str) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider<R: Resource + std::fmt::Debug + From<f32> + Into<f32> + Copy + Clone>(
-        &mut self,
-        label: &str,
-    ) -> EntityCommands {
+    fn slider<V: SliderValue>(&mut self, label: &str) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
             NodeBundle {
@@ -93,9 +87,9 @@ impl<T: Spawn> SliderWidget for T {
                                 },
                                 ..default()
                             }),
-                            WatchResource::<R>::new(),
+                            WatchResource::<V>::new(),
                         ))
-                        .observe(update_text::<R>.map(utils::warn));
+                        .observe(update_text::<V>.map(utils::warn));
                 });
 
             slider
@@ -186,12 +180,12 @@ impl<T: Spawn> SliderWidget for T {
                                 SliderKnob,
                                 FillEntity(graphic_fill),
                                 RelativeCursorPosition::default(),
-                                WatchResource::<R>::new(),
+                                WatchResource::<V>::new(),
                             ))
-                            .observe(on_drag::<R>.map(utils::warn))
-                            .observe(update_knob_position::<OnUiNodeSizeChange, R>.map(utils::warn))
+                            .observe(on_drag::<V>.map(utils::warn))
+                            .observe(update_knob_position::<OnUiNodeSizeChange, V>.map(utils::warn))
                             .observe(
-                                update_knob_position::<OnResourceUpdated<R>, R>.map(utils::warn),
+                                update_knob_position::<OnResourceUpdated<V>, V>.map(utils::warn),
                             );
                     });
                 });
@@ -216,9 +210,9 @@ pub struct GraphicFill;
 #[derive(Component)]
 pub struct FillEntity(Entity);
 
-fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
+fn on_drag<V: SliderValue>(
     trigger: Trigger<OnDrag>,
-    mut resource: ResMut<R>,
+    mut resource: ResMut<V>,
     container_q: Query<&RelativeCursorPosition, With<KnobContainer>>,
     knob_q: Query<&Parent, With<SliderKnob>>,
 ) -> Result<()> {
@@ -228,24 +222,21 @@ fn on_drag<R: Resource + std::fmt::Debug + From<f32> + Copy + Clone>(
         let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
         let eased_percentage = cubic_bezier.ease(x);
 
-        *resource = 1.0.lerp(200.0, eased_percentage).into();
+        *resource = V::from_f32(1.0.lerp(200.0, eased_percentage));
     }
 
     Ok(())
 }
 
-fn update_knob_position<
-    T: Event + std::fmt::Debug,
-    R: Resource + std::fmt::Debug + Into<f32> + Copy + Clone,
->(
+fn update_knob_position<T: Event + std::fmt::Debug, V: SliderValue>(
     trigger: Trigger<T>,
-    resource: Res<R>,
+    slider_value: Res<V>,
     mut knob_q: Query<(&mut Style, &FillEntity), With<SliderKnob>>,
     mut fill_q: Query<&mut Style, (With<GraphicFill>, Without<SliderKnob>)>,
 ) -> Result<()> {
     let (knob_style, fill_entity) = &mut knob_q.get_mut(trigger.entity())?;
     let mut fill_style = fill_q.get_mut(fill_entity.0)?;
-    let resource_value: f32 = (*resource).into();
+    let resource_value: f32 = slider_value.to_f32();
     let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
 
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
@@ -256,12 +247,12 @@ fn update_knob_position<
     Ok(())
 }
 
-fn update_text<R: Resource + Into<f32> + Clone + Copy>(
-    trigger: Trigger<OnResourceUpdated<R>>,
-    resource: Res<R>,
+fn update_text<V: SliderValue>(
+    trigger: Trigger<OnResourceUpdated<V>>,
+    resource: Res<V>,
     mut text_q: Query<&mut Text>,
 ) -> Result<()> {
     let mut text = text_q.get_mut(trigger.entity())?;
-    text.sections[0].value = format!("{0:.2}", (*resource).into());
+    text.sections[0].value = format!("{0:.2}", (*resource).to_f32());
     Ok(())
 }

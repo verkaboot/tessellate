@@ -44,7 +44,6 @@ pub fn setup(mut commands: Commands) {
                         .add(Icon::ColorPicker)
                         .observe(change_color);
                     side_bar_right.slider::<BrushSize>("Brush Size");
-                    // side_bar_right.slider::<BrushColor>("Brush Color");
                 });
         });
         ui_root.panel(PanelDirection::Wide);
