@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use ui::icon::Icon;
-use ui::interaction::{OnPress, OnRelease};
+use ui::interaction::{
+    trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
+};
 use ui::widget::prelude::*;
 
 use canvas::{
@@ -8,6 +10,16 @@ use canvas::{
     mouse::MouseData,
     sprite::CanvasImages,
 };
+
+pub(super) fn plugin(app: &mut App) {
+    app.add_systems(
+        Update,
+        (
+            trigger_on_resource_updated::<BrushSize>,
+            trigger_watch_resource_init::<BrushSize>,
+        ),
+    );
+}
 
 pub fn setup(mut commands: Commands) {
     commands.ui_root().with_children(|ui_root| {
@@ -46,7 +58,6 @@ fn set_brush(brush: &BrushType) -> impl Fn(Trigger<OnPress>, ResMut<BrushType>) 
 }
 fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
     canvas.active_layer += 1;
-    println!("active layer: {}", canvas.active_layer);
 }
 
 fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>) {

@@ -11,8 +11,6 @@ pub(super) fn plugin(app: &mut App) {
             trigger_on_release,
             trigger_on_drag,
             apply_interaction_palette,
-            trigger_on_resource_updated::<BrushSize>,
-            trigger_watch_resource_init::<BrushSize>,
             trigger_node_updated,
         ),
     );
@@ -130,7 +128,7 @@ impl<R: Resource> WatchResource<R> {
     }
 }
 
-fn trigger_on_resource_updated<R: Resource>(
+pub fn trigger_on_resource_updated<R: Resource>(
     watcher_q: Query<Entity, With<WatchResource<R>>>,
     resource: Res<R>,
     mut commands: Commands,
@@ -147,7 +145,7 @@ fn trigger_on_resource_updated<R: Resource>(
     }
 }
 
-fn trigger_watch_resource_init<R: Resource>(
+pub fn trigger_watch_resource_init<R: Resource>(
     watcher_q: Query<Entity, Added<WatchResource<R>>>,
     mut commands: Commands,
 ) {

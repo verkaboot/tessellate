@@ -14,6 +14,7 @@ impl Plugin for AppPlugin {
             canvas::plugin,
             background::plugin,
             ui::plugin,
+            screen::plugin,
         ));
 
         app.add_systems(Startup, screen::setup);

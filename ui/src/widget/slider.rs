@@ -1,6 +1,3 @@
-use std::marker::PhantomData;
-
-use bevy::ecs::component::{ComponentHooks, StorageType};
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
@@ -14,18 +11,6 @@ pub const PHI: f32 = 1.618;
 pub const KNOB_HEIGHT: f32 = 14.0;
 pub const KNOB_WIDTH: f32 = KNOB_HEIGHT * PHI;
 pub const KNOB_PADDING: f32 = KNOB_WIDTH * (2.0 - PHI);
-
-pub struct Slider<R: Resource> {
-    phantom_data: PhantomData<R>,
-}
-
-impl<R: Resource> Component for Slider<R> {
-    const STORAGE_TYPE: StorageType = StorageType::Table;
-
-    fn register_component_hooks(hooks: &mut ComponentHooks) {
-        hooks.on_add(|mut world, entity, component_id| {});
-    }
-}
 
 pub trait SliderValue {
     fn from_f32(input: f32) -> Self;
@@ -46,9 +31,6 @@ impl<T: Spawn> SliderWidget for T {
     ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
-            Slider {
-                phantom_data: PhantomData::<R>,
-            },
             NodeBundle {
                 style: Style {
                     flex_direction: FlexDirection::Column,
@@ -203,6 +185,7 @@ impl<T: Spawn> SliderWidget for T {
                                 },
                                 SliderKnob,
                                 FillEntity(graphic_fill),
+                                RelativeCursorPosition::default(),
                                 WatchResource::<R>::new(),
                             ))
                             .observe(on_drag::<R>.map(utils::warn))
