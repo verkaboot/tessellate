@@ -1,8 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy::prelude::*;
-
-use canvas::{brush::BrushSize, mouse::MouseData};
+use bevy::{prelude::*, ui::RelativeCursorPosition};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<InteractionPalette>();
@@ -11,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
         (
             trigger_on_press,
             trigger_on_release,
-            trigger_on_drag.run_if(resource_changed::<MouseData>),
+            trigger_on_drag,
             apply_interaction_palette,
             trigger_on_resource_updated::<BrushSize>,
             trigger_watch_resource_init::<BrushSize>,
@@ -66,7 +64,10 @@ fn trigger_on_press(
 #[derive(Event)]
 pub struct OnDrag;
 
-fn trigger_on_drag(interaction_query: Query<(Entity, &Interaction)>, mut commands: Commands) {
+fn trigger_on_drag(
+    interaction_query: Query<(Entity, &Interaction), Changed<RelativeCursorPosition>>,
+    mut commands: Commands,
+) {
     for (entity, interaction) in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
             commands.trigger_targets(OnDrag, entity);
