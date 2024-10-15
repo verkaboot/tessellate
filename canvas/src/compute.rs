@@ -1,3 +1,5 @@
+use crate::sprite::CanvasSprite;
+
 use super::{
     bind_groups::{self},
     brush::{BrushColor, BrushSize, BrushType},
@@ -9,6 +11,7 @@ use super::{
 use bevy::{
     prelude::*,
     render::{
+        extract_component::ExtractComponentPlugin,
         extract_resource::ExtractResourcePlugin,
         render_graph::{RenderGraph, RenderLabel},
         Render, RenderApp, RenderSet,
@@ -28,6 +31,7 @@ impl Plugin for CanvasComputePlugin {
             ExtractResourcePlugin::<BrushSize>::default(),
             ExtractResourcePlugin::<BrushColor>::default(),
             ExtractResourcePlugin::<BrushType>::default(),
+            ExtractComponentPlugin::<CanvasSprite>::default(),
         ));
 
         let render_app = app.sub_app_mut(RenderApp);

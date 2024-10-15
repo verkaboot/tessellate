@@ -1,14 +1,16 @@
 use bevy::{
     prelude::*,
     render::{
-        extract_resource::ExtractResource, render_asset::RenderAssetUsages, render_resource::*,
+        extract_component::ExtractComponent, extract_resource::ExtractResource,
+        render_asset::RenderAssetUsages, render_resource::*,
     },
 };
 
 use super::SIZE;
 
-#[derive(Component)]
-pub struct CanvasSprite;
+pub(super) fn plugin(app: &mut App) {
+    app.add_systems(Update, update_canvas_sprite);
+}
 
 #[derive(Resource, Clone, ExtractResource)]
 pub struct CanvasImages {
@@ -55,15 +57,53 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(
-                SIZE.0 as f32 / 2.0,
-                SIZE.1 as f32 / 2.0,
-                0.0,
-            )),
+            transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, SIZE.1 as f32, 0.0)),
             texture: sprite_image_handle.clone(),
             ..default()
         },
-        CanvasSprite,
+        CanvasSprite::default(),
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                flip_y: true,
+                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, 0.0, 0.0)),
+            texture: sprite_image_handle.clone(),
+            ..default()
+        },
+        CanvasSprite::default(),
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                flip_y: true,
+                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(0.0, SIZE.1 as f32, 0.0)),
+            texture: sprite_image_handle.clone(),
+            ..default()
+        },
+        CanvasSprite::default(),
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                flip_y: true,
+                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                ..default()
+            },
+            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            texture: sprite_image_handle.clone(),
+            ..default()
+        },
+        CanvasSprite::default(),
     ));
 
     commands.insert_resource(CanvasImages {
@@ -71,4 +111,17 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         sprite_image: sprite_image_handle,
         active_layer: 0,
     });
+}
+
+#[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default)]
+pub struct CanvasSprite(pub Vec2);
+
+fn update_canvas_sprite(
+    mut canvas_sprite_q: Query<(&mut CanvasSprite, &GlobalTransform), Changed<GlobalTransform>>,
+) {
+    for (mut canvas_sprite, global_transform) in &mut canvas_sprite_q {
+        *canvas_sprite = CanvasSprite(
+            global_transform.translation().xy() + (Vec2::new(SIZE.0 as f32, SIZE.1 as f32) * 0.5),
+        );
+    }
 }
