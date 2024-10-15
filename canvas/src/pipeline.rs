@@ -33,6 +33,7 @@ impl FromWorld for CanvasPipeline {
                     storage_buffer_read_only::<MousePositions>(false),
                     uniform_buffer::<f32>(false),
                     uniform_buffer::<[f32; 4]>(false),
+                    storage_buffer_read_only::<Vec<Vec2>>(false),
                 ),
             ),
         );

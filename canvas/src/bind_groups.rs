@@ -1,3 +1,5 @@
+use crate::sprite::CanvasSprite;
+
 use super::{
     brush::{BrushColor, BrushSize},
     mouse::MouseData,
@@ -25,6 +27,7 @@ pub fn prepare(
     brush_size: Res<BrushSize>,
     brush_color: Res<BrushColor>,
     render_device: Res<RenderDevice>,
+    canvas_sprite_q: Query<&CanvasSprite>,
 ) {
     let layered_texture = gpu_images.get(&canvas_images.layered_texture).unwrap();
     let sprite_image = gpu_images.get(&canvas_images.sprite_image).unwrap();
@@ -73,6 +76,22 @@ pub fn prepare(
         size: None,
     };
 
+    let canvas_transforms: Vec<Vec2> = canvas_sprite_q
+        .iter()
+        .map(|CanvasSprite(transform)| *transform)
+        .collect();
+    let contents = bytemuck::cast_slice(&canvas_transforms);
+    let canvas_transforms_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+        label: None,
+        contents,
+        usage: BufferUsages::STORAGE,
+    });
+    let canvas_transforms_binding = BufferBinding {
+        buffer: &canvas_transforms_buffer,
+        offset: 0,
+        size: None,
+    };
+
     let bind_group = render_device.create_bind_group(
         None,
         &pipeline.texture_bind_group_layout,
@@ -83,6 +102,7 @@ pub fn prepare(
             mouse_pos_binding,
             brush_size_binding,
             brush_color_binding,
+            canvas_transforms_binding,
         )),
     );
 
