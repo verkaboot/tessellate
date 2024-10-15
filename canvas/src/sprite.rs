@@ -127,6 +127,5 @@ fn update_canvas_sprite(
 ) {
     for (mut canvas_sprite, global_transform) in &mut canvas_sprite_q {
         *canvas_sprite = CanvasSprite(global_transform.translation().xy());
-        dbg!(canvas_sprite);
     }
 }
