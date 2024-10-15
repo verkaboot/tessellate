@@ -10,22 +10,6 @@
 fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 }
 
-// @compute @workgroup_size(8, 8, 1)
-// fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
-//     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
-
-//     let alpha = brush_alpha(location, mouse_positions);
-
-//     if alpha > 0.0 {
-//         let bg: vec4<f32> = textureLoad(input, location, active_layer);
-//         var fg = vec4<f32>(brush_color.rgb, alpha);
-//         let blend = blend_normal(bg, fg);
-//         textureStore(input, location, active_layer, blend);
-//     }
-
-//     textureStore(sprite_image, location, composite_layers(location));
-// }
-
 @compute @workgroup_size(8, 8, 1)
 fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
@@ -38,7 +22,8 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
         // Offset mouse positions by the current canvas transform
         var offset_mouse_positions: array<vec2<f32>, 4>;
         for (var j = 0u; j < 4u; j = j + 1u) {
-            offset_mouse_positions[j] = mouse_positions[j] + canvas_transform;
+            offset_mouse_positions[j] = mouse_positions[j] - canvas_transform;
+            // offset_mouse_positions[j] = mouse_positions[j];
         }
 
         let alpha = brush_alpha(location, offset_mouse_positions);

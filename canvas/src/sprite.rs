@@ -4,12 +4,14 @@ use bevy::{
         extract_component::ExtractComponent, extract_resource::ExtractResource,
         render_asset::RenderAssetUsages, render_resource::*,
     },
+    sprite::Anchor,
 };
 
 use super::SIZE;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Update, update_canvas_sprite);
+    app.register_type::<CanvasSprite>()
+        .add_systems(Update, update_canvas_sprite);
 }
 
 #[derive(Resource, Clone, ExtractResource)]
@@ -55,6 +57,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             sprite: Sprite {
                 flip_y: true,
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                anchor: Anchor::BottomLeft,
                 ..default()
             },
             transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, SIZE.1 as f32, 0.0)),
@@ -69,6 +72,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             sprite: Sprite {
                 flip_y: true,
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                anchor: Anchor::BottomLeft,
                 ..default()
             },
             transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, 0.0, 0.0)),
@@ -83,6 +87,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             sprite: Sprite {
                 flip_y: true,
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                anchor: Anchor::BottomLeft,
                 ..default()
             },
             transform: Transform::from_translation(Vec3::new(0.0, SIZE.1 as f32, 0.0)),
@@ -97,6 +102,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             sprite: Sprite {
                 flip_y: true,
                 custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                anchor: Anchor::BottomLeft,
                 ..default()
             },
             transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
@@ -113,15 +119,14 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     });
 }
 
-#[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default)]
+#[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default, Reflect)]
 pub struct CanvasSprite(pub Vec2);
 
 fn update_canvas_sprite(
     mut canvas_sprite_q: Query<(&mut CanvasSprite, &GlobalTransform), Changed<GlobalTransform>>,
 ) {
     for (mut canvas_sprite, global_transform) in &mut canvas_sprite_q {
-        *canvas_sprite = CanvasSprite(
-            global_transform.translation().xy() + (Vec2::new(SIZE.0 as f32, SIZE.1 as f32) * 0.5),
-        );
+        *canvas_sprite = CanvasSprite(global_transform.translation().xy());
+        dbg!(canvas_sprite);
     }
 }

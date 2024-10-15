@@ -80,27 +80,16 @@ pub fn prepare(
         .iter()
         .map(|CanvasSprite(transform)| *transform)
         .collect();
-
-    // TODO: Only run the canvas shader if there is at least one CanvasSprite
-    let minimal_buffer_data: &[u8] = &[0; 8];
-    let buffer_data = if canvas_transforms.is_empty() {
-        minimal_buffer_data
-    } else {
-        bytemuck::cast_slice(&canvas_transforms)
-    };
+    let contents = bytemuck::cast_slice(&canvas_transforms);
     let canvas_transforms_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
-        contents: buffer_data,
+        contents,
         usage: BufferUsages::STORAGE,
     });
-
-    let buffer_size = (canvas_transforms.len() * std::mem::size_of::<Vec2>()).max(8) as u64;
-    let non_zero_buffer_size = std::num::NonZeroU64::new(buffer_size);
-
     let canvas_transforms_binding = BufferBinding {
         buffer: &canvas_transforms_buffer,
         offset: 0,
-        size: non_zero_buffer_size,
+        size: None,
     };
 
     let bind_group = render_device.create_bind_group(
