@@ -43,16 +43,30 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
 fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     let location = vec2<i32>(i32(invocation_id.x), i32(invocation_id.y));
 
-    let alpha = brush_alpha(location, mouse_positions);
+    // Loop through each canvas transform
+    let length = arrayLength(&canvas_transforms);
+    for (var i = 0u; i < length; i = i + 1u) {
+        let canvas_transform = canvas_transforms[i];
 
-    if alpha > 0.0 {
-        let bg: vec4<f32> = textureLoad(input, location, active_layer);
-        var fg = vec4<f32>(brush_color.rgb, alpha);
-        let blend = blend_erase(bg, fg);
-        textureStore(input, location, active_layer, blend);
+        // Offset mouse positions by the current canvas transform
+        var offset_mouse_positions: array<vec2<f32>, 4>;
+        for (var j = 0u; j < 4u; j = j + 1u) {
+            offset_mouse_positions[j] = mouse_positions[j] - canvas_transform;
+            // offset_mouse_positions[j] = mouse_positions[j];
+        }
+
+        let alpha = brush_alpha(location, offset_mouse_positions);
+        if (alpha > 0.0) {
+            let bg: vec4<f32> = textureLoad(input, location, active_layer);
+            var fg = vec4<f32>(brush_color.rgb, alpha);
+            let blend = blend_erase(bg, fg);
+            textureStore(input, location, active_layer, blend);
+        }
     }
 
+    // Draw composite layers
     textureStore(sprite_image, location, composite_layers(location));
+
 }
 
 fn composite_layers(location: vec2<i32>) -> vec4<f32> {
