@@ -70,6 +70,7 @@ impl render_graph::Node for CanvasNode {
 
         match tool_data.tool_type {
             crate::mouse::ToolType::Select => {}
+
             crate::mouse::ToolType::Paint => {
                 let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
                 let pipeline_cache = world.resource::<PipelineCache>();
@@ -86,6 +87,7 @@ impl render_graph::Node for CanvasNode {
                 pass.set_pipeline(update_pipeline);
                 pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
             }
+
             crate::mouse::ToolType::Erase => {
                 let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
                 let pipeline_cache = world.resource::<PipelineCache>();
@@ -103,6 +105,7 @@ impl render_graph::Node for CanvasNode {
                 pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
             }
         }
+
         Ok(())
     }
 }

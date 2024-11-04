@@ -2,7 +2,7 @@ use bevy::{prelude::*, render::extract_resource::ExtractResource, window::Primar
 
 use error::{Error, Result};
 
-#[derive(Resource, Clone, Copy, ExtractResource)]
+#[derive(Resource, Debug, Default, Reflect, Clone, Copy, ExtractResource)]
 pub struct ToolData {
     pub tool_type: ToolType,
     pub tool_active: bool,
@@ -26,12 +26,7 @@ impl ToolData {
 pub type MousePositions = [Vec2; 4];
 
 pub fn setup(mut commands: Commands) {
-    commands.insert_resource(ToolData {
-        tool_type: ToolType::Select,
-        tool_active: false,
-        world_pos: [Vec2::ZERO; 4],
-        screen_pos: [Vec2::ZERO; 4],
-    })
+    commands.insert_resource(ToolData::default());
 }
 
 pub fn update_position(

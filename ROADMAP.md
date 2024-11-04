@@ -50,3 +50,30 @@ This is the simpler approach and should be attempted first.
 - Make current texture a 2d array
 - Update both textures from the shader
 - Put read-only as display for the Sprite
+
+
+## Level Editing
+Two types of grids. One grid defines the functionality of the level, things like solid ground, open space, water, doors, stairs, etc. The other grid is offset and derived from the functionality grid to automatically place tiles that match the requirements.
+
+Another grid that overlays the functionality grid can be a biome or style grid. This allows for the creation of complex level creation, allowing you to prototype the functionality layout of the level first, then decorate the level as a separate step.
+
+As part of the tile editing process, this functionality needs to be editable for each tile. Each tile is divided into four quadrants.
+
+UI Needs:
+
+Functionality
+1. Create functionality types
+  - Name
+  - Color
+2. Create view for board functionality
+3. Allow painting of functionality on the board
+
+Biome
+Same as Functionality, but on a different layer. This can wait.
+
+Tiled
+Show tiles that fit requirements, and mark missing tiles. You can paint directly in this mode. Have a quick toggle to quickly see what the underlying functionality and biome are.
+
+Tile Editor
+Edit an individual tile, with its associated data.
+It would be a cool extra to have a menu where every possible neighbor for the tile is shown, highlighting any missing combinations that can be added.
