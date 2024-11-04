@@ -1,6 +1,6 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, brush::BrushType, mouse::MouseData,
-    pipeline::CanvasPipeline, SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
+    bind_groups::CanvasImageBindGroups, mouse::ToolData, pipeline::CanvasPipeline,
+    SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{
     prelude::*,
@@ -56,30 +56,51 @@ impl render_graph::Node for CanvasNode {
         render_context: &mut RenderContext,
         world: &World,
     ) -> Result<(), render_graph::NodeRunError> {
-        let mouse = world.resource::<MouseData>();
-        let brush_type = world.resource::<BrushType>();
-        if mouse.left_button_pressed {
-            let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
-            let pipeline_cache = world.resource::<PipelineCache>();
-            let pipeline = world.resource::<CanvasPipeline>();
+        match self.state {
+            CanvasState::Loading => {
+                return Ok(());
+            }
+            CanvasState::Update => {}
+        };
 
-            let mut pass = render_context
-                .command_encoder()
-                .begin_compute_pass(&ComputePassDescriptor::default());
+        let tool_data = world.resource::<ToolData>();
+        if !tool_data.tool_active {
+            return Ok(());
+        };
 
-            match self.state {
-                CanvasState::Loading => {}
-                CanvasState::Update => {
-                    let update_pipeline = pipeline_cache
-                        .get_compute_pipeline(match brush_type {
-                            BrushType::Normal => pipeline.paint_normal_pipeline,
-                            BrushType::Erase => pipeline.paint_erase_pipeline,
-                        })
-                        .unwrap();
-                    pass.set_bind_group(0, &bind_group, &[]);
-                    pass.set_pipeline(update_pipeline);
-                    pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
-                }
+        match tool_data.tool_type {
+            crate::mouse::ToolType::Select => {}
+            crate::mouse::ToolType::Paint => {
+                let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
+                let pipeline_cache = world.resource::<PipelineCache>();
+                let pipeline = world.resource::<CanvasPipeline>();
+
+                let mut pass = render_context
+                    .command_encoder()
+                    .begin_compute_pass(&ComputePassDescriptor::default());
+
+                let update_pipeline = pipeline_cache
+                    .get_compute_pipeline(pipeline.paint_normal_pipeline)
+                    .unwrap();
+                pass.set_bind_group(0, &bind_group, &[]);
+                pass.set_pipeline(update_pipeline);
+                pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
+            }
+            crate::mouse::ToolType::Erase => {
+                let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
+                let pipeline_cache = world.resource::<PipelineCache>();
+                let pipeline = world.resource::<CanvasPipeline>();
+
+                let mut pass = render_context
+                    .command_encoder()
+                    .begin_compute_pass(&ComputePassDescriptor::default());
+
+                let update_pipeline = pipeline_cache
+                    .get_compute_pipeline(pipeline.paint_erase_pipeline)
+                    .unwrap();
+                pass.set_bind_group(0, &bind_group, &[]);
+                pass.set_pipeline(update_pipeline);
+                pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
             }
         }
         Ok(())

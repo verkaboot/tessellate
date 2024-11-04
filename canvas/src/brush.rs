@@ -13,10 +13,3 @@ impl BrushColor {
         BrushColor(color.into())
     }
 }
-
-#[derive(Default, Debug, Resource, Clone, Copy, ExtractResource)]
-pub enum BrushType {
-    #[default]
-    Normal,
-    Erase,
-}

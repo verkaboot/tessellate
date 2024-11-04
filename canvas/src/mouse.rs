@@ -3,13 +3,22 @@ use bevy::{prelude::*, render::extract_resource::ExtractResource, window::Primar
 use error::{Error, Result};
 
 #[derive(Resource, Clone, Copy, ExtractResource)]
-pub struct MouseData {
-    pub left_button_pressed: bool,
+pub struct ToolData {
+    pub tool_type: ToolType,
+    pub tool_active: bool,
     pub world_pos: MousePositions,
     pub screen_pos: MousePositions,
 }
 
-impl MouseData {
+#[derive(Default, Debug, Reflect, Clone, Copy)]
+pub enum ToolType {
+    #[default]
+    Select,
+    Paint,
+    Erase,
+}
+
+impl ToolData {
     pub fn screen_delta(&self) -> Vec2 {
         self.screen_pos[0] - self.screen_pos[1]
     }
@@ -17,15 +26,16 @@ impl MouseData {
 pub type MousePositions = [Vec2; 4];
 
 pub fn setup(mut commands: Commands) {
-    commands.insert_resource(MouseData {
-        left_button_pressed: false,
+    commands.insert_resource(ToolData {
+        tool_type: ToolType::Select,
+        tool_active: false,
         world_pos: [Vec2::ZERO; 4],
         screen_pos: [Vec2::ZERO; 4],
     })
 }
 
 pub fn update_position(
-    mut m: ResMut<MouseData>,
+    mut m: ResMut<ToolData>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<IsDefaultUiCamera>>,
 ) -> Result<()> {

@@ -1,7 +1,7 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use leafwing_input_manager::prelude::*;
 
-use canvas::{mouse::MouseData, SIZE};
+use canvas::{mouse::ToolData, SIZE};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
@@ -72,7 +72,7 @@ fn pan(
         ),
         With<Camera2d>,
     >,
-    mouse_data: Res<MouseData>,
+    mouse_data: Res<ToolData>,
 ) {
     let (mut camera_transform, camera_projection, action_state) = query.single_mut();
     if action_state.pressed(&CameraMovement::Pan) {
@@ -89,7 +89,7 @@ fn is_zooming(query: Query<&ActionState<CameraMovement>, With<Camera2d>>) -> boo
 
 fn zoom(
     mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
-    mouse_data: Res<MouseData>,
+    mouse_data: Res<ToolData>,
 ) {
     const CAMERA_ZOOM_RATE: f32 = -0.005;
     let (mut camera_projection, action_state) = query.single_mut();

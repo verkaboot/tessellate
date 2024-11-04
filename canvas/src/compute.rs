@@ -2,8 +2,8 @@ use crate::sprite::CanvasSprite;
 
 use super::{
     bind_groups::{self},
-    brush::{BrushColor, BrushSize, BrushType},
-    mouse::MouseData,
+    brush::{BrushColor, BrushSize},
+    mouse::ToolData,
     node::CanvasNode,
     pipeline::CanvasPipeline,
     sprite::CanvasImages,
@@ -27,10 +27,9 @@ impl Plugin for CanvasComputePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             ExtractResourcePlugin::<CanvasImages>::default(),
-            ExtractResourcePlugin::<MouseData>::default(),
+            ExtractResourcePlugin::<ToolData>::default(),
             ExtractResourcePlugin::<BrushSize>::default(),
             ExtractResourcePlugin::<BrushColor>::default(),
-            ExtractResourcePlugin::<BrushType>::default(),
             ExtractComponentPlugin::<CanvasSprite>::default(),
         ));
 

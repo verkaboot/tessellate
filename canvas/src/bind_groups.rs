@@ -2,7 +2,7 @@ use crate::sprite::CanvasSprite;
 
 use super::{
     brush::{BrushColor, BrushSize},
-    mouse::MouseData,
+    mouse::ToolData,
     pipeline::CanvasPipeline,
     sprite::CanvasImages,
 };
@@ -23,7 +23,7 @@ pub fn prepare(
     pipeline: Res<CanvasPipeline>,
     gpu_images: Res<RenderAssets<GpuImage>>,
     canvas_images: Res<CanvasImages>,
-    mouse_data: Res<MouseData>,
+    mouse_data: Res<ToolData>,
     brush_size: Res<BrushSize>,
     brush_color: Res<BrushColor>,
     render_device: Res<RenderDevice>,

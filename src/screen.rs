@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use canvas::mouse::ToolType;
 use ui::icon::Icon;
 use ui::interaction::{
     trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
@@ -6,8 +7,8 @@ use ui::interaction::{
 use ui::widget::prelude::*;
 
 use canvas::{
-    brush::{BrushColor, BrushSize, BrushType},
-    mouse::MouseData,
+    brush::{BrushColor, BrushSize},
+    mouse::ToolData,
     sprite::CanvasImages,
 };
 
@@ -29,14 +30,14 @@ pub fn setup(mut commands: Commands) {
                 side_bar
                     .button()
                     .add(Icon::Brush)
-                    .observe(set_brush(&BrushType::Normal));
+                    .observe(set_brush(&ToolType::Paint));
                 side_bar
                     .button()
                     .add(Icon::Eraser)
-                    .observe(set_brush(&BrushType::Erase));
+                    .observe(set_brush(&ToolType::Erase));
                 side_bar.button().add(Icon::Layer).observe(select_layer);
             });
-            flex.canvas().observe(start_painting).observe(stop_painting);
+            flex.canvas().observe(activate_tool).observe(stop_tool);
             flex.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
@@ -50,21 +51,21 @@ pub fn setup(mut commands: Commands) {
     });
 }
 
-fn set_brush(brush: &BrushType) -> impl Fn(Trigger<OnPress>, ResMut<BrushType>) + '_ {
-    |_trigger: Trigger<OnPress>, mut brush_type: ResMut<BrushType>| {
-        *brush_type = *brush;
+fn set_brush(brush: &ToolType) -> impl Fn(Trigger<OnPress>, ResMut<ToolData>) + '_ {
+    |_trigger: Trigger<OnPress>, mut tool_data: ResMut<ToolData>| {
+        tool_data.tool_type = *brush;
     }
 }
 fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
     canvas.active_layer += 1;
 }
 
-fn start_painting(_trigger: Trigger<OnPress>, mut mouse_data: ResMut<MouseData>) {
-    mouse_data.left_button_pressed = true;
+fn activate_tool(_trigger: Trigger<OnPress>, mut tool_data: ResMut<ToolData>) {
+    tool_data.tool_active = true;
 }
 
-fn stop_painting(_trigger: Trigger<OnRelease>, mut mouse_data: ResMut<MouseData>) {
-    mouse_data.left_button_pressed = false;
+fn stop_tool(_trigger: Trigger<OnRelease>, mut tool_data: ResMut<ToolData>) {
+    tool_data.tool_active = false;
 }
 
 fn change_color(_trigger: Trigger<OnRelease>, mut brush_color: ResMut<BrushColor>) {
