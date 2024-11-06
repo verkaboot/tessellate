@@ -2,6 +2,8 @@ use bevy::{prelude::*, render::extract_resource::ExtractResource, window::Primar
 
 use error::{Error, Result};
 
+pub type MousePositions = [Vec2; 4];
+
 #[derive(Resource, Debug, Default, Reflect, Clone, Copy, ExtractResource)]
 pub struct ToolData {
     pub tool_type: ToolType,
@@ -13,8 +15,8 @@ pub struct ToolData {
 #[derive(Default, Debug, Reflect, Clone, Copy)]
 pub enum ToolType {
     #[default]
-    Select,
     Paint,
+    Select,
     Erase,
 }
 
@@ -23,7 +25,6 @@ impl ToolData {
         self.screen_pos[0] - self.screen_pos[1]
     }
 }
-pub type MousePositions = [Vec2; 4];
 
 pub fn setup(mut commands: Commands) {
     commands.insert_resource(ToolData::default());

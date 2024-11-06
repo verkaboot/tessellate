@@ -4,6 +4,7 @@ use ui::icon::Icon;
 use ui::interaction::{
     trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
 };
+use ui::widget::color_picker::{ColorPickerWidget, HueGradientMaterial};
 use ui::widget::prelude::*;
 
 use canvas::{
@@ -22,7 +23,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands, hue_material: ResMut<Assets<HueGradientMaterial>>) {
     commands.ui_root().with_children(|ui_root| {
         ui_root.panel(PanelDirection::Wide);
         ui_root.flex().with_children(|flex| {
@@ -44,6 +45,7 @@ pub fn setup(mut commands: Commands) {
                         .button()
                         .add(Icon::ColorPicker)
                         .observe(change_color);
+                    side_bar_right.color_picker(hue_material);
                     side_bar_right.slider::<BrushSize>("Brush Size");
                 });
         });
