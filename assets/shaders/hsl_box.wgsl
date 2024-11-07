@@ -1,15 +1,24 @@
-
 #import bevy_ui::ui_vertex_output::UiVertexOutput
-
-const TAU:f32 =  6.28318530718;
 
 @fragment
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let white = vec3<f32>(1.0);
     let black = vec3<f32>(0.0);
-    let hue = vec3<f32>(0.0, 0.0, 1.0);
-    let color = mix(white, hue, mesh.uv.x) * mix(white, black, mesh.uv.y);
+    let hue = vec3<f32>(1.0, 0.0, 1.0);
+    let border_size = 0.009;
+    let border_color = vec3<f32>(0.15) * mesh.uv.y + 0.28;
+    let x = mix(-border_size, 1.0 + border_size, mesh.uv.x);
+    let y = mix(-border_size, 1.0 + border_size, mesh.uv.y);
 
+    var color = mix(white, hue, x) * mix(white, black, y);
+
+    let in_border = mesh.uv.x < border_size || mesh.uv.x > (1 - border_size)
+    || mesh.uv.y < border_size || mesh.uv.y > (1 - border_size);
+
+    if in_border {
+        color = border_color;
+    }
+    
     return to_linear(vec4<f32>(color, 1.0));
 }
 
