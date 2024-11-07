@@ -35,7 +35,7 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     color = mix(color, inner_outline_color, 1 - inner_outline);
 
     // Apply alpha based on radius to create a ring with anti-aliased edges
-    let alpha = smoothstep(
+    var alpha = smoothstep(
         outer_radius, outer_radius - edge_smoothness, radius
     ) * (smoothstep(
         inner_radius, inner_radius + edge_smoothness, radius
