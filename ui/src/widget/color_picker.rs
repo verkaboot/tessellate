@@ -30,7 +30,6 @@ impl<T: Spawn> ColorPickerWidget for T {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(theme::PANEL_OUTLINE),
                 ..default()
             },
         ));

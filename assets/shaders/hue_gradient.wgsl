@@ -15,12 +15,19 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let normalized_angle = angle / TAU + 0.5;
 
     // Create the rainbow color based on the angle
-    let color = 0.5 + 0.5 * cos(TAU * (normalized_angle + vec3<f32>(0.0, 0.33, 0.67)));
+    var color = 0.5 + 0.5 * cos(TAU * (normalized_angle + vec3<f32>(0.0, 0.33, 0.67)));
 
     // Define the inner and outer radius for the ring
-    let inner_radius = 0.75;
+    let inner_radius = 0.72;
     let outer_radius = 0.98;
     let edge_smoothness = 0.02;
+    let outline_thickness = 0.03;
+
+    let outer_outline = smoothstep(outer_radius, outer_radius - edge_smoothness, radius * (1 + outline_thickness));
+
+    let inner_outline = smoothstep(inner_radius, inner_radius + edge_smoothness, radius * (1 - outline_thickness));
+
+    color = color * (outer_outline * inner_outline);
 
     // Apply alpha based on radius to create a ring with anti-aliased edges
     let alpha = smoothstep(
