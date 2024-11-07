@@ -23,8 +23,8 @@ impl<T: Spawn> ColorPickerWidget for T {
             Name::new("ColorPicker Parent"),
             NodeBundle {
                 style: Style {
-                    width: Px(200.0),
-                    height: Px(200.0),
+                    width: Px(300.0),
+                    height: Px(300.0),
                     display: Display::Flex,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
