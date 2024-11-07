@@ -5,16 +5,12 @@ const TAU:f32 =  6.28318530718;
 
 @fragment
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
-    var alpha = 0.0;
-    var color = vec3<f32>(0.0);
+    let white = vec3<f32>(1.0);
+    let black = vec3<f32>(0.0);
+    let hue = vec3<f32>(0.0, 0.0, 1.0);
+    let color = mix(white, hue, mesh.uv.x) * mix(white, black, mesh.uv.y);
 
-    let square_margin = 0.0;
-    let is_in_square = mesh.uv.x > square_margin && mesh.uv.x < (1 - square_margin) && mesh.uv.y > square_margin && mesh.uv.y < (1 - square_margin);
-    if is_in_square {
-        alpha = 1.0;
-    }
-
-    return to_linear(vec4<f32>(color, alpha));
+    return to_linear(vec4<f32>(color, 1.0));
 }
 
 fn to_linear(nonlinear: vec4<f32>) -> vec4<f32> {
