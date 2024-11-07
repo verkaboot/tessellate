@@ -23,9 +23,9 @@ impl<T: Spawn> ColorPickerWidget for T {
             Name::new("ColorPicker Parent"),
             NodeBundle {
                 style: Style {
-                    display: Display::Block,
                     width: Px(200.0),
                     height: Px(200.0),
+                    display: Display::Flex,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
@@ -38,9 +38,8 @@ impl<T: Spawn> ColorPickerWidget for T {
         entity.with_children(|parent| {
             parent.spawn(MaterialNodeBundle {
                 style: Style {
-                    position_type: PositionType::Absolute,
-                    width: Val::Px(250.0),
-                    height: Val::Px(250.0),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     ..default()
                 },
                 material: ui_materials.add(HueGradientMaterial {
@@ -62,6 +61,6 @@ pub struct HueGradientMaterial {
 
 impl UiMaterial for HueGradientMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/circle_shader.wgsl".into()
+        "shaders/hue_gradient.wgsl".into()
     }
 }
