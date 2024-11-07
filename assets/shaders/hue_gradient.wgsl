@@ -22,12 +22,17 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let outer_radius = 0.98;
     let edge_smoothness = 0.02;
     let outline_thickness = 0.03;
+    let outer_outline_color = vec3<f32>(0.25) * mesh.uv.y + 0.25;
+    let inner_outline_color = vec3<f32>(0.50) * (1 - mesh.uv.y) + 0.15;
 
+    // Set outline influence
     let outer_outline = smoothstep(outer_radius, outer_radius - edge_smoothness, radius * (1 + outline_thickness));
 
     let inner_outline = smoothstep(inner_radius, inner_radius + edge_smoothness, radius * (1 - outline_thickness));
 
-    color = color * (outer_outline * inner_outline);
+    // Mix in Outline Color
+    color = mix(color, outer_outline_color, 1 - outer_outline);
+    color = mix(color, inner_outline_color, 1 - inner_outline);
 
     // Apply alpha based on radius to create a ring with anti-aliased edges
     let alpha = smoothstep(
