@@ -21,7 +21,7 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let inner_radius = 0.80;
     let outer_radius = 0.98;
     let edge_smoothness = 0.01;
-    let outline_thickness = 0.012;
+    let outline_thickness = 0.01;
     let outer_outline_color = vec3<f32>(0.25) * mesh.uv.y + 0.25;
     let inner_outline_color = vec3<f32>(0.50) * (1 - mesh.uv.y) + 0.15;
 

@@ -11,7 +11,7 @@ use bevy::{ecs::system::EntityCommands, prelude::*};
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
         UiMaterialPlugin::<color_picker::HueWheelMaterial>::default(),
-        UiMaterialPlugin::<color_picker::HslBoxMaterial>::default(),
+        UiMaterialPlugin::<color_picker::HsvBoxMaterial>::default(),
     ));
 }
 

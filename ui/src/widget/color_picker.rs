@@ -11,7 +11,7 @@ pub trait ColorPickerWidget {
     fn color_picker(
         &mut self,
         hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
-        hsl_box_material: ResMut<Assets<HslBoxMaterial>>,
+        hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
     ) -> EntityCommands;
 }
 
@@ -19,7 +19,7 @@ impl<T: Spawn> ColorPickerWidget for T {
     fn color_picker(
         &mut self,
         mut hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
-        mut hsl_box_material: ResMut<Assets<HslBoxMaterial>>,
+        mut hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
     ) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("ColorPicker Parent"),
@@ -56,15 +56,15 @@ impl<T: Spawn> ColorPickerWidget for T {
 
         entity.with_children(|parent| {
             parent.spawn((
-                Name::new("ColorPicker HSL Box"),
+                Name::new("ColorPicker HSV Box"),
                 MaterialNodeBundle {
                     style: Style {
                         width: Val::Percent(54.0),
                         height: Val::Percent(54.0),
                         ..default()
                     },
-                    material: hsl_box_material.add(HslBoxMaterial {
-                        color: LinearRgba::WHITE.to_f32_array().into(),
+                    material: hsv_box_material.add(HsvBoxMaterial {
+                        hsva: Hsva::hsv(0.0, 0.5, 0.5).to_f32_array().into(),
                     }),
                     ..default()
                 },
@@ -88,13 +88,13 @@ impl UiMaterial for HueWheelMaterial {
 }
 
 #[derive(AsBindGroup, Asset, TypePath, Debug, Clone)]
-pub struct HslBoxMaterial {
+pub struct HsvBoxMaterial {
     #[uniform(0)]
-    color: Vec4,
+    hsva: Vec4,
 }
 
-impl UiMaterial for HslBoxMaterial {
+impl UiMaterial for HsvBoxMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/hsl_box.wgsl".into()
+        "shaders/hsv_box.wgsl".into()
     }
 }

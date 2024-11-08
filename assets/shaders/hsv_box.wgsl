@@ -1,5 +1,7 @@
 #import bevy_ui::ui_vertex_output::UiVertexOutput
 
+@group(1) @binding(0) var<uniform> hsv: vec3<f32>;
+
 @fragment
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let white = vec3<f32>(1.0);
@@ -18,6 +20,22 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     if in_border {
         color = border_color;
     }
+
+    // Selected Color Indicator
+    let ci_white_size = 0.05;
+    let ci_black_size = 0.06;
+    let ci_line_smoothing = 0.01;
+    let ci_line_thickness = 0.01;
+    let ci_pos = length(hsv.yz - mesh.uv);
+    let ci_white =
+        smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos)
+        - smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos + ci_line_thickness);
+    let ci_black =
+        smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos)
+        - smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos + ci_line_thickness);
+
+    color = mix(color, white, ci_white);
+    color = mix(color, black, ci_black);
     
     return to_linear(vec4<f32>(color, 1.0));
 }
