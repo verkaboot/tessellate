@@ -14,8 +14,7 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
 
     var color = mix(white, hue, x) * mix(white, black, y);
 
-    let in_border = mesh.uv.x < border_size || mesh.uv.x > (1 - border_size)
-    || mesh.uv.y < border_size || mesh.uv.y > (1 - border_size);
+    let in_border = mesh.uv.x < border_size || mesh.uv.x > (1 - border_size) || mesh.uv.y < border_size || mesh.uv.y > (1 - border_size);
 
     if in_border {
         color = border_color;
@@ -26,17 +25,13 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let ci_black_size = 0.06;
     let ci_line_smoothing = 0.01;
     let ci_line_thickness = 0.01;
-    let ci_pos = length(hsv.yz - mesh.uv);
-    let ci_white =
-        smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos)
-        - smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos + ci_line_thickness);
-    let ci_black =
-        smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos)
-        - smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos + ci_line_thickness);
+    let ci_pos = length(vec2(hsv.y, 1 - hsv.z) - vec2(x, y));
+    let ci_white = smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos) - smoothstep(ci_white_size, ci_white_size - ci_line_smoothing, ci_pos + ci_line_thickness);
+    let ci_black = smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos) - smoothstep(ci_black_size, ci_black_size - ci_line_smoothing, ci_pos + ci_line_thickness);
 
     color = mix(color, white, ci_white);
     color = mix(color, black, ci_black);
-    
+
     return to_linear(vec4<f32>(color, 1.0));
 }
 
