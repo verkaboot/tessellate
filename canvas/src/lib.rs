@@ -1,10 +1,10 @@
 mod bind_groups;
 pub mod brush;
 mod compute;
-pub mod mouse;
-mod node;
 mod pipeline;
+mod render_node;
 pub mod sprite;
+pub mod tool;
 
 use bevy::{prelude::*, utils};
 use brush::{BrushColor, BrushHardness, BrushSize};
@@ -21,6 +21,6 @@ pub fn plugin(app: &mut App) {
         .insert_resource(BrushColor::new(
             Color::linear_rgba(1.0, 0.0, 0.0, 1.0).to_linear(),
         ))
-        .add_systems(PreStartup, (sprite::setup, mouse::setup))
-        .add_systems(Update, mouse::update_position.map(utils::dbg));
+        .add_systems(PreStartup, (sprite::setup, tool::setup))
+        .add_systems(Update, tool::update_position.map(utils::dbg));
 }

@@ -1,10 +1,10 @@
 use crate::{brush, sprite::CanvasSprite};
 
 use super::{
-    brush::{BrushColor, BrushSize, BrushHardness},
-    mouse::ToolData,
+    brush::{BrushColor, BrushHardness, BrushSize},
     pipeline::CanvasPipeline,
     sprite::CanvasImages,
+    tool::ToolData,
 };
 use bevy::{
     prelude::*,

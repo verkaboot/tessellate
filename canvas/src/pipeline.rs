@@ -1,4 +1,4 @@
-use super::{mouse::MousePositions, SHADER_ASSET_PATH};
+use super::{tool::MousePositions, SHADER_ASSET_PATH};
 use bevy::{
     prelude::*,
     render::{render_resource::*, renderer::RenderDevice},

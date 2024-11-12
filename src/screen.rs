@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use canvas::mouse::ToolType;
+use canvas::tool::ToolType;
 use ui::icon::Icon;
 use ui::interaction::{
     trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
@@ -8,9 +8,9 @@ use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMateri
 use ui::widget::prelude::*;
 
 use canvas::{
-    brush::{BrushColor, BrushSize, BrushHardness},
-    mouse::ToolData,
+    brush::{BrushColor, BrushHardness, BrushSize},
     sprite::CanvasImages,
+    tool::ToolData,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -25,14 +25,20 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
+#[derive(Component, Debug)]
+pub struct PaintUiRoot;
+
+#[derive(Component, Debug)]
+pub struct TerrainUiRoot;
+
 pub fn setup(
     mut commands: Commands,
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
-    commands.ui_root().with_children(|ui_root| {
-        ui_root.panel(PanelDirection::Wide);
-        ui_root.flex().with_children(|flex| {
+    commands.ui_root(PaintUiRoot).with_children(|root| {
+        root.panel(PanelDirection::Wide);
+        root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
                     .button()
@@ -56,7 +62,17 @@ pub fn setup(
                     side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.1, 1.0);
                 });
         });
-        ui_root.panel(PanelDirection::Wide);
+        root.panel(PanelDirection::Wide);
+    });
+
+    commands.ui_root(TerrainUiRoot).with_children(|root| {
+        root.panel(PanelDirection::Wide);
+        root.flex().with_children(|flex| {
+            flex.panel(PanelDirection::Tall);
+            flex.canvas();
+            flex.panel(PanelDirection::Tall);
+        });
+        root.panel(PanelDirection::Wide);
     });
 }
 
@@ -65,6 +81,7 @@ fn set_brush(brush: &ToolType) -> impl Fn(Trigger<OnPress>, ResMut<ToolData>) + 
         tool_data.tool_type = *brush;
     }
 }
+
 fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
     canvas.active_layer += 1;
 }
