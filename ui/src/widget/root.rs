@@ -1,7 +1,7 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
 pub trait Containers {
-    fn ui_root<C: Component + std::fmt::Debug>(&mut self, component: C) -> EntityCommands;
+    fn ui_root<C: Component + std::fmt::Debug>(&mut self, marker_component: C) -> EntityCommands;
 }
 
 impl Containers for Commands<'_, '_> {

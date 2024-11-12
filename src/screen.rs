@@ -1,3 +1,4 @@
+use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use canvas::tool::ToolType;
 use ui::icon::Icon;
@@ -31,13 +32,19 @@ pub struct PaintUiRoot;
 #[derive(Component, Debug)]
 pub struct TerrainUiRoot;
 
+fn top_bar(root: &mut ChildBuilder) {
+    root.panel(PanelDirection::Wide).with_children(|top_panel| {
+        top_panel.button();
+    });
+}
+
 pub fn setup(
     mut commands: Commands,
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
     commands.ui_root(PaintUiRoot).with_children(|root| {
-        root.panel(PanelDirection::Wide);
+        top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
@@ -66,7 +73,7 @@ pub fn setup(
     });
 
     commands.ui_root(TerrainUiRoot).with_children(|root| {
-        root.panel(PanelDirection::Wide);
+        top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall);
             flex.canvas();
