@@ -10,5 +10,5 @@ pub mod macros {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_plugins(interaction::plugin);
+    app.add_plugins((interaction::plugin, widget::plugin));
 }
