@@ -2,7 +2,7 @@ use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::interaction::{OnDrag, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
+use crate::interaction::{OnDrag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 use crate::theme::*;
 use crate::widget::Spawn;
 use error::Result;
@@ -147,7 +147,9 @@ impl<T: Spawn> SliderWidget for T {
 
                     slot.spawn((
                         Name::new("KnobContainer"),
-                        NodeBundle {
+                        KnobContainer,
+                        RelativeCursorPosition::default(),
+                        ButtonBundle {
                             style: Style {
                                 width: Percent(100.0),
                                 // Make container smaller than the graphic to fit knob
@@ -156,8 +158,6 @@ impl<T: Spawn> SliderWidget for T {
                             },
                             ..default()
                         },
-                        KnobContainer,
-                        RelativeCursorPosition::default(),
                     ))
                     .with_children(|knob_container| {
                         knob_container
@@ -191,7 +191,8 @@ impl<T: Spawn> SliderWidget for T {
                             .observe(
                                 update_knob_position::<OnResourceUpdated<V>, V>.map(utils::warn),
                             );
-                    });
+                    })
+                    .observe(on_press::<V>.map(utils::warn));
                 });
         });
 
@@ -220,6 +221,32 @@ pub struct GraphicFill;
 #[derive(Component)]
 pub struct FillEntity(Entity);
 
+// When we press the knob container
+fn on_press<V: SliderValue>(
+    trigger: Trigger<OnPress>,
+    mut resource: ResMut<V>,
+    cursor_q: Query<&RelativeCursorPosition>,
+    knob_q: Query<(&SliderValueRange,), With<SliderKnob>>,
+    children_q: Query<&Children>,
+) -> Result<()> {
+    let cursor_pos = cursor_q.get(trigger.entity())?;
+    let children = children_q.get(trigger.entity())?;
+    let knob_entity = children.iter()
+        .find(|&&child| knob_q.contains(child));
+    if let Some(knob_entity) = knob_entity {
+        let (range,) = knob_q.get(*knob_entity)?;
+        if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
+            let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
+            let eased_percentage = cubic_bezier.ease(x);
+
+            *resource = V::from_f32(range.min.lerp(range.max, eased_percentage));
+        }
+    }
+
+    Ok(())
+}
+
+// When we drag the knob
 fn on_drag<V: SliderValue>(
     trigger: Trigger<OnDrag>,
     mut resource: ResMut<V>,
