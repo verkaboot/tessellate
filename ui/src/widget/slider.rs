@@ -18,11 +18,11 @@ pub trait SliderValue: Resource + Copy + Clone + std::fmt::Debug {
 }
 
 pub trait SliderWidget {
-    fn slider<V: SliderValue>(&mut self, label: &str) -> EntityCommands;
+    fn slider<V: SliderValue>(&mut self, label: &str, min_value: f32, max_value: f32) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider<V: SliderValue>(&mut self, label: &str) -> EntityCommands {
+    fn slider<V: SliderValue>(&mut self, label: &str, min_value: f32, max_value: f32) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Slider"),
             NodeBundle {
@@ -38,7 +38,7 @@ impl<T: Spawn> SliderWidget for T {
                 background_color: BackgroundColor(SLIDER_BACKGROUND),
                 border_radius: BorderRadius::all(Px(4.0)),
                 ..default()
-            },
+            }
         ));
 
         entity.with_children(|slider| {
@@ -178,6 +178,10 @@ impl<T: Spawn> SliderWidget for T {
                                     ..default()
                                 },
                                 SliderKnob,
+                                SliderValueRange {
+                                    min: min_value,
+                                    max: max_value,
+                                },
                                 FillEntity(graphic_fill),
                                 RelativeCursorPosition::default(),
                                 WatchResource::<V>::new(),
@@ -199,6 +203,12 @@ impl<T: Spawn> SliderWidget for T {
 pub struct KnobContainer;
 
 #[derive(Component)]
+pub struct SliderValueRange {
+    min: f32,
+    max: f32,
+}
+
+#[derive(Component)]
 pub struct SliderKnob;
 
 #[derive(Component)]
@@ -214,15 +224,15 @@ fn on_drag<V: SliderValue>(
     trigger: Trigger<OnDrag>,
     mut resource: ResMut<V>,
     container_q: Query<&RelativeCursorPosition, With<KnobContainer>>,
-    knob_q: Query<&Parent, With<SliderKnob>>,
+    knob_q: Query<(&Parent, &SliderValueRange), With<SliderKnob>>,
 ) -> Result<()> {
-    let knob_parent = knob_q.get(trigger.entity())?;
+    let (knob_parent, range) = knob_q.get(trigger.entity())?;
     let cursor_pos = container_q.get(knob_parent.get())?;
     if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
         let cubic_bezier = CubicSegment::new_bezier((0.5, 0.0), (1.0, 0.5));
         let eased_percentage = cubic_bezier.ease(x);
 
-        *resource = V::from_f32(1.0.lerp(200.0, eased_percentage));
+        *resource = V::from_f32(range.min.lerp(range.max, eased_percentage));
     }
 
     Ok(())
@@ -231,13 +241,13 @@ fn on_drag<V: SliderValue>(
 fn update_knob_position<T: Event + std::fmt::Debug, V: SliderValue>(
     trigger: Trigger<T>,
     slider_value: Res<V>,
-    mut knob_q: Query<(&mut Style, &FillEntity), With<SliderKnob>>,
+    mut knob_q: Query<(&mut Style, &FillEntity, &SliderValueRange), With<SliderKnob>>,
     mut fill_q: Query<&mut Style, (With<GraphicFill>, Without<SliderKnob>)>,
 ) -> Result<()> {
-    let (knob_style, fill_entity) = &mut knob_q.get_mut(trigger.entity())?;
+    let (knob_style, fill_entity, range) = &mut knob_q.get_mut(trigger.entity())?;
     let mut fill_style = fill_q.get_mut(fill_entity.0)?;
     let resource_value: f32 = slider_value.to_f32();
-    let percentage = f32::inverse_lerp(1.0, 200.0, resource_value);
+    let percentage = f32::inverse_lerp(range.min, range.max, resource_value);
 
     let cubic_bezier = CubicSegment::new_bezier((0.0, 0.5), (0.5, 1.0));
     let percentage = cubic_bezier.ease(percentage);

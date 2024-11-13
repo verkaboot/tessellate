@@ -1,7 +1,7 @@
-use crate::sprite::CanvasSprite;
+use crate::{brush, sprite::CanvasSprite};
 
 use super::{
-    brush::{BrushColor, BrushSize},
+    brush::{BrushColor, BrushSize, BrushHardness},
     mouse::ToolData,
     pipeline::CanvasPipeline,
     sprite::CanvasImages,
@@ -25,6 +25,7 @@ pub fn prepare(
     canvas_images: Res<CanvasImages>,
     mouse_data: Res<ToolData>,
     brush_size: Res<BrushSize>,
+    brush_hardness: Res<BrushHardness>,
     brush_color: Res<BrushColor>,
     render_device: Res<RenderDevice>,
     canvas_sprite_q: Query<&CanvasSprite>,
@@ -65,6 +66,17 @@ pub fn prepare(
         size: None,
     };
 
+    let brush_hardness_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
+        label: None,
+        contents: bytemuck::cast_slice(&[brush_hardness.0]),
+        usage: BufferUsages::UNIFORM,
+    });
+    let brush_hardness_binding = BufferBinding {
+        buffer: &brush_hardness_buffer,
+        offset: 0,
+        size: None,
+    };
+
     let brush_color_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
         contents: bytemuck::cast_slice(&brush_color.to_srgba().to_f32_array()),
@@ -101,6 +113,7 @@ pub fn prepare(
             active_layer_binding,
             mouse_pos_binding,
             brush_size_binding,
+            brush_hardness_binding,
             brush_color_binding,
             canvas_transforms_binding,
         )),

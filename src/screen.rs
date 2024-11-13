@@ -8,7 +8,7 @@ use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMateri
 use ui::widget::prelude::*;
 
 use canvas::{
-    brush::{BrushColor, BrushSize},
+    brush::{BrushColor, BrushSize, BrushHardness},
     mouse::ToolData,
     sprite::CanvasImages,
 };
@@ -19,6 +19,8 @@ pub(super) fn plugin(app: &mut App) {
         (
             trigger_on_resource_updated::<BrushSize>,
             trigger_watch_resource_init::<BrushSize>,
+            trigger_on_resource_updated::<BrushHardness>,
+            trigger_watch_resource_init::<BrushHardness>,
         ),
     );
 }
@@ -50,7 +52,8 @@ pub fn setup(
                         .add(Icon::ColorPicker)
                         .observe(change_color);
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
-                    side_bar_right.slider::<BrushSize>("Brush Size");
+                    side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
+                    side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.1, 1.0);
                 });
         });
         ui_root.panel(PanelDirection::Wide);

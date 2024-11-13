@@ -2,9 +2,10 @@
 @group(0) @binding(1) var sprite_image: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(2) var<uniform> active_layer: u32;
 @group(0) @binding(3) var<storage> mouse_positions: array<vec2<f32>, 4>;
-@group(0) @binding(4) var<uniform> brush_radius: f32;
-@group(0) @binding(5) var<uniform> brush_color: vec4<f32>;
-@group(0) @binding(6) var<storage> canvas_transforms: array<vec2<f32>>;
+@group(0) @binding(4) var<uniform> brush_size: f32;
+@group(0) @binding(5) var<uniform> brush_hardness: f32;
+@group(0) @binding(6) var<uniform> brush_color: vec4<f32>;
+@group(0) @binding(7) var<storage> canvas_transforms: array<vec2<f32>>;
 
 @compute @workgroup_size(8, 8, 1)
 fn init(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
@@ -123,7 +124,7 @@ fn brush_alpha(
 ) -> f32 {
     let loc = vec2<f32>(f32(location.x), f32(location.y));
 
-    let buffer = brush_radius + 5.0;
+    let buffer = brush_size + 5.0;
     let left = min(mouse_positions[1].x, mouse_positions[2].x) - buffer;
     let right = max(mouse_positions[1].x, mouse_positions[2].x) + buffer;
     let top = min(mouse_positions[1].y, mouse_positions[2].y) - buffer;
@@ -132,7 +133,7 @@ fn brush_alpha(
         return 0.0;
     }
 
-    var min_distance = f32(brush_radius);
+    var min_distance = f32(brush_size);
     let count = 100u;
     for (var i = 0u; i < count; i = i + 1u) {
         let t = f32(i) / f32(count);
@@ -141,6 +142,11 @@ fn brush_alpha(
         min_distance = min(min_distance, distance);
     }
 
-    let alpha = (brush_radius - min_distance);
-    return clamp(0.0, 1.0, alpha);
+    if brush_hardness == 1.0 {
+        let alpha = (brush_size - min_distance);
+        return clamp(0.0, 1.0, alpha);
+    }
+    
+    let normalized_distance = min_distance / brush_size;
+    return clamp(brush_hardness * (1.0 - normalized_distance), 0.0, 1.0);
 }
