@@ -53,7 +53,7 @@ pub fn setup(
                         .observe(change_color);
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
-                    side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.0, 1.0);
+                    side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.1, 1.0);
                 });
         });
         ui_root.panel(PanelDirection::Wide);
