@@ -1,4 +1,6 @@
-use crate::sprite::CanvasSprite;
+use std::f32::consts::E;
+
+use crate::{brush::BrushHardness, sprite::CanvasSprite};
 
 use super::{
     bind_groups::{self},
@@ -29,6 +31,7 @@ impl Plugin for CanvasComputePlugin {
             ExtractResourcePlugin::<CanvasImages>::default(),
             ExtractResourcePlugin::<ToolData>::default(),
             ExtractResourcePlugin::<BrushSize>::default(),
+            ExtractResourcePlugin::<BrushHardness>::default(),
             ExtractResourcePlugin::<BrushColor>::default(),
             ExtractComponentPlugin::<CanvasSprite>::default(),
         ));
