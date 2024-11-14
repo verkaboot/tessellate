@@ -15,7 +15,7 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let normalized_angle = angle / TAU + 0.5;
 
     // Create the rainbow color based on the angle
-    var color = 0.5 + 0.5 * cos(TAU * (normalized_angle + vec3<f32>(0.0, 0.33, 0.67)));
+    var color = 0.5 + cos(TAU * (normalized_angle + vec3<f32>(0.0, 0.33, 0.67)));
 
     // Define the inner and outer radius for the ring
     let inner_radius = 0.80;
