@@ -9,8 +9,5 @@ syn = "1.0"
 quote = "1.0"
 proc-macro2 = "1.0"
 
-# Siblings
-# ui = { path = "../ui" }
-
 [lib]
 proc-macro = true

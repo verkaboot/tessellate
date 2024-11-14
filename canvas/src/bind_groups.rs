@@ -1,7 +1,7 @@
-use crate::{brush, sprite::CanvasSprite};
+use crate::sprite::CanvasSprite;
 
 use super::{
-    brush::{BrushColor, BrushSize, BrushHardness},
+    brush::{BrushColor, BrushHardness, BrushSize},
     mouse::ToolData,
     pipeline::CanvasPipeline,
     sprite::CanvasImages,
