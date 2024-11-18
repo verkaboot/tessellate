@@ -16,7 +16,7 @@ struct Angle {
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let angle = coords_to_angle(mesh.uv);
     var color = rainbow_gradient(angle);
-    color = hue_indicator(angle.percent, color);
+    color = hue_indicator(angle, 4.0, color);
     color = outer_outline(angle, color, vec3<f32>(0.25) * mesh.uv.y + 0.25);
     color = inner_outline(angle, color, vec3<f32>(0.50) * (1 - mesh.uv.y) + 0.15);
     let alpha = outline_alpha(angle);
@@ -40,17 +40,13 @@ fn rainbow_gradient(angle: Angle) -> vec3<f32> {
     return 0.5 + cos(TAU * (angle.percent + vec3<f32>(0.00, 0.33, 0.67)));
 }
 
-fn hue_indicator(angle: f32, color: vec3<f32>) -> vec3<f32> {
+fn hue_indicator(angle: Angle, hue: f32, color: vec3<f32>) -> vec3<f32> {
     let hue_indicator_size = 0.02;
     let hue_indicator_smoothness = 0.003;
-    let hue = 90.0;
-    let x = abs((hue / 360.0) - (1 - angle));
-    // if x > hue_indicator_size && x < (1 - hue_indicator_size) {
-        // color = mix(color, vec3(0.0), step(x, 0.025));
-    // }
+    var pos = abs((hue / 360.0) - (1 - angle.percent));
 
-    let ci_black = smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size) - smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size - 0.005);
-    return mix(color, vec3(0.0), ci_black);
+    let mask = 1.0 - (step(pos, hue_indicator_size) + (1 - step(pos, 1.0 - hue_indicator_size)));
+    return mix(color, vec3(0.0), mask * 0.5);
 }
 
 fn inner_outline(angle: Angle, color: vec3<f32>, outline_color: vec3<f32>) -> vec3<f32> {
