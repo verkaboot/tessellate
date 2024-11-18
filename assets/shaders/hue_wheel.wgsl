@@ -1,6 +1,22 @@
 #import bevy_ui::ui_vertex_output::UiVertexOutput
 
+const PI:f32 =  3.14159265358;
 const TAU:f32 =  6.28318530718;
+
+fn hue_indicator(angle: f32, color: vec3<f32>) -> vec3<f32> {
+    
+    // Add Hue Indicator
+    let hue_indicator_size = 0.02;
+    let hue_indicator_smoothness = 0.003;
+    let hue = 90.0;
+    let x = abs((hue / 360.0) - (1 - angle));
+    // if x > hue_indicator_size && x < (1 - hue_indicator_size) {
+        // color = mix(color, vec3(0.0), step(x, 0.025));
+    // }
+
+    let ci_black = smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size) - smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size - 0.005);
+    return mix(color, vec3(0.0), ci_black);
+}
 
 @fragment
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
@@ -15,7 +31,9 @@ fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let normalized_angle = angle / TAU + 0.5;
 
     // Create the rainbow color based on the angle
-    var color = 0.5 + cos(TAU * (normalized_angle + vec3<f32>(0.0, 0.33, 0.67)));
+    var color = 0.5 + cos(TAU * (normalized_angle + vec3<f32>(0.00, 0.33, 0.67)));
+
+    color = hue_indicator(normalized_angle, color);
 
     // Define the inner and outer radius for the ring
     let inner_radius = 0.80;
