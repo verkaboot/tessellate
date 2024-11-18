@@ -3,10 +3,7 @@
 @fragment
 fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
     let angle = uv_to_angle(mesh.uv);
-
-    // Create the rainbow color based on the angle
-    var color = 0.5 + cos(TAU * (angle.percent + vec3<f32>(0.00, 0.33, 0.67)));
-
+    var color = rainbow_gradient(angle);
     color = hue_indicator(angle.percent, color);
 
     // Define the inner and outer radius for the ring
@@ -44,6 +41,10 @@ struct Angle {
     radius: f32
 }
 
+fn rainbow_gradient(angle: Angle) -> vec3<f32> {
+    return 0.5 + cos(TAU * (angle.percent + vec3<f32>(0.00, 0.33, 0.67)));
+}
+
 fn uv_to_angle(input_uv: vec2<f32>) -> Angle {
     // Convert UV coordinates to range [-1, 1]
     let uv = input_uv * 2.0 - vec2<f32>(1.0);
@@ -53,7 +54,7 @@ fn uv_to_angle(input_uv: vec2<f32>) -> Angle {
     let radius = length(uv);
 
     // Normalize angle to [0, 1]
-    return Angle (angle / TAU + 0.5, radius);
+    return Angle(angle / TAU + 0.5, radius);
 }
 
 fn hue_indicator(angle: f32, color: vec3<f32>) -> vec3<f32> {
