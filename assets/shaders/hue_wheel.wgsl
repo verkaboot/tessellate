@@ -1,51 +1,30 @@
 #import bevy_ui::ui_vertex_output::UiVertexOutput
 
-@fragment
-fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
-    let angle = uv_to_angle(mesh.uv);
-    var color = rainbow_gradient(angle);
-    color = hue_indicator(angle.percent, color);
-
-    // Define the inner and outer radius for the ring
-    let inner_radius = 0.80;
-    let outer_radius = 0.98;
-    let edge_smoothness = 0.01;
-    let outline_thickness = 0.01;
-    let outer_outline_color = vec3<f32>(0.25) * mesh.uv.y + 0.25;
-    let inner_outline_color = vec3<f32>(0.50) * (1 - mesh.uv.y) + 0.15;
-
-    // Set outline influence
-    let outer_outline = smoothstep(outer_radius, outer_radius - edge_smoothness, angle.radius * (1 + outline_thickness));
-
-    let inner_outline = smoothstep(inner_radius, inner_radius + edge_smoothness, angle.radius * (1 - outline_thickness));
-
-    // Mix in Outline Color
-    color = mix(color, outer_outline_color, 1 - outer_outline);
-    color = mix(color, inner_outline_color, 1 - inner_outline);
-
-    // Apply alpha based on radius to create a ring with anti-aliased edges
-    var alpha = smoothstep(
-        outer_radius, outer_radius - edge_smoothness, angle.radius
-    ) * (smoothstep(
-        inner_radius, inner_radius + edge_smoothness, angle.radius
-    ));
-
-    return to_linear(vec4<f32>(color, alpha));
-}
-
 const PI:f32 =  3.14159265358;
 const TAU:f32 =  6.28318530718;
+const inner_radius = 0.80;
+const outer_radius = 0.98;
+const edge_smoothness = 0.01;
+const outline_thickness = 0.01;
 
 struct Angle {
     percent: f32,
     radius: f32
 }
 
-fn rainbow_gradient(angle: Angle) -> vec3<f32> {
-    return 0.5 + cos(TAU * (angle.percent + vec3<f32>(0.00, 0.33, 0.67)));
+@fragment
+fn fragment(mesh: UiVertexOutput) -> @location(0) vec4<f32> {
+    let angle = coords_to_angle(mesh.uv);
+    var color = rainbow_gradient(angle);
+    color = hue_indicator(angle.percent, color);
+    color = outer_outline(angle, color, vec3<f32>(0.25) * mesh.uv.y + 0.25);
+    color = inner_outline(angle, color, vec3<f32>(0.50) * (1 - mesh.uv.y) + 0.15);
+    let alpha = outline_alpha(angle);
+
+    return to_linear(vec4<f32>(color, alpha));
 }
 
-fn uv_to_angle(input_uv: vec2<f32>) -> Angle {
+fn coords_to_angle(input_uv: vec2<f32>) -> Angle {
     // Convert UV coordinates to range [-1, 1]
     let uv = input_uv * 2.0 - vec2<f32>(1.0);
 
@@ -55,6 +34,10 @@ fn uv_to_angle(input_uv: vec2<f32>) -> Angle {
 
     // Normalize angle to [0, 1]
     return Angle(angle / TAU + 0.5, radius);
+}
+
+fn rainbow_gradient(angle: Angle) -> vec3<f32> {
+    return 0.5 + cos(TAU * (angle.percent + vec3<f32>(0.00, 0.33, 0.67)));
 }
 
 fn hue_indicator(angle: f32, color: vec3<f32>) -> vec3<f32> {
@@ -68,6 +51,26 @@ fn hue_indicator(angle: f32, color: vec3<f32>) -> vec3<f32> {
 
     let ci_black = smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size) - smoothstep(x, x + hue_indicator_smoothness, hue_indicator_size - 0.005);
     return mix(color, vec3(0.0), ci_black);
+}
+
+fn inner_outline(angle: Angle, color: vec3<f32>, outline_color: vec3<f32>) -> vec3<f32> {
+    let outline = smoothstep(inner_radius, inner_radius + edge_smoothness, angle.radius * (1 - outline_thickness));
+
+    return  mix(color, outline_color, 1 - outline);
+}
+
+fn outer_outline(angle: Angle, color: vec3<f32>, outline_color: vec3<f32>) -> vec3<f32> {
+    let outline = smoothstep(outer_radius, outer_radius - edge_smoothness, angle.radius * (1 + outline_thickness));
+
+    return mix(color, outline_color, 1 - outline);
+}
+
+fn outline_alpha(angle: Angle) -> f32 {
+    return smoothstep(
+        outer_radius, outer_radius - edge_smoothness, angle.radius
+    ) * (smoothstep(
+        inner_radius, inner_radius + edge_smoothness, angle.radius
+    ));
 }
 
 fn to_linear(nonlinear: vec4<f32>) -> vec4<f32> {
