@@ -7,12 +7,10 @@ mod root;
 mod slider;
 
 use bevy::{ecs::system::EntityCommands, prelude::*};
+use color_picker::ColorPickerPlugin;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((
-        UiMaterialPlugin::<color_picker::HueWheelMaterial>::default(),
-        UiMaterialPlugin::<color_picker::HsvBoxMaterial>::default(),
-    ));
+    app.add_plugins((ColorPickerPlugin,));
 }
 
 pub mod prelude {

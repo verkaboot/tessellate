@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.14" }
+bytemuck = "1.17.1"
 
 error = { path = "../error" }
 ui_macros = { path = "../ui_macros" }

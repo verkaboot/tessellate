@@ -1,11 +1,93 @@
+mod shader;
+
 use bevy::{
     ecs::system::EntityCommands,
     prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
+    render::{
+        extract_resource::{ExtractResource, ExtractResourcePlugin},
+        render_graph::{self, RenderGraph, RenderLabel},
+        render_resource::*,
+        renderer::RenderContext,
+        Render, RenderApp, RenderSet,
+    },
     ui::Val::*,
 };
 
 use super::Spawn;
+
+#[derive(Resource, Clone, ExtractResource)]
+pub struct ColorPickerImages {
+    hue_wheel: Handle<Image>,
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
+struct ColorPickerLabel;
+
+struct ColorPickerNode;
+impl render_graph::Node for ColorPickerNode {
+    fn run(
+        &self,
+        _graph: &mut render_graph::RenderGraphContext,
+        render_context: &mut RenderContext,
+        world: &World,
+    ) -> Result<(), render_graph::NodeRunError> {
+        let bind_group = &world.resource::<shader::BindGroups>().bind_group;
+        let pipeline = world.resource::<shader::Pipeline>();
+        let pipeline_cache = world.resource::<PipelineCache>();
+
+        let mut pass = render_context
+            .command_encoder()
+            .begin_compute_pass(&ComputePassDescriptor::default());
+
+        let update_pipeline = pipeline_cache
+            .get_compute_pipeline(pipeline.update_pipeline)
+            .unwrap();
+        pass.set_bind_group(0, &bind_group, &[]);
+        pass.set_pipeline(update_pipeline);
+        pass.dispatch_workgroups(8, 8, 1);
+
+        Ok(())
+    }
+}
+
+pub struct ColorPickerPlugin;
+impl Plugin for ColorPickerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugins(ExtractResourcePlugin::<ColorPickerImages>::default());
+        let render_app = app.sub_app_mut(RenderApp);
+        render_app.add_systems(
+            Render,
+            shader::bind_groups.in_set(RenderSet::PrepareBindGroups),
+        );
+
+        let mut render_graph = render_app.world_mut().resource_mut::<RenderGraph>();
+        render_graph.add_node(ColorPickerLabel, ColorPickerNode);
+        render_graph.add_node_edge(ColorPickerLabel, bevy::render::graph::CameraDriverLabel);
+    }
+
+    fn finish(&self, app: &mut App) {
+        let render_app = app.sub_app_mut(RenderApp);
+        render_app.init_resource::<shader::Pipeline>();
+    }
+}
+
+fn setup_textures(mut commands: Commands, mut images: ColorPickerImages) {
+    let mut hue_wheel = Image::new_fill(
+        Extent3d {
+            width: 256,
+            height: 256,
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        &[0, 0, 0, 0],
+        TextureFormat::Rgba8Unorm,
+        RenderAssetUsages::RENDER_WORLD,
+    );
+    hue_wheel.texture_descriptor.usage =
+        TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
+    let sprite_image_handle = images.add(hue_wheel);
+    commands.insert_resource(ColorPickerImages { hue_wheel });
+}
 
 pub trait ColorPickerWidget {
     fn color_picker(
@@ -72,29 +154,5 @@ impl<T: Spawn> ColorPickerWidget for T {
         });
 
         entity
-    }
-}
-
-#[derive(AsBindGroup, Asset, TypePath, Debug, Clone)]
-pub struct HueWheelMaterial {
-    #[uniform(0)]
-    color: Vec4,
-}
-
-impl UiMaterial for HueWheelMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/hue_wheel.wgsl".into()
-    }
-}
-
-#[derive(AsBindGroup, Asset, TypePath, Debug, Clone)]
-pub struct HsvBoxMaterial {
-    #[uniform(0)]
-    hsva: Vec4,
-}
-
-impl UiMaterial for HsvBoxMaterial {
-    fn fragment_shader() -> ShaderRef {
-        "shaders/hsv_box.wgsl".into()
     }
 }
