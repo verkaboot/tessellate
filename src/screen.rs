@@ -25,17 +25,21 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-#[derive(Component, Debug)]
-pub struct PaintUiRoot;
+#[derive(Component, Debug, PartialEq, Eq)]
+enum State {
+    Paint,
+    Terrain,
+}
 
-#[derive(Component, Debug)]
-pub struct TerrainUiRoot;
+impl RootState for State {}
 
 fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
         top_panel.text("Mode");
-        top_panel.button().observe(set_root::<PaintUiRoot>);
-        top_panel.button().observe(set_root::<TerrainUiRoot>);
+        top_panel.button().observe(set_root::<State>(State::Paint));
+        top_panel
+            .button()
+            .observe(set_root::<State>(State::Terrain));
     });
 }
 
@@ -44,7 +48,7 @@ pub fn setup(
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
-    commands.ui_root(PaintUiRoot).with_children(|root| {
+    commands.ui_root(State::Paint).with_children(|root| {
         top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall).with_children(|side_bar| {
@@ -74,7 +78,7 @@ pub fn setup(
         root.panel(PanelDirection::Wide);
     });
 
-    commands.ui_root(TerrainUiRoot).with_children(|root| {
+    commands.ui_root(State::Terrain).with_children(|root| {
         top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall);
