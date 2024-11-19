@@ -24,7 +24,7 @@ pub mod prelude {
         panel::{PanelDirection, PanelWidget},
         root::{set_root, Containers, CurrentState, RootState},
         slider::{SliderValue, SliderWidget},
-        text::TextWidget,
+        text::{TextValue, TextWidget},
     };
 }
 

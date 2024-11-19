@@ -21,25 +21,42 @@ pub(super) fn plugin(app: &mut App) {
             trigger_watch_resource_init::<BrushSize>,
             trigger_on_resource_updated::<BrushHardness>,
             trigger_watch_resource_init::<BrushHardness>,
+            trigger_on_resource_updated::<CurrentState<UiMode>>,
+            trigger_watch_resource_init::<CurrentState<UiMode>>,
         ),
     );
 }
 
 #[derive(Component, Debug, PartialEq, Eq, Clone, Copy)]
-enum State {
+enum UiMode {
     Paint,
     Terrain,
 }
 
-impl RootState for State {}
+impl std::fmt::Display for UiMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                UiMode::Paint => "Paint",
+                UiMode::Terrain => "Terrain",
+            }
+        )
+    }
+}
+
+impl RootState for UiMode {}
 
 fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
-        top_panel.text("Mode");
-        top_panel.button().observe(set_root::<State>(State::Paint));
+        top_panel.text::<CurrentState<UiMode>>("Mode\n");
         top_panel
             .button()
-            .observe(set_root::<State>(State::Terrain));
+            .observe(set_root::<UiMode>(UiMode::Paint));
+        top_panel
+            .button()
+            .observe(set_root::<UiMode>(UiMode::Terrain));
     });
 }
 
@@ -48,8 +65,8 @@ pub fn setup(
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
-    commands.insert_resource(CurrentState(State::Paint));
-    commands.ui_root(State::Paint).with_children(|root| {
+    commands.insert_resource(CurrentState(UiMode::Paint));
+    commands.ui_root(UiMode::Paint).with_children(|root| {
         top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall).with_children(|side_bar| {
@@ -79,7 +96,7 @@ pub fn setup(
         root.panel(PanelDirection::Wide);
     });
 
-    commands.ui_root(State::Terrain).with_children(|root| {
+    commands.ui_root(UiMode::Terrain).with_children(|root| {
         top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall);
