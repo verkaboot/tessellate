@@ -1,4 +1,4 @@
-use crate::{brush, sprite::CanvasSprite};
+use crate::sprite::CanvasSprite;
 
 use super::{
     brush::{BrushColor, BrushHardness, BrushSize},

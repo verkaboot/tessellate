@@ -1,4 +1,3 @@
-use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use canvas::tool::ToolType;
 use ui::icon::Icon;
@@ -34,7 +33,9 @@ pub struct TerrainUiRoot;
 
 fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
-        top_panel.button();
+        top_panel.text("Mode");
+        top_panel.button().observe(set_root::<PaintUiRoot>);
+        top_panel.button().observe(set_root::<TerrainUiRoot>);
     });
 }
 
@@ -64,6 +65,7 @@ pub fn setup(
                         .button()
                         .add(Icon::ColorPicker)
                         .observe(change_color);
+                    // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
                     side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.1, 1.0);
