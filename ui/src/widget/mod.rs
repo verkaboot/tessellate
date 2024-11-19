@@ -22,7 +22,7 @@ pub mod prelude {
         canvas::CanvasWidget,
         flex::FlexWidget,
         panel::{PanelDirection, PanelWidget},
-        root::{set_root, Containers, RootState},
+        root::{set_root, Containers, CurrentState, RootState},
         slider::{SliderValue, SliderWidget},
         text::TextWidget,
     };

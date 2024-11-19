@@ -25,7 +25,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-#[derive(Component, Debug, PartialEq, Eq)]
+#[derive(Component, Debug, PartialEq, Eq, Clone, Copy)]
 enum State {
     Paint,
     Terrain,
@@ -48,6 +48,7 @@ pub fn setup(
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
+    commands.insert_resource(CurrentState(State::Paint));
     commands.ui_root(State::Paint).with_children(|root| {
         top_bar(root);
         root.flex().with_children(|flex| {
