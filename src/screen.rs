@@ -50,13 +50,15 @@ impl RootState for UiMode {}
 
 fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
-        top_panel.text::<CurrentState<UiMode>>("Mode\n");
         top_panel
             .button()
+            .add(Icon::PaintView)
             .observe(set_root::<UiMode>(UiMode::Paint));
         top_panel
             .button()
+            .add(Icon::TerrainView)
             .observe(set_root::<UiMode>(UiMode::Terrain));
+        top_panel.text::<CurrentState<UiMode>>("Mode\n");
     });
 }
 
