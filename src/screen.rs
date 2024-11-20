@@ -23,6 +23,7 @@ pub(super) fn plugin(app: &mut App) {
             trigger_watch_resource_init::<BrushHardness>,
             trigger_on_resource_updated::<CurrentState<UiMode>>,
             trigger_watch_resource_init::<CurrentState<UiMode>>,
+            watch_state::<UiMode>,
         ),
     );
 }

@@ -44,16 +44,20 @@ impl Containers for Commands<'_, '_> {
     }
 }
 
-pub fn set_root<C: RootState>(
-    root_state: C,
-) -> impl Fn(Trigger<OnPress>, Query<(&mut Visibility, &C)>, ResMut<CurrentState<C>>) {
-    move |_trigger: Trigger<OnPress>,
-          mut root_q: Query<(&mut Visibility, &C)>,
-          mut current_state: ResMut<CurrentState<C>>| {
-        for (mut visibility, c) in &mut root_q {
-            if root_state == *c {
+pub fn set_root<C: RootState>(root_state: C) -> impl Fn(Trigger<OnPress>, ResMut<CurrentState<C>>) {
+    move |_trigger: Trigger<OnPress>, mut current_state: ResMut<CurrentState<C>>| {
+        current_state.0 = root_state;
+    }
+}
+
+pub fn watch_state<C: RootState>(
+    mut vis_q: Query<(&mut Visibility, &C)>,
+    current_state: Res<CurrentState<C>>,
+) {
+    if current_state.is_changed() {
+        for (mut visibility, root_state) in &mut vis_q {
+            if *root_state == current_state.0 {
                 *visibility = Visibility::Visible;
-                *current_state = CurrentState(*c);
             } else {
                 *visibility = Visibility::Hidden;
             }
