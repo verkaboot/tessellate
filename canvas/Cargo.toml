@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 bevy = { version = "0.14" }
 bytemuck = "1.17.1"
+bevy_easy_compute = "0.14.1"
 
 error = { path = "../error" }
 ui = { path = "../ui" }
