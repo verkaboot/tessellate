@@ -1,5 +1,5 @@
 use super::{
-    bind_groups::CanvasImageBindGroups, mouse::ToolData, pipeline::CanvasPipeline,
+    bind_groups::CanvasImageBindGroups, pipeline::CanvasPipeline, tool::ToolData,
     SHADER_ASSET_PATH, SIZE, WORKGROUP_SIZE,
 };
 use bevy::{
@@ -69,9 +69,9 @@ impl render_graph::Node for CanvasNode {
         };
 
         match tool_data.tool_type {
-            crate::mouse::ToolType::Select => {}
+            crate::tool::ToolType::Select => {}
 
-            crate::mouse::ToolType::Paint => {
+            crate::tool::ToolType::Paint => {
                 let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
                 let pipeline_cache = world.resource::<PipelineCache>();
                 let pipeline = world.resource::<CanvasPipeline>();
@@ -88,7 +88,7 @@ impl render_graph::Node for CanvasNode {
                 pass.dispatch_workgroups(SIZE.0 / WORKGROUP_SIZE, SIZE.1 / WORKGROUP_SIZE, 1);
             }
 
-            crate::mouse::ToolType::Erase => {
+            crate::tool::ToolType::Erase => {
                 let bind_group = &world.resource::<CanvasImageBindGroups>().bind_group;
                 let pipeline_cache = world.resource::<PipelineCache>();
                 let pipeline = world.resource::<CanvasPipeline>();

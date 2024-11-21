@@ -1,14 +1,12 @@
-use std::f32::consts::E;
-
 use crate::{brush::BrushHardness, sprite::CanvasSprite};
 
 use super::{
     bind_groups::{self},
     brush::{BrushColor, BrushSize},
-    mouse::ToolData,
-    node::CanvasNode,
     pipeline::CanvasPipeline,
+    render_node::CanvasNode,
     sprite::CanvasImages,
+    tool::ToolData,
 };
 use bevy::{
     prelude::*,

@@ -1,7 +1,7 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
 use leafwing_input_manager::prelude::*;
 
-use canvas::{mouse::ToolData, SIZE};
+use canvas::{tool::ToolData, SIZE};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(InputManagerPlugin::<CameraMovement>::default())

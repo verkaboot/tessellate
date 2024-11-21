@@ -5,6 +5,7 @@ mod flex;
 mod panel;
 mod root;
 mod slider;
+mod text;
 
 use bevy::{ecs::system::EntityCommands, prelude::*};
 
@@ -21,8 +22,9 @@ pub mod prelude {
         canvas::CanvasWidget,
         flex::FlexWidget,
         panel::{PanelDirection, PanelWidget},
-        root::Containers,
+        root::{set_root, watch_state, Containers, CurrentState, RootState},
         slider::{SliderValue, SliderWidget},
+        text::{TextValue, TextWidget},
     };
 }
 

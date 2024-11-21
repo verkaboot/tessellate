@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use canvas::mouse::ToolType;
+use canvas::tool::ToolType;
 use ui::icon::Icon;
 use ui::interaction::{
     trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
@@ -8,9 +8,9 @@ use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMateri
 use ui::widget::prelude::*;
 
 use canvas::{
-    brush::{BrushColor, BrushSize, BrushHardness},
-    mouse::ToolData,
+    brush::{BrushColor, BrushHardness, BrushSize},
     sprite::CanvasImages,
+    tool::ToolData,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -21,8 +21,46 @@ pub(super) fn plugin(app: &mut App) {
             trigger_watch_resource_init::<BrushSize>,
             trigger_on_resource_updated::<BrushHardness>,
             trigger_watch_resource_init::<BrushHardness>,
+            trigger_on_resource_updated::<CurrentState<UiMode>>,
+            trigger_watch_resource_init::<CurrentState<UiMode>>,
+            watch_state::<UiMode>,
         ),
     );
+}
+
+#[derive(Component, Debug, PartialEq, Eq, Clone, Copy)]
+enum UiMode {
+    Paint,
+    Terrain,
+}
+
+impl std::fmt::Display for UiMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                UiMode::Paint => "Paint",
+                UiMode::Terrain => "Terrain",
+            }
+        )
+    }
+}
+
+impl RootState for UiMode {}
+
+fn top_bar(root: &mut ChildBuilder) {
+    root.panel(PanelDirection::Wide).with_children(|top_panel| {
+        top_panel
+            .button()
+            .add(Icon::PaintView)
+            .observe(set_root::<UiMode>(UiMode::Paint));
+        top_panel
+            .button()
+            .add(Icon::TerrainView)
+            .observe(set_root::<UiMode>(UiMode::Terrain));
+        top_panel.text::<CurrentState<UiMode>>("Mode\n");
+    });
 }
 
 pub fn setup(
@@ -30,9 +68,10 @@ pub fn setup(
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
-    commands.ui_root().with_children(|ui_root| {
-        ui_root.panel(PanelDirection::Wide);
-        ui_root.flex().with_children(|flex| {
+    commands.insert_resource(CurrentState(UiMode::Paint));
+    commands.ui_root(UiMode::Paint).with_children(|root| {
+        top_bar(root);
+        root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
                     .button()
@@ -51,12 +90,23 @@ pub fn setup(
                         .button()
                         .add(Icon::ColorPicker)
                         .observe(change_color);
+                    // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
                     side_bar_right.slider::<BrushHardness>("Brush Hardness", 0.1, 1.0);
                 });
         });
-        ui_root.panel(PanelDirection::Wide);
+        root.panel(PanelDirection::Wide);
+    });
+
+    commands.ui_root(UiMode::Terrain).with_children(|root| {
+        top_bar(root);
+        root.flex().with_children(|flex| {
+            flex.panel(PanelDirection::Tall);
+            flex.canvas();
+            flex.panel(PanelDirection::Tall);
+        });
+        root.panel(PanelDirection::Wide);
     });
 }
 
@@ -65,6 +115,7 @@ fn set_brush(brush: &ToolType) -> impl Fn(Trigger<OnPress>, ResMut<ToolData>) + 
         tool_data.tool_type = *brush;
     }
 }
+
 fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
     canvas.active_layer += 1;
 }

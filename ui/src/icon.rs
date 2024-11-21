@@ -5,6 +5,8 @@ pub enum Icon {
     Eraser,
     Layer,
     ColorPicker,
+    PaintView,
+    TerrainView,
 }
 
 impl EntityCommand for Icon {
@@ -15,6 +17,8 @@ impl EntityCommand for Icon {
             Icon::Eraser => asset_server.load("icons/eraser.png"),
             Icon::Layer => asset_server.load("icons/layer.png"),
             Icon::ColorPicker => asset_server.load("icons/color_picker.png"),
+            Icon::PaintView => asset_server.load("icons/paint_view.png"),
+            Icon::TerrainView => asset_server.load("icons/terrain_view.png"),
         };
         let icon = world
             .spawn((
