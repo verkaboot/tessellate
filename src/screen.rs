@@ -13,6 +13,8 @@ use canvas::{
     tool::ToolData,
 };
 
+use crate::terrain::draw_terrain;
+
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         Update,
@@ -103,7 +105,7 @@ pub fn setup(
         top_bar(root);
         root.flex().with_children(|flex| {
             flex.panel(PanelDirection::Tall);
-            flex.canvas();
+            flex.canvas().observe(draw_terrain);
             flex.panel(PanelDirection::Tall);
         });
         root.panel(PanelDirection::Wide);
