@@ -33,8 +33,8 @@ pub fn setup(mut commands: Commands) {
         Name::new("Camera"),
         Camera2dBundle {
             transform: Transform::from_translation(Vec3::new(
-                SIZE.0 as f32 / 2.0,
-                SIZE.1 as f32 / 2.0,
+                SIZE.x as f32 / 2.0,
+                SIZE.y as f32 / 2.0,
                 0.0,
             )),
             ..default()

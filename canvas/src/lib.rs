@@ -10,7 +10,7 @@ use bevy::{prelude::*, utils};
 use brush::{BrushColor, BrushHardness, BrushSize};
 use compute::CanvasComputePlugin;
 
-pub const SIZE: (u32, u32) = (256, 256);
+pub const SIZE: UVec2 = UVec2::new(256, 256);
 const SHADER_ASSET_PATH: &str = "shaders/canvas.wgsl";
 const WORKGROUP_SIZE: u32 = 8;
 
