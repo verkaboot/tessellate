@@ -5,7 +5,6 @@ use animaboot::AppPlugin;
 use bevy::{asset::load_internal_binary_asset, prelude::*};
 use bevy::{window::WindowResolution, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 fn main() -> AppExit {
     let mut app = App::new();
@@ -24,13 +23,13 @@ fn main() -> AppExit {
             })
             .set(ImagePlugin::default_nearest()),
     )
-    .insert_resource(WinitSettings::desktop_app())
+    .insert_resource(WinitSettings::desktop_app());
+
     // 3rd Party Plugins
-    .add_plugins(bevy_framepace::FramepacePlugin)
-    .insert_resource(FramepaceSettings {
-        limiter: Limiter::from_framerate(144.0),
-    })
-    .add_plugins(WorldInspectorPlugin::new());
+    app.add_plugins(bevy_framepace::FramepacePlugin)
+        .insert_resource(FramepaceSettings {
+            limiter: Limiter::from_framerate(144.0),
+        });
 
     // Build default font into the binary
     load_internal_binary_asset!(

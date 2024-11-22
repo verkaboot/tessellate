@@ -1,6 +1,9 @@
 mod background;
 mod camera;
+mod dev;
+mod grid;
 mod screen;
+mod terrain;
 
 use bevy::prelude::*;
 
@@ -15,7 +18,11 @@ impl Plugin for AppPlugin {
             background::plugin,
             ui::plugin,
             screen::plugin,
+            terrain::plugin,
         ));
+
+        #[cfg(feature = "dev")]
+        app.add_plugins(dev::plugin);
 
         app.add_systems(Startup, screen::setup);
     }
