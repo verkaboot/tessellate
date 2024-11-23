@@ -34,8 +34,7 @@ pub fn draw_terrain(
     mut commands: Commands,
 ) {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
-    println!("{:?}", coord);
-    let x = coord.to_world_pos(*grid_settings);
+    let cell_pos = coord.to_world_pos(*grid_settings);
     commands.spawn((
         Name::new("TerrainSprite"),
         SpriteBundle {
@@ -45,7 +44,7 @@ pub fn draw_terrain(
                 anchor: bevy::sprite::Anchor::BottomLeft,
                 ..default()
             },
-            transform: Transform::from_xyz(x.x, x.y, 0.0),
+            transform: Transform::from_xyz(cell_pos.x, cell_pos.y, 0.0),
             ..default()
         },
     ));
