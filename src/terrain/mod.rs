@@ -31,21 +31,27 @@ pub fn draw_terrain(
     _trigger: Trigger<OnPress>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
+    mut grid: ResMut<Grid>,
     mut commands: Commands,
 ) {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
-    commands.spawn((
-        Name::new("TerrainSprite"),
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::srgba(0.2, 0.5, 0.9, 0.7),
-                custom_size: Some(SIZE.as_vec2()),
-                anchor: bevy::sprite::Anchor::BottomLeft,
+    let entity = commands
+        .spawn((
+            Name::new("TerrainSprite"),
+            SpriteBundle {
+                sprite: Sprite {
+                    color: Color::srgba(0.2, 0.5, 0.9, 0.7),
+                    custom_size: Some(SIZE.as_vec2()),
+                    anchor: bevy::sprite::Anchor::BottomLeft,
+                    ..default()
+                },
+                transform: Transform::from_xyz(cell_pos.x, cell_pos.y, 0.0),
                 ..default()
             },
-            transform: Transform::from_xyz(cell_pos.x, cell_pos.y, 0.0),
-            ..default()
-        },
-    ));
+        ))
+        .id();
+    if let Some(old_cell) = (*grid).insert(coord, entity) {
+        commands.entity(old_cell).despawn_recursive();
+    }
 }
