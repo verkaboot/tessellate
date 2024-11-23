@@ -1,4 +1,8 @@
-use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
+use bevy::{
+    ecs::system::EntityCommands,
+    prelude::*,
+    ui::{RelativeCursorPosition, Val::*},
+};
 
 use super::Spawn;
 
@@ -22,6 +26,7 @@ impl<T: Spawn> CanvasWidget for T {
                 ..default()
             },
             Interaction::default(),
+            RelativeCursorPosition::default(),
         ))
     }
 }

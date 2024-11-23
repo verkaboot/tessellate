@@ -1,6 +1,6 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::Map};
 use canvas::{tool::ToolData, SIZE};
-use ui::interaction::OnPress;
+use ui::interaction::{OnDrag, OnPress};
 
 use crate::grid::{Grid, GridCoord, GridSettings};
 
@@ -28,7 +28,7 @@ impl Default for TerrainType {
 }
 
 pub fn draw_terrain(
-    _trigger: Trigger<OnPress>,
+    _trigger: Trigger<OnDrag>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
@@ -36,6 +36,8 @@ pub fn draw_terrain(
 ) {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
+
+    // Add the new cell
     let entity = commands
         .spawn((
             Name::new("TerrainSprite"),
@@ -51,6 +53,8 @@ pub fn draw_terrain(
             },
         ))
         .id();
+
+    // Despawn the old cell
     if let Some(old_cell) = (*grid).insert(coord, entity) {
         commands.entity(old_cell).despawn_recursive();
     }
