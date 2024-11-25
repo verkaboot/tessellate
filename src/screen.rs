@@ -8,7 +8,6 @@ use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMateri
 use ui::widget::prelude::*;
 
 use crate::input;
-use crate::terrain::draw_terrain;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -110,7 +109,9 @@ pub fn setup(
             top_bar(root);
             root.flex().with_children(|flex| {
                 flex.panel(PanelDirection::Tall);
-                flex.canvas().observe(draw_terrain.map(utils::warn));
+                flex.canvas()
+                    .observe(input::terrain::draw_terrain.map(utils::warn))
+                    .observe(input::terrain::erase_terrain.map(utils::warn));
                 flex.panel(PanelDirection::Tall);
             });
             root.panel(PanelDirection::Wide);
