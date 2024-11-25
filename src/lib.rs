@@ -2,6 +2,7 @@ mod background;
 mod camera;
 mod dev;
 mod grid;
+mod input;
 mod screen;
 mod terrain;
 

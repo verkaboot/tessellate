@@ -3,20 +3,17 @@ use leafwing_input_manager::prelude::*;
 
 use canvas::{tool::ToolData, SIZE};
 
-use crate::input::CameraMovement;
+use crate::input::camera::CameraMovement;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
-        .insert_resource(ClashStrategy::PrioritizeLongest)
-        .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (
-                pan.run_if(not(is_zooming)),
-                zoom,
-                zoom_scroll.run_if(on_event::<MouseWheel>()),
-            ),
-        );
+    app.add_systems(Startup, setup).add_systems(
+        Update,
+        (
+            pan.run_if(not(is_zooming)),
+            zoom,
+            zoom_scroll.run_if(on_event::<MouseWheel>()),
+        ),
+    );
 }
 
 pub fn setup(mut commands: Commands) {

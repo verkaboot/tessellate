@@ -1,18 +1,13 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils};
+use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
+use leafwing_input_manager::InputManagerBundle;
 use ui::icon::Icon;
-use ui::interaction::{
-    trigger_on_resource_updated, trigger_watch_resource_init, OnPress, OnRelease,
-};
+use ui::interaction::{trigger_on_resource_updated, trigger_watch_resource_init};
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use canvas::{
-    brush::{BrushColor, BrushHardness, BrushSize},
-    sprite::CanvasImages,
-    tool::ToolData,
-};
-
+use crate::input;
 use crate::terrain::draw_terrain;
 
 pub(super) fn plugin(app: &mut App) {
@@ -78,20 +73,25 @@ pub fn setup(
                 side_bar
                     .button()
                     .add(Icon::Brush)
-                    .observe(set_brush(&ToolType::Paint));
+                    .observe(input::paint::set_brush(&ToolType::Paint));
                 side_bar
                     .button()
                     .add(Icon::Eraser)
-                    .observe(set_brush(&ToolType::Erase));
-                side_bar.button().add(Icon::Layer).observe(select_layer);
+                    .observe(input::paint::set_brush(&ToolType::Erase));
+                side_bar
+                    .button()
+                    .add(Icon::Layer)
+                    .observe(input::paint::select_layer);
             });
-            flex.canvas().observe(activate_tool).observe(stop_tool);
+            flex.canvas()
+                .observe(input::paint::activate_tool)
+                .observe(input::paint::stop_tool);
             flex.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
                         .button()
                         .add(Icon::ColorPicker)
-                        .observe(change_color);
+                        .observe(input::paint::change_color);
                     // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
@@ -101,35 +101,18 @@ pub fn setup(
         root.panel(PanelDirection::Wide);
     });
 
-    commands.ui_root(UiMode::Terrain).with_children(|root| {
-        top_bar(root);
-        root.flex().with_children(|flex| {
-            flex.panel(PanelDirection::Tall);
-            flex.canvas().observe(draw_terrain);
-            flex.panel(PanelDirection::Tall);
+    commands
+        .ui_root(UiMode::Terrain)
+        .insert(InputManagerBundle::with_map(
+            input::terrain::Action::input_map(),
+        ))
+        .with_children(|root| {
+            top_bar(root);
+            root.flex().with_children(|flex| {
+                flex.panel(PanelDirection::Tall);
+                flex.canvas().observe(draw_terrain.map(utils::warn));
+                flex.panel(PanelDirection::Tall);
+            });
+            root.panel(PanelDirection::Wide);
         });
-        root.panel(PanelDirection::Wide);
-    });
-}
-
-fn set_brush(brush: &ToolType) -> impl Fn(Trigger<OnPress>, ResMut<ToolData>) + '_ {
-    |_trigger: Trigger<OnPress>, mut tool_data: ResMut<ToolData>| {
-        tool_data.tool_type = *brush;
-    }
-}
-
-fn select_layer(_trigger: Trigger<OnPress>, mut canvas: ResMut<CanvasImages>) {
-    canvas.active_layer += 1;
-}
-
-fn activate_tool(_trigger: Trigger<OnPress>, mut tool_data: ResMut<ToolData>) {
-    tool_data.tool_active = true;
-}
-
-fn stop_tool(_trigger: Trigger<OnRelease>, mut tool_data: ResMut<ToolData>) {
-    tool_data.tool_active = false;
-}
-
-fn change_color(_trigger: Trigger<OnRelease>, mut brush_color: ResMut<BrushColor>) {
-    brush_color.0 = Color::rotate_hue(&brush_color.0, 10.0);
 }
