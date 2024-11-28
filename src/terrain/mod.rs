@@ -28,7 +28,6 @@ impl PartialEq for TerrainType {
 
 #[derive(Reflect, Resource, SelectList)]
 #[reflect(Resource)]
-#[select_list_type(TerrainType)]
 pub struct TerrainList {
     selected: usize,
     list: Vec<TerrainType>,

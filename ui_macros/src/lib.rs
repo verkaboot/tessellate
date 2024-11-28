@@ -24,8 +24,7 @@ fn impl_slider_value(ast: &syn::DeriveInput) -> TokenStream {
     };
     gen.into()
 }
-
-#[proc_macro_derive(SelectList, attributes(select_list_type))]
+#[proc_macro_derive(SelectList)]
 pub fn select_list_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
     impl_select_list(&ast)
@@ -33,31 +32,59 @@ pub fn select_list_derive(input: TokenStream) -> TokenStream {
 
 fn impl_select_list(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
-    let generics = &ast.generics;
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let select_list_type = ast
-        .attrs
-        .iter()
-        .find_map(|attr| {
-            if attr.path.is_ident("select_list_type") {
-                attr.parse_args::<syn::Type>().ok()
-            } else {
+    // Extract the type of the field named `list`
+    let list_type = if let syn::Data::Struct(data_struct) = &ast.data {
+        data_struct
+            .fields
+            .iter()
+            .find_map(|field| {
+                if field.ident.as_ref().map_or(false, |ident| ident == "list") {
+                    if let syn::Type::Path(type_path) = &field.ty {
+                        return Some(type_path.clone());
+                    }
+                }
                 None
+            })
+            .expect("Expected a field named `list` with a concrete type")
+    } else {
+        panic!("SelectList can only be derived for structs");
+    };
+
+    // Extract the inner type from Vec<T>
+    let inner_type = {
+        let path = &list_type.path;
+        if let Some(seg) = path.segments.iter().last() {
+            if seg.ident == "Vec" {
+                if let syn::PathArguments::AngleBracketed(args) = &seg.arguments {
+                    if let Some(syn::GenericArgument::Type(inner)) = args.args.first() {
+                        inner.clone()
+                    } else {
+                        panic!("Expected Vec with a single generic argument");
+                    }
+                } else {
+                    panic!("Expected Vec with angle bracket arguments");
+                }
+            } else {
+                panic!("Expected field `list` to be of type Vec");
             }
-        })
-        .expect("Expected a `select_list_type` attribute specifying the generic type");
+        } else {
+            panic!("Expected a valid path for type Vec");
+        }
+    };
 
     let gen = quote! {
-        impl #impl_generics SelectList<#select_list_type> for #name #ty_generics #where_clause {
-            fn new(item: #select_list_type) -> Self {
+        impl SelectList for #name {
+            type Item = #inner_type;
+
+            fn new(item: #inner_type) -> Self {
                 Self {
                     selected: 0,
                     list: vec![item],
                 }
             }
 
-            fn get_selected(&self) -> &#select_list_type {
+            fn get_selected(&self) -> &#inner_type {
                 &self.list[self.selected]
             }
 

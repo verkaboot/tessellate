@@ -24,8 +24,9 @@ impl<T: Spawn> ListWidget for T {
     }
 }
 
-pub trait SelectList<T> {
-    fn new(item: T) -> Self;
-    fn get_selected(&self) -> &T;
+pub trait SelectList {
+    type Item;
+    fn new(item: Self::Item) -> Self;
+    fn get_selected(&self) -> &Self::Item;
     fn select(&mut self, index: usize);
 }
