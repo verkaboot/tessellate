@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use canvas::{tool::ToolData, SIZE};
 use leafwing_input_manager::prelude::*;
-use ui::interaction::OnDrag;
+use ui::{interaction::OnDrag, widget::prelude::SelectList};
 
 use crate::{
     grid::{Grid, GridCoord, GridSettings},
-    terrain::{TerrainBrush, TerrainType},
+    terrain::{TerrainList, TerrainType},
 };
 use error::Result;
 
@@ -27,7 +27,7 @@ pub fn draw_terrain(
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
-    terrain_brush: Res<TerrainBrush>,
+    terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
 ) -> Result<()> {
@@ -38,11 +38,11 @@ pub fn draw_terrain(
 
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
+    let terrain_type = terrain_list.get_selected();
 
     if let Some(&old_cell) = (*grid).get(&coord) {
-        println!("old_cell: {:?}", old_cell);
         let old_terrain_type = cells.get(old_cell)?;
-        if *old_terrain_type == terrain_brush.terrain_type {
+        if old_terrain_type == terrain_type {
             // Return early if the existing terrain type is the same
             return Ok(());
         } else {
@@ -57,7 +57,7 @@ pub fn draw_terrain(
             Name::new("TerrainSprite"),
             SpriteBundle {
                 sprite: Sprite {
-                    color: terrain_brush.terrain_type.color,
+                    color: terrain_type.color,
                     custom_size: Some(SIZE.as_vec2()),
                     anchor: bevy::sprite::Anchor::BottomLeft,
                     ..default()
@@ -66,7 +66,7 @@ pub fn draw_terrain(
                 ..default()
             },
             coord,
-            terrain_brush.terrain_type.clone(),
+            terrain_type.clone(),
         ))
         .id();
 

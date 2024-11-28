@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use canvas::SIZE;
+use ui::widget::prelude::SelectList;
+use ui_macros::SelectList;
 
 use crate::grid::{Grid, GridSettings};
 
@@ -7,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
     app.insert_resource(GridSettings {
         cell_size: UVec2::new(SIZE.x, SIZE.y),
     })
-    .insert_resource(TerrainBrush::default())
+    .insert_resource(TerrainList::new(TerrainType::default()))
     .init_resource::<Grid>();
 }
 
@@ -24,10 +26,12 @@ impl PartialEq for TerrainType {
     }
 }
 
-#[derive(Reflect, Resource, Default)]
+#[derive(Reflect, Resource, SelectList)]
 #[reflect(Resource)]
-pub struct TerrainBrush {
-    pub terrain_type: TerrainType,
+#[select_list_type(TerrainType)]
+pub struct TerrainList {
+    selected: usize,
+    list: Vec<TerrainType>,
 }
 
 impl Default for TerrainType {

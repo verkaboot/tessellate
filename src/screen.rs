@@ -67,8 +67,8 @@ pub fn setup(
     commands.insert_resource(CurrentState(UiMode::Paint));
     commands.ui_root(UiMode::Paint).with_children(|root| {
         top_bar(root);
-        root.flex().with_children(|flex| {
-            flex.panel(PanelDirection::Tall).with_children(|side_bar| {
+        root.flex_row().with_children(|row| {
+            row.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
                     .button()
                     .add(Icon::Brush)
@@ -82,10 +82,10 @@ pub fn setup(
                     .add(Icon::Layer)
                     .observe(input::paint::select_layer);
             });
-            flex.canvas()
+            row.canvas()
                 .observe(input::paint::activate_tool)
                 .observe(input::paint::stop_tool);
-            flex.panel(PanelDirection::Tall)
+            row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
                         .button()
@@ -107,12 +107,19 @@ pub fn setup(
         ))
         .with_children(|root| {
             top_bar(root);
-            root.flex().with_children(|flex| {
-                flex.panel(PanelDirection::Tall);
-                flex.canvas()
+            root.flex_row().with_children(|row| {
+                row.panel(PanelDirection::Tall);
+                row.canvas()
                     .observe(input::terrain::draw_terrain.map(utils::warn))
                     .observe(input::terrain::erase_terrain.map(utils::warn));
-                flex.panel(PanelDirection::Tall);
+                row.panel(PanelDirection::Tall)
+                    .with_children(|side_bar_right| {
+                        side_bar_right
+                            .inset_panel()
+                            .with_children(|terrain_list_panel| {
+                                terrain_list_panel.list();
+                            });
+                    });
             });
             root.panel(PanelDirection::Wide);
         });
