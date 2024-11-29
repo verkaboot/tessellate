@@ -24,9 +24,10 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-#[derive(Component, Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Component, Debug, PartialEq, Eq, Clone, Copy, Default)]
 enum UiMode {
     Paint,
+    #[default]
     Terrain,
 }
 
@@ -64,7 +65,7 @@ pub fn setup(
     hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
     hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
 ) {
-    commands.insert_resource(CurrentState(UiMode::Paint));
+    commands.insert_resource(CurrentState(UiMode::default()));
     commands.ui_root(UiMode::Paint).with_children(|root| {
         top_bar(root);
         root.flex_row().with_children(|row| {
