@@ -3,64 +3,33 @@ use leafwing_input_manager::prelude::*;
 
 use canvas::{tool::ToolData, SIZE};
 
+use crate::input::camera::CameraMovement;
+
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins(InputManagerPlugin::<CameraMovement>::default())
-        .insert_resource(ClashStrategy::PrioritizeLongest)
-        .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (
-                pan.run_if(not(is_zooming)),
-                zoom,
-                zoom_scroll.run_if(on_event::<MouseWheel>()),
-            ),
-        );
+    app.add_systems(Startup, setup).add_systems(
+        Update,
+        (
+            pan.run_if(not(is_zooming)),
+            zoom,
+            zoom_scroll.run_if(on_event::<MouseWheel>()),
+        ),
+    );
 }
 
 pub fn setup(mut commands: Commands) {
-    use CameraMovement::*;
-
-    let input_map = InputMap::default()
-        .with(ZoomModifier, ModifierKey::Alt)
-        .with(Pan, MouseButton::Right)
-        .with(
-            Zoom,
-            ButtonlikeChord::from_single(MouseButton::Right).with(ModifierKey::Alt),
-        )
-        .with_axis(ZoomWheel, MouseScrollAxis::Y);
-
     commands.spawn((
         Name::new("Camera"),
         Camera2dBundle {
             transform: Transform::from_translation(Vec3::new(
-                SIZE.0 as f32 / 2.0,
-                SIZE.1 as f32 / 2.0,
+                SIZE.x as f32 / 2.0,
+                SIZE.y as f32 / 2.0,
                 0.0,
             )),
             ..default()
         },
-        InputManagerBundle::with_map(input_map),
+        InputManagerBundle::with_map(CameraMovement::input_map()),
         IsDefaultUiCamera,
     ));
-}
-
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, Reflect)]
-enum CameraMovement {
-    Pan,
-    Zoom,
-    ZoomModifier,
-    ZoomWheel,
-}
-
-impl Actionlike for CameraMovement {
-    fn input_control_kind(&self) -> InputControlKind {
-        match self {
-            CameraMovement::Pan => InputControlKind::Button,
-            CameraMovement::Zoom => InputControlKind::Button,
-            CameraMovement::ZoomModifier => InputControlKind::Button,
-            CameraMovement::ZoomWheel => InputControlKind::Axis,
-        }
-    }
 }
 
 fn pan(

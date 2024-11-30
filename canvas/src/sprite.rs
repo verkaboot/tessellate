@@ -24,8 +24,8 @@ pub struct CanvasImages {
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     let mut layered_texture = Image::new_fill(
         Extent3d {
-            width: SIZE.0,
-            height: SIZE.1,
+            width: SIZE.x,
+            height: SIZE.y,
             depth_or_array_layers: 3,
         },
         TextureDimension::D2,
@@ -39,8 +39,8 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 
     let mut sprite_image = Image::new_fill(
         Extent3d {
-            width: SIZE.0,
-            height: SIZE.1,
+            width: SIZE.x,
+            height: SIZE.y,
             depth_or_array_layers: 1,
         },
         TextureDimension::D2,
@@ -56,11 +56,11 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         SpriteBundle {
             sprite: Sprite {
                 flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
                 anchor: Anchor::BottomLeft,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, SIZE.1 as f32, 0.0)),
+            transform: Transform::from_translation(Vec3::new(SIZE.x as f32, SIZE.y as f32, 0.0)),
             texture: sprite_image_handle.clone(),
             ..default()
         },
@@ -71,11 +71,11 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         SpriteBundle {
             sprite: Sprite {
                 flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
                 anchor: Anchor::BottomLeft,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(SIZE.0 as f32, 0.0, 0.0)),
+            transform: Transform::from_translation(Vec3::new(SIZE.x as f32, 0.0, 0.0)),
             texture: sprite_image_handle.clone(),
             ..default()
         },
@@ -86,11 +86,11 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         SpriteBundle {
             sprite: Sprite {
                 flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
                 anchor: Anchor::BottomLeft,
                 ..default()
             },
-            transform: Transform::from_translation(Vec3::new(0.0, SIZE.1 as f32, 0.0)),
+            transform: Transform::from_translation(Vec3::new(0.0, SIZE.y as f32, 0.0)),
             texture: sprite_image_handle.clone(),
             ..default()
         },
@@ -101,7 +101,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         SpriteBundle {
             sprite: Sprite {
                 flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.0 as f32, SIZE.1 as f32)),
+                custom_size: Some(SIZE.as_vec2()),
                 anchor: Anchor::BottomLeft,
                 ..default()
             },

@@ -2,6 +2,8 @@ mod button;
 mod canvas;
 pub mod color_picker;
 mod flex;
+mod inset_panel;
+mod list;
 mod panel;
 mod root;
 mod slider;
@@ -21,6 +23,8 @@ pub mod prelude {
         button::ButtonWidget,
         canvas::CanvasWidget,
         flex::FlexWidget,
+        inset_panel::InsetPanelWidget,
+        list::{ListWidget, SelectList},
         panel::{PanelDirection, PanelWidget},
         root::{set_root, watch_state, Containers, CurrentState, RootState},
         slider::{SliderValue, SliderWidget},
