@@ -11,31 +11,23 @@ use super::Spawn;
 pub trait TextValue: Resource + Copy + Clone + std::fmt::Debug + std::fmt::Display {}
 
 pub trait TextWidget {
-    fn text<V: TextValue>(&mut self, label: &str) -> EntityCommands;
+    fn text<V: TextValue>(&mut self) -> EntityCommands;
 }
 
 impl<T: Spawn> TextWidget for T {
-    fn text<V: TextValue>(&mut self, label: &str) -> EntityCommands {
+    fn text<V: TextValue>(&mut self) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Text"),
-            TextBundle::from_sections([
-                TextSection {
-                    value: label.to_string(),
-                    ..default()
-                },
-                TextSection {
-                    value: "".to_string(),
-                    style: TextStyle {
-                        font_size: 24.0,
-                        color: theme::TEXT,
-                        ..default()
-                    },
-                },
-            ]),
+            Text("-".into()),
+            TextFont {
+                font_size: 22.0,
+                ..default()
+            },
+            TextColor(theme::TEXT),
             WatchResource::<V>::new(),
         ));
 
-        entity.observe(update_text::<V>.map(utils::warn));
+        entity.observe(update_text::<V>);
 
         entity
     }
@@ -43,10 +35,8 @@ impl<T: Spawn> TextWidget for T {
 
 fn update_text<V: TextValue>(
     trigger: Trigger<OnResourceUpdated<V>>,
+    mut writer: TextUiWriter,
     resource: Res<V>,
-    mut text_q: Query<&mut Text>,
-) -> Result<()> {
-    let mut text = text_q.get_mut(trigger.entity())?;
-    text.sections[1].value = format!("{}", (*resource).to_string());
-    Ok(())
+) {
+    *writer.text(trigger.entity(), 0) = format!("{}", (*resource).to_string());
 }

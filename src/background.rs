@@ -37,20 +37,15 @@ fn checkered_background(
 
     commands.spawn((
         Name::new("BackgroundImage"),
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2 {
-                    x: size.x as f32,
-                    y: size.y as f32,
-                }),
-                ..default()
-            },
-            texture: image_handle.clone(),
+        Sprite {
+            custom_size: Some(Vec2 {
+                x: size.x as f32,
+                y: size.y as f32,
+            }),
+            image: image_handle.clone(),
             ..default()
         },
-        ImageScaleMode::Tiled {
-            tile_x: true,
-            tile_y: true,
+        SliceScaleMode::Tile {
             stretch_value: 128.0,
         },
         RenderLayers::from_layers(&[1]),
@@ -88,12 +83,10 @@ pub struct BackgroundCamera;
 fn background_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("BackgroundCamera"),
-        Camera2dBundle {
-            camera: Camera {
-                order: -1,
-                clear_color: ClearColorConfig::Custom(Color::srgb(0.9, 0.9, 0.9)),
-                ..default()
-            },
+        Camera2d,
+        Camera {
+            order: -1,
+            clear_color: ClearColorConfig::Custom(Color::srgb(0.9, 0.9, 0.9)),
             ..default()
         },
         RenderLayers::from_layers(&[1]),
