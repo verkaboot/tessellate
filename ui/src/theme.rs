@@ -1,5 +1,8 @@
 use bevy::{color::palettes::tailwind::*, prelude::*};
 
+// Font
+pub const FONT_SIZE: f32 = 12.0;
+
 // Background Transparency Pattern
 pub const TRANSPARENCY_BLOCKS: Color = Color::Srgba(NEUTRAL_600);
 
