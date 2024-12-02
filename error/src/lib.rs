@@ -1,17 +1,17 @@
 use bevy::ecs::query::{QueryEntityError, QuerySingleError};
 use derive_more::derive::From;
 
-pub type Result<'w, T> = core::result::Result<T, Error<'w>>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 #[allow(dead_code)]
 #[derive(Debug, From)]
-pub enum Error<'w> {
+pub enum Error {
     #[from]
     Custom(String),
 
     #[from]
     QuerySingleError(QuerySingleError),
 
-    #[from]
-    QueryEntityError(QueryEntityError<'w>),
+    #[from(QueryEntityError<'_>)]
+    QueryEntityError,
 }
