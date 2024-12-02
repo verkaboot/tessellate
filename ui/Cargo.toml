@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.14" }
+bevy = { version = "0.15" }
 
 error = { path = "../error" }
 ui_macros = { path = "../ui_macros" }

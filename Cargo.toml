@@ -2,13 +2,13 @@
 members = [".",  "ui", "ui_macros", "canvas", "error"]
 
 [package]
-name = "animaboot"
+name = "tessellate"
 authors = ["bokubeam <bokubeam@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.14" }
+bevy = { version = "0.15.0" }
 rand = "0.8"
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
