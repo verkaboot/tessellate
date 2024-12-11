@@ -78,7 +78,7 @@ impl<T: Spawn> SliderWidget for T {
                             },
                             WatchResource::<V>::new(),
                         ))
-                        .observe(update_text::<V>.map(utils::warn));
+                        .observe(update_text::<V>);
                 });
 
             slider
@@ -263,7 +263,6 @@ fn update_text<V: SliderValue>(
     trigger: Trigger<OnResourceUpdated<V>>,
     mut writer: TextUiWriter,
     resource: Res<V>,
-) -> Result<()> {
+) {
     *writer.text(trigger.entity(), 0) = format!("{0:.2}", (*resource).to_f32());
-    Ok(())
 }

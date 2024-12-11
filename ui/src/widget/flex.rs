@@ -11,15 +11,12 @@ impl<T: Spawn> FlexWidget for T {
     fn flex_row(&mut self) -> EntityCommands {
         self.spawn((
             Name::new("Flex Row"),
-            NodeBundle {
-                style: Style {
-                    width: Percent(100.0),
-                    height: Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    flex_direction: FlexDirection::Row,
-                    ..default()
-                },
+            Node {
+                width: Percent(100.0),
+                height: Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Row,
                 ..default()
             },
         ))
@@ -27,15 +24,12 @@ impl<T: Spawn> FlexWidget for T {
     fn flex_col(&mut self) -> EntityCommands {
         self.spawn((
             Name::new("Flex Col"),
-            NodeBundle {
-                style: Style {
-                    width: Percent(100.0),
-                    height: Percent(100.0),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    flex_direction: FlexDirection::Column,
-                    ..default()
-                },
+            Node {
+                width: Percent(100.0),
+                height: Percent(100.0),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Column,
                 ..default()
             },
         ))

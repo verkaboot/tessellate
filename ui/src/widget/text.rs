@@ -1,10 +1,9 @@
-use bevy::{ecs::system::EntityCommands, prelude::*, utils};
+use bevy::{ecs::system::EntityCommands, prelude::*};
 
 use crate::{
     interaction::{OnResourceUpdated, WatchResource},
     theme::{self},
 };
-use error::Result;
 
 use super::Spawn;
 

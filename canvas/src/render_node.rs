@@ -83,7 +83,7 @@ impl render_graph::Node for CanvasNode {
                 let update_pipeline = pipeline_cache
                     .get_compute_pipeline(pipeline.paint_normal_pipeline)
                     .unwrap();
-                pass.set_bind_group(0, &bind_group, &[]);
+                pass.set_bind_group(0, bind_group, &[]);
                 pass.set_pipeline(update_pipeline);
                 pass.dispatch_workgroups(SIZE.x / WORKGROUP_SIZE, SIZE.y / WORKGROUP_SIZE, 1);
             }
@@ -100,7 +100,7 @@ impl render_graph::Node for CanvasNode {
                 let update_pipeline = pipeline_cache
                     .get_compute_pipeline(pipeline.paint_erase_pipeline)
                     .unwrap();
-                pass.set_bind_group(0, &bind_group, &[]);
+                pass.set_bind_group(0, bind_group, &[]);
                 pass.set_pipeline(update_pipeline);
                 pass.dispatch_workgroups(SIZE.x / WORKGROUP_SIZE, SIZE.y / WORKGROUP_SIZE, 1);
             }

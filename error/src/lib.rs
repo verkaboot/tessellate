@@ -1,4 +1,7 @@
-use bevy::ecs::query::{QueryEntityError, QuerySingleError};
+use bevy::{
+    ecs::query::{QueryEntityError, QuerySingleError},
+    render::camera::ViewportConversionError,
+};
 use derive_more::derive::From;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -14,4 +17,7 @@ pub enum Error {
 
     #[from(QueryEntityError<'_>)]
     QueryEntityError,
+
+    #[from]
+    ViewConversionError(ViewportConversionError),
 }

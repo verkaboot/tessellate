@@ -1,5 +1,5 @@
 [workspace]
-members = [".",  "ui", "ui_macros", "canvas", "error"]
+members = [".", "ui", "ui_macros", "canvas", "error", "input"]
 
 [package]
 name = "tessellate"
@@ -22,11 +22,11 @@ tracing = { version = "0.1", features = [
 ] }
 bevy_framepace = "0.17.1"
 bevy-inspector-egui = "0.25.2"
-leafwing-input-manager = "0.15.0"
 
 # Workspace Crates
 canvas = { path = "./canvas" }
 error = { path = "./error" }
+input = { path = "./input" }
 ui = { path = "./ui" }
 ui_macros = { path = "./ui_macros" }
 

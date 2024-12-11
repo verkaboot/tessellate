@@ -41,9 +41,3 @@ impl Spawn for Commands<'_, '_> {
         self.spawn(bundle)
     }
 }
-
-impl Spawn for ChildBuilder<'_> {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
-        self.spawn(bundle)
-    }
-}

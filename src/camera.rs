@@ -1,17 +1,24 @@
 use bevy::{input::mouse::MouseWheel, prelude::*};
-use leafwing_input_manager::prelude::*;
 
 use canvas::{tool::ToolData, SIZE};
+use error::Result;
+use input::{self, key_pressed, mouse_pressed};
 
-use crate::input::camera::CameraMovement;
+use crate::controls;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup).add_systems(
         Update,
         (
-            pan.run_if(not(is_zooming)),
-            zoom,
-            zoom_scroll.run_if(on_event::<MouseWheel>()),
+            pan.run_if(
+                key_pressed(controls::camera::PAN)
+                    .and(mouse_pressed(controls::camera::MOUSE))
+                    .and(not(key_pressed(controls::camera::ZOOM))),
+            ),
+            zoom.run_if(
+                key_pressed(controls::camera::ZOOM).and(mouse_pressed(controls::camera::MOUSE)),
+            ),
+            zoom_scroll.run_if(on_event::<MouseWheel>),
         ),
     );
 }
@@ -19,67 +26,48 @@ pub(super) fn plugin(app: &mut App) {
 pub fn setup(mut commands: Commands) {
     commands.spawn((
         Name::new("Camera"),
-        Camera2dBundle {
-            transform: Transform::from_translation(Vec3::new(
-                SIZE.x as f32 / 2.0,
-                SIZE.y as f32 / 2.0,
-                0.0,
-            )),
-            ..default()
-        },
-        InputManagerBundle::with_map(CameraMovement::input_map()),
+        Camera2d,
+        Transform::from_translation(Vec3::new(SIZE.x as f32 / 2.0, SIZE.y as f32 / 2.0, 0.0)),
         IsDefaultUiCamera,
     ));
 }
 
 fn pan(
-    mut query: Query<
-        (
-            &mut Transform,
-            &OrthographicProjection,
-            &ActionState<CameraMovement>,
-        ),
-        With<Camera2d>,
-    >,
+    mut query: Query<(&mut Transform, &OrthographicProjection), With<Camera2d>>,
     mouse_data: Res<ToolData>,
 ) {
-    let (mut camera_transform, camera_projection, action_state) = query.single_mut();
-    if action_state.pressed(&CameraMovement::Pan) {
-        let delta = mouse_data.screen_delta();
-        camera_transform.translation.x -= camera_projection.scale * delta.x;
-        camera_transform.translation.y -= camera_projection.scale * -delta.y;
-    }
+    let (mut camera_transform, camera_projection) = query.single_mut();
+    let delta = mouse_data.screen_delta();
+    camera_transform.translation.x -= camera_projection.scale * delta.x;
+    camera_transform.translation.y -= camera_projection.scale * -delta.y;
 }
 
-fn is_zooming(query: Query<&ActionState<CameraMovement>, With<Camera2d>>) -> bool {
-    let action_state = query.single();
-    action_state.pressed(&CameraMovement::ZoomModifier)
+fn is_zooming(keyboard_input: Res<ButtonInput<KeyCode>>) -> bool {
+    keyboard_input.pressed(controls::camera::ZOOM)
 }
 
-fn zoom(
-    mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
-    mouse_data: Res<ToolData>,
-) {
+fn zoom(mut query: Query<&mut OrthographicProjection, With<Camera2d>>, mouse_data: Res<ToolData>) {
     const CAMERA_ZOOM_RATE: f32 = -0.005;
-    let (mut camera_projection, action_state) = query.single_mut();
-    if action_state.pressed(&CameraMovement::Zoom) {
-        let delta_y = mouse_data.screen_delta().y;
-        camera_projection.scale = (camera_projection.scale * (1.0 - (delta_y * CAMERA_ZOOM_RATE)))
-            .clamp(MIN_ZOOM, MAX_ZOOM);
-    }
+    let mut camera_projection = query.single_mut();
+    let delta_y = mouse_data.screen_delta().y;
+    camera_projection.scale =
+        (camera_projection.scale * (1.0 - (delta_y * CAMERA_ZOOM_RATE))).clamp(MIN_ZOOM, MAX_ZOOM);
 }
 
 const MIN_ZOOM: f32 = 1. / 16.;
 const MAX_ZOOM: f32 = 8.0;
 
 fn zoom_scroll(
-    mut query: Query<(&mut OrthographicProjection, &ActionState<CameraMovement>), With<Camera2d>>,
-) {
-    let (mut camera_projection, action_state) = query.single_mut();
-    if let Some(mouse_wheel_data) = action_state.axis_data(&CameraMovement::ZoomWheel) {
-        camera_projection.scale = calculate_zoom(camera_projection.scale, mouse_wheel_data.value)
-            .clamp(MIN_ZOOM, MAX_ZOOM);
+    mut query: Query<&mut OrthographicProjection, With<Camera2d>>,
+    mut mouse_wheel_event: EventReader<MouseWheel>,
+) -> Result<()> {
+    let mut camera_projection = query.get_single_mut()?;
+    for mouse_scroll in mouse_wheel_event.read() {
+        camera_projection.scale =
+            calculate_zoom(camera_projection.scale, mouse_scroll.y).clamp(MIN_ZOOM, MAX_ZOOM);
     }
+
+    Ok(())
 }
 
 fn calculate_zoom(camera_projection_scale: f32, scroll_amount: f32) -> f32 {

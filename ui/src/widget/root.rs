@@ -1,7 +1,5 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use crate::interaction::OnPress;
-
 use super::text::TextValue;
 
 pub trait Containers {
