@@ -34,7 +34,7 @@ fn main() -> AppExit {
     // Build default font into the binary
     load_internal_binary_asset!(
         app,
-        TextStyle::default().font,
+        TextFont::default().font,
         "../assets/fonts/NotoSans.ttf",
         |bytes: &[u8], _path: String| { Font::try_from_bytes(bytes.to_vec()).unwrap() }
     );

@@ -106,11 +106,7 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .observe(
-                    terrain::draw
-                        .map(utils::warn)
-                        .run_if(key_pressed(controls::terrain::ERASE_MODIFIER)),
-                )
+                .observe(terrain::draw.map(utils::warn))
                 .observe(terrain::erase.map(utils::warn));
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {

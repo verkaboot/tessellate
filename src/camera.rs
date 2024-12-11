@@ -1,4 +1,4 @@
-use bevy::{input::mouse::MouseWheel, prelude::*};
+use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 
 use canvas::{tool::ToolData, SIZE};
 use error::Result;
@@ -18,7 +18,7 @@ pub(super) fn plugin(app: &mut App) {
             zoom.run_if(
                 key_pressed(controls::camera::ZOOM).and(mouse_pressed(controls::camera::MOUSE)),
             ),
-            zoom_scroll,
+            zoom_scroll.map(utils::warn),
         ),
     );
 }
