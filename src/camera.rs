@@ -18,7 +18,7 @@ pub(super) fn plugin(app: &mut App) {
             zoom.run_if(
                 key_pressed(controls::camera::ZOOM).and(mouse_pressed(controls::camera::MOUSE)),
             ),
-            zoom_scroll.run_if(on_event::<MouseWheel>),
+            zoom_scroll,
         ),
     );
 }
@@ -61,8 +61,8 @@ fn zoom_scroll(
     mut query: Query<&mut OrthographicProjection, With<Camera2d>>,
     mut mouse_wheel_event: EventReader<MouseWheel>,
 ) -> Result<()> {
-    let mut camera_projection = query.get_single_mut()?;
     for mouse_scroll in mouse_wheel_event.read() {
+        let mut camera_projection = query.get_single_mut()?;
         camera_projection.scale =
             calculate_zoom(camera_projection.scale, mouse_scroll.y).clamp(MIN_ZOOM, MAX_ZOOM);
     }

@@ -21,7 +21,7 @@ impl<T: Spawn> ColorPickerWidget for T {
         mut hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
         mut hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
     ) -> EntityCommands {
-        let mut entity = self.spawn((
+        let mut entity = self.ui_spawn((
             Name::new("ColorPicker Parent"),
             Node {
                 width: Px(300.0),
@@ -34,7 +34,7 @@ impl<T: Spawn> ColorPickerWidget for T {
         ));
 
         entity.with_children(|parent| {
-            parent.spawn((
+            parent.ui_spawn((
                 Name::new("ColorPicker Hue Wheel"),
                 Node {
                     width: Val::Percent(100.0),
@@ -49,7 +49,7 @@ impl<T: Spawn> ColorPickerWidget for T {
         });
 
         entity.with_children(|parent| {
-            parent.spawn((
+            parent.ui_spawn((
                 Name::new("ColorPicker HSV Box"),
                 Node {
                     width: Val::Percent(54.0),

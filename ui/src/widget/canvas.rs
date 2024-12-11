@@ -12,7 +12,7 @@ pub trait CanvasWidget {
 
 impl<T: Spawn> CanvasWidget for T {
     fn canvas(&mut self) -> EntityCommands {
-        self.spawn((
+        self.ui_spawn((
             Name::new("Canvas"),
             Node {
                 width: Percent(100.0),

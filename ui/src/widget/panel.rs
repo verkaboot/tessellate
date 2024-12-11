@@ -18,7 +18,7 @@ impl<T: Spawn> PanelWidget for T {
             PanelDirection::Wide => (Percent(100.0), Auto, FlexDirection::Row),
             PanelDirection::Tall => (Auto, Percent(100.0), FlexDirection::Column),
         };
-        self.spawn((
+        self.ui_spawn((
             Name::new("Panel"),
             Node {
                 width,

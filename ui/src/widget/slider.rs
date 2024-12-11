@@ -1,8 +1,8 @@
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
+use input::trigger::{OnDrag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 
-use crate::interaction::{OnDrag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 use crate::theme::*;
 use crate::widget::Spawn;
 use error::Result;
@@ -33,7 +33,7 @@ impl<T: Spawn> SliderWidget for T {
         min_value: f32,
         max_value: f32,
     ) -> EntityCommands {
-        let mut entity = self.spawn((
+        let mut entity = self.ui_spawn((
             Name::new("Slider"),
             Node {
                 flex_direction: FlexDirection::Column,
@@ -50,7 +50,7 @@ impl<T: Spawn> SliderWidget for T {
 
         entity.with_children(|slider| {
             slider
-                .spawn((
+                .ui_spawn((
                     Name::new("Label Container"),
                     Node {
                         align_items: AlignItems::Center,
@@ -59,7 +59,7 @@ impl<T: Spawn> SliderWidget for T {
                     },
                 ))
                 .with_children(|label_container| {
-                    label_container.spawn((
+                    label_container.ui_spawn((
                         Name::new("Label"),
                         Text(label.into()),
                         TextFont {
@@ -69,7 +69,7 @@ impl<T: Spawn> SliderWidget for T {
                     ));
 
                     label_container
-                        .spawn((
+                        .ui_spawn((
                             Name::new("Value"),
                             Text("-".into()),
                             TextFont {
@@ -82,7 +82,7 @@ impl<T: Spawn> SliderWidget for T {
                 });
 
             slider
-                .spawn((
+                .ui_spawn((
                     Name::new("Slider Slot"),
                     Node {
                         width: Percent(100.0),
@@ -94,7 +94,7 @@ impl<T: Spawn> SliderWidget for T {
                     SliderSlot,
                 ))
                 .with_children(|slot| {
-                    slot.spawn((
+                    slot.ui_spawn((
                         Name::new("Slot Graphic"),
                         Node {
                             position_type: PositionType::Absolute,
@@ -109,7 +109,7 @@ impl<T: Spawn> SliderWidget for T {
                     ));
 
                     let graphic_fill = slot
-                        .spawn((
+                        .ui_spawn((
                             Name::new("Slot Graphic Fill"),
                             Node {
                                 position_type: PositionType::Absolute,
@@ -125,7 +125,7 @@ impl<T: Spawn> SliderWidget for T {
                         ))
                         .id();
 
-                    slot.spawn((
+                    slot.ui_spawn((
                         Name::new("KnobContainer"),
                         KnobContainer,
                         RelativeCursorPosition::default(),
@@ -139,7 +139,7 @@ impl<T: Spawn> SliderWidget for T {
                     ))
                     .with_children(|knob_container| {
                         knob_container
-                            .spawn((
+                            .ui_spawn((
                                 Name::new("Slider Knob"),
                                 Button,
                                 Node {

@@ -9,7 +9,7 @@ mod root;
 mod slider;
 mod text;
 
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy::{ecs::system::EntityCommands, hierarchy::ChildBuild, prelude::*};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
@@ -33,11 +33,17 @@ pub mod prelude {
 }
 
 trait Spawn {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands;
+    fn ui_spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands;
 }
 
 impl Spawn for Commands<'_, '_> {
-    fn spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
+    fn ui_spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
         self.spawn(bundle)
+    }
+}
+
+impl Spawn for ChildBuilder<'_> {
+    fn ui_spawn<B: Bundle>(&mut self, bundle: B) -> EntityCommands {
+        ChildBuild::spawn(self, bundle)
     }
 }

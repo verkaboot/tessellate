@@ -1,11 +1,9 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
 
-use crate::{
-    interaction::{OnResourceUpdated, WatchResource},
-    theme::{self},
-};
+use input::trigger::{OnResourceUpdated, WatchResource};
 
 use super::Spawn;
+use crate::theme::{self};
 
 pub trait TextValue: Resource + Copy + Clone + std::fmt::Debug + std::fmt::Display {}
 
@@ -15,7 +13,7 @@ pub trait TextWidget {
 
 impl<T: Spawn> TextWidget for T {
     fn text<V: TextValue>(&mut self) -> EntityCommands {
-        let mut entity = self.spawn((
+        let mut entity = self.ui_spawn((
             Name::new("Text"),
             Text("-".into()),
             TextFont {

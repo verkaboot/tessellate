@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use canvas::{tool::ToolData, SIZE};
-use ui::interaction::OnDrag;
+use input::trigger::OnDrag;
 use ui::widget::prelude::SelectList;
 use ui_macros::SelectList;
 

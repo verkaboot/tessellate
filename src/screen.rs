@@ -2,12 +2,12 @@ use bevy::{prelude::*, utils};
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
 use input::key_pressed;
+use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init};
 use ui::icon::Icon;
-use ui::interaction::{trigger_on_resource_updated, trigger_watch_resource_init};
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::terrain;
+use crate::{controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -50,11 +50,11 @@ fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
         top_panel
             .button()
-            .add(Icon::PaintView)
+            .queue(Icon::PaintView)
             .observe(set_root::<UiMode>(UiMode::Paint));
         top_panel
             .button()
-            .add(Icon::TerrainView)
+            .queue(Icon::TerrainView)
             .observe(set_root::<UiMode>(UiMode::Terrain));
         top_panel.text::<CurrentState<UiMode>>();
     });
@@ -72,26 +72,26 @@ pub fn setup(
             row.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
                     .button()
-                    .add(Icon::Brush)
-                    .observe(input::paint::set_brush(&ToolType::Paint));
+                    .queue(Icon::Brush)
+                    .observe(controls::paint::set_brush(&ToolType::Paint));
                 side_bar
                     .button()
-                    .add(Icon::Eraser)
-                    .observe(input::paint::set_brush(&ToolType::Erase));
+                    .queue(Icon::Eraser)
+                    .observe(controls::paint::set_brush(&ToolType::Erase));
                 side_bar
                     .button()
-                    .add(Icon::Layer)
-                    .observe(input::paint::select_layer);
+                    .queue(Icon::Layer)
+                    .observe(controls::paint::select_layer);
             });
             row.canvas()
-                .observe(input::paint::activate_tool)
-                .observe(input::paint::stop_tool);
+                .observe(controls::paint::activate_tool)
+                .observe(controls::paint::stop_tool);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
                         .button()
-                        .add(Icon::ColorPicker)
-                        .observe(input::paint::change_color);
+                        .queue(Icon::ColorPicker)
+                        .observe(controls::paint::change_color);
                     // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
@@ -109,7 +109,7 @@ pub fn setup(
                 .observe(
                     terrain::draw
                         .map(utils::warn)
-                        .run_if(key_pressed(input::terrain::ERASE_MODIFIER)),
+                        .run_if(key_pressed(controls::terrain::ERASE_MODIFIER)),
                 )
                 .observe(terrain::erase.map(utils::warn));
             row.panel(PanelDirection::Tall)

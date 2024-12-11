@@ -4,7 +4,7 @@ use canvas::{
     sprite::CanvasImages,
     tool::{ToolData, ToolType},
 };
-use ui::interaction::{OnPress, OnRelease};
+use input::trigger::{OnPress, OnRelease};
 
 pub fn set_brush(brush: &ToolType) -> impl Fn(Trigger<OnPress>, ResMut<ToolData>) + '_ {
     |_trigger: Trigger<OnPress>, mut tool_data: ResMut<ToolData>| {

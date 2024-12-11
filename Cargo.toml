@@ -21,7 +21,7 @@ tracing = { version = "0.1", features = [
   "release_max_level_warn",
 ] }
 bevy_framepace = "0.17.1"
-bevy-inspector-egui = "0.25.2"
+bevy-inspector-egui = "0.28"
 
 # Workspace Crates
 canvas = { path = "./canvas" }

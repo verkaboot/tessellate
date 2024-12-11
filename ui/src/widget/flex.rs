@@ -9,7 +9,7 @@ pub trait FlexWidget {
 
 impl<T: Spawn> FlexWidget for T {
     fn flex_row(&mut self) -> EntityCommands {
-        self.spawn((
+        self.ui_spawn((
             Name::new("Flex Row"),
             Node {
                 width: Percent(100.0),
@@ -22,7 +22,7 @@ impl<T: Spawn> FlexWidget for T {
         ))
     }
     fn flex_col(&mut self) -> EntityCommands {
-        self.spawn((
+        self.ui_spawn((
             Name::new("Flex Col"),
             Node {
                 width: Percent(100.0),
