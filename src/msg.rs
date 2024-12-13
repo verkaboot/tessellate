@@ -37,12 +37,26 @@ trait CustomObserve {
         &mut self,
         system: impl IntoObserverSystem<E, B, M>,
     ) -> &mut Self;
+
+    fn obs_key<E: Event, B: Bundle, M>(
+        &mut self,
+        system: impl IntoObserverSystem<E, B, M>,
+        key: KeyCode,
+    ) -> &mut Self;
 }
 
 impl CustomObserve for EntityCommands<'_> {
     fn obs<E: Event, B: Bundle, M>(
         &mut self,
         system: impl IntoObserverSystem<E, B, M>,
+    ) -> &mut Self {
+        self.observe(system)
+    }
+
+    fn obs_key<E: Event, B: Bundle, M>(
+        &mut self,
+        system: impl IntoObserverSystem<E, B, M>,
+        key: KeyCode,
     ) -> &mut Self {
         self.observe(system)
     }
