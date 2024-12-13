@@ -1,6 +1,6 @@
 use bevy::{ecs::system::IntoAdapterSystem, prelude::*, utils};
 use canvas::{tool::ToolData, SIZE};
-use input::trigger::OnDrag;
+use input::trigger::Drag;
 use ui::widget::prelude::SelectList;
 use ui_macros::SelectList;
 
@@ -91,7 +91,7 @@ pub fn draw(
 }
 
 pub fn erase(
-    _trigger: Trigger<OnDrag>,
+    _trigger: Trigger<Drag>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,

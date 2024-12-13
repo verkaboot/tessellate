@@ -1,7 +1,7 @@
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
-use input::trigger::{OnDrag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
+use input::trigger::{Drag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 
 use crate::theme::*;
 use crate::widget::Spawn;
@@ -223,7 +223,7 @@ fn on_press<V: SliderValue>(
 
 // When we drag the knob
 fn on_drag<V: SliderValue>(
-    trigger: Trigger<OnDrag>,
+    trigger: Trigger<Drag>,
     mut resource: ResMut<V>,
     container_q: Query<&RelativeCursorPosition, With<KnobContainer>>,
     knob_q: Query<(&Parent, &SliderValueRange), With<SliderKnob>>,

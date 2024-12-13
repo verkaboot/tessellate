@@ -33,7 +33,7 @@ fn trigger_on_press(
 }
 
 #[derive(Event)]
-pub struct OnDrag;
+pub struct Drag;
 
 fn trigger_on_drag(
     interaction_query: Query<(Entity, &Interaction), Changed<RelativeCursorPosition>>,
@@ -41,7 +41,7 @@ fn trigger_on_drag(
 ) {
     for (entity, interaction) in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            commands.trigger_targets(OnDrag, entity);
+            commands.trigger_targets(Drag, entity);
         }
     }
 }

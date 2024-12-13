@@ -2,12 +2,12 @@ use bevy::{prelude::*, utils};
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
 use input::key_pressed;
-use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init, OnDrag};
+use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init, Drag};
 use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::{on, Msg, On};
+use crate::msg::{trigger_msg, Msg, On};
 use crate::{controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
@@ -107,7 +107,7 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .x::<OnDrag>(Msg::TerrainCanvasDragged)
+                .on::<Drag>(Msg::TerrainCanvasDragged)
                 .observe(terrain::erase.map(utils::warn));
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
