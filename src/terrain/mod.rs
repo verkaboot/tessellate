@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::IntoAdapterSystem, prelude::*, utils};
 use canvas::{tool::ToolData, SIZE};
 use input::trigger::OnDrag;
 use ui::widget::prelude::SelectList;
@@ -46,7 +46,6 @@ impl Default for TerrainType {
 }
 
 pub fn draw(
-    _trigger: Trigger<OnDrag>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,

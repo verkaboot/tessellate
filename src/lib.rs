@@ -3,6 +3,7 @@ mod camera;
 mod controls;
 mod dev;
 mod grid;
+mod msg;
 mod screen;
 mod terrain;
 
@@ -14,6 +15,7 @@ impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         // Workspace Plugins
         app.add_plugins((
+            msg::plugin,
             input::plugin,
             camera::plugin,
             canvas::plugin,
