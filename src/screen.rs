@@ -7,7 +7,7 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::Msg;
+use crate::msg::{on, Msg, On};
 use crate::{controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
@@ -107,9 +107,7 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .observe(|_trigger: Trigger<OnDrag>, mut msg: EventWriter<Msg>| {
-                    msg.send(Msg::TerrainCanvasDragged);
-                })
+                .x::<OnDrag>(Msg::TerrainCanvasDragged)
                 .observe(terrain::erase.map(utils::warn));
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
