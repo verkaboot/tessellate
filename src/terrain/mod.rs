@@ -15,7 +15,9 @@ pub(super) fn plugin(app: &mut App) {
     .insert_resource(TerrainList::new(TerrainType::default()))
     .init_resource::<Grid>()
     .add_event::<Draw>()
-    .add_observer(draw.map(utils::warn));
+    .add_event::<Erase>()
+    .add_observer(draw.map(utils::warn))
+    .add_observer(erase.map(utils::warn));
 }
 
 #[derive(Reflect, Component, Clone)]
@@ -96,8 +98,11 @@ pub fn draw(
     Ok(())
 }
 
+#[derive(Event, Clone, Copy, Debug)]
+pub struct Erase;
+
 pub fn erase(
-    _trigger: Trigger<Drag>,
+    _trigger: Trigger<Erase>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,

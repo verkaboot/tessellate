@@ -17,13 +17,33 @@ impl CustomObserve for EntityCommands<'_> {
 }
 
 pub trait On {
-    fn on<E1: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self;
+    fn on<E: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self;
+    fn on_key<E: Event>(&mut self, key: KeyCode, effect: impl Event + Copy + Clone) -> &mut Self;
 }
 
 impl<T: CustomObserve> On for T {
     fn on<E: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self {
-        self.obs(move |_trigger: Trigger<E>, mut commands: Commands| {
-            commands.trigger(effect.clone());
-        })
+        self.obs(
+            move |_trigger: Trigger<E>,
+                  mut commands: Commands,
+                  inputs: Res<ButtonInput<KeyCode>>| {
+                if !inputs.any_pressed([KeyCode::AltLeft, KeyCode::ControlLeft, KeyCode::ShiftLeft])
+                {
+                    commands.trigger(effect.clone());
+                }
+            },
+        )
+    }
+
+    fn on_key<E: Event>(&mut self, key: KeyCode, effect: impl Event + Copy + Clone) -> &mut Self {
+        self.obs(
+            move |_trigger: Trigger<E>,
+                  mut commands: Commands,
+                  inputs: Res<ButtonInput<KeyCode>>| {
+                if inputs.pressed(key) {
+                    commands.trigger(effect.clone());
+                }
+            },
+        )
     }
 }

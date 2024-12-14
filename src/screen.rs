@@ -107,7 +107,7 @@ pub fn setup(
             row.panel(PanelDirection::Tall);
             row.canvas()
                 .on::<Drag>(terrain::Draw)
-                .observe(terrain::erase.map(utils::warn));
+                .on_key::<Drag>(KeyCode::AltLeft, terrain::Erase);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
