@@ -15,29 +15,6 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-// TODO: Try implementing composable triggers
-// by using a trait to give each trigger its
-// update function (like trigger_on_press for Press)
-// which might allow And to check two functions.
-// The update functions probably need two parts:
-// a system that returns a boolean to determine
-// if it should run, and then a system that runs
-// the trigger and any side effects.
-pub trait CustomTrigger {}
-
-#[derive(Event)]
-pub struct WithKey<E: Event> {
-    key: KeyCode,
-    e: E,
-}
-
-fn trigger_on_press(
-    interaction_query: Query<(Entity, &Interaction), Changed<Interaction>>,
-    mut commands: Commands,
-) {
-    commands.trigger_targets(OnPress, entity);
-}
-
 #[derive(Event)]
 pub struct OnPress;
 

@@ -1,13 +1,12 @@
 use bevy::{prelude::*, utils};
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
-use input::key_pressed;
-use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init, Drag};
+use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init, Drag, OnPress};
 use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::{trigger_msg, Msg, On};
+use crate::msg::{Msg, On};
 use crate::{controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
