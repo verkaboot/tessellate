@@ -17,16 +17,12 @@ impl CustomObserve for EntityCommands<'_> {
 }
 
 pub trait On {
-    fn on<E1: Event, E2: Event + Copy + Clone>(&mut self, conditions: E1, effect: E2) -> &mut Self;
+    fn on<E1: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self;
 }
 
 impl<T: CustomObserve> On for T {
-    fn on<E1: Event, E2: Event + Copy + Clone>(
-        &mut self,
-        _conditions: E1,
-        effect: E2,
-    ) -> &mut Self {
-        self.obs(move |_trigger: Trigger<E1>, mut commands: Commands| {
+    fn on<E: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self {
+        self.obs(move |_trigger: Trigger<E>, mut commands: Commands| {
             commands.trigger(effect.clone());
         })
     }

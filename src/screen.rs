@@ -106,7 +106,7 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .on(Drag, terrain::Draw)
+                .on::<Drag>(terrain::Draw)
                 .observe(terrain::erase.map(utils::warn));
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
