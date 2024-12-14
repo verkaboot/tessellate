@@ -1,23 +1,4 @@
-use bevy::{ecs::system::IntoObserverSystem, prelude::*, utils};
-
-use crate::terrain;
-
-pub(super) fn plugin(app: &mut App) {
-    app.add_event::<Msg>().add_observer(update);
-}
-
-#[derive(Event, Clone, Copy)]
-pub enum Msg {
-    TerrainCanvasDragged,
-}
-
-pub fn update(trigger: Trigger<Msg>, mut commands: Commands) {
-    match trigger.event() {
-        Msg::TerrainCanvasDragged => {
-            commands.run_system_cached(terrain::draw.map(utils::warn));
-        }
-    }
-}
+use bevy::{ecs::system::IntoObserverSystem, prelude::*};
 
 trait CustomObserve {
     fn obs<E: Event, B: Bundle, M>(
@@ -36,17 +17,17 @@ impl CustomObserve for EntityCommands<'_> {
 }
 
 pub trait On {
-    fn on<E: Event>(&mut self, msg: Msg) -> &mut Self;
+    fn on<E1: Event, E2: Event + Copy + Clone>(&mut self, conditions: E1, effect: E2) -> &mut Self;
 }
 
 impl<T: CustomObserve> On for T {
-    fn on<E: Event>(&mut self, msg: Msg) -> &mut Self {
-        self.obs(trigger_msg::<E>(msg))
-    }
-}
-
-pub fn trigger_msg<T>(msg: Msg) -> impl Fn(Trigger<T>, Commands) {
-    move |_trigger: Trigger<T>, mut commands: Commands| {
-        commands.trigger(msg);
+    fn on<E1: Event, E2: Event + Copy + Clone>(
+        &mut self,
+        _conditions: E1,
+        effect: E2,
+    ) -> &mut Self {
+        self.obs(move |_trigger: Trigger<E1>, mut commands: Commands| {
+            commands.trigger(effect.clone());
+        })
     }
 }

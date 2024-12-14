@@ -32,7 +32,7 @@ fn trigger_on_press(
     }
 }
 
-#[derive(Event)]
+#[derive(Event, Clone, Copy, Debug)]
 pub struct Drag;
 
 fn trigger_on_drag(

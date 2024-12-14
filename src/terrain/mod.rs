@@ -13,7 +13,9 @@ pub(super) fn plugin(app: &mut App) {
         cell_size: UVec2::new(SIZE.x, SIZE.y),
     })
     .insert_resource(TerrainList::new(TerrainType::default()))
-    .init_resource::<Grid>();
+    .init_resource::<Grid>()
+    .add_event::<Draw>()
+    .add_observer(draw.map(utils::warn));
 }
 
 #[derive(Reflect, Component, Clone)]
@@ -45,7 +47,11 @@ impl Default for TerrainType {
     }
 }
 
+#[derive(Event, Clone, Copy, Debug)]
+pub struct Draw;
+
 pub fn draw(
+    _trigger: Trigger<Draw>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
