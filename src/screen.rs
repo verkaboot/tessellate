@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils};
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
 use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init};
@@ -6,7 +6,7 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::{key, mouse, not_key, On};
+use crate::msg::TerrainCanvasDragged;
 use crate::{camera, controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
@@ -106,15 +106,14 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                // .on::<Pointer<Drag>>(camera::Pan, [mouse(MouseButton::Right)])
-                .on::<Pointer<Drag>>(
-                    terrain::Draw,
-                    [not_key(KeyCode::AltLeft), mouse(MouseButton::Left)],
+                .observe(
+                    |trigger: Trigger<Pointer<Drag>>,
+                     mut event: EventWriter<TerrainCanvasDragged>| {
+                        event.send(TerrainCanvasDragged(trigger.event.clone()));
+                    },
                 )
-                .on::<Pointer<Drag>>(
-                    terrain::Erase,
-                    [key(KeyCode::AltLeft), mouse(MouseButton::Left)],
-                );
+                .observe(terrain::draw.map(utils::warn))
+                .observe(terrain::erase.map(utils::warn));
 
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {

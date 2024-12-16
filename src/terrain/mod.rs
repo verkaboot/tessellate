@@ -12,11 +12,7 @@ pub(super) fn plugin(app: &mut App) {
         cell_size: UVec2::new(SIZE.x, SIZE.y),
     })
     .insert_resource(TerrainList::new(TerrainType::default()))
-    .init_resource::<Grid>()
-    .add_event::<Draw>()
-    .add_event::<Erase>()
-    .add_observer(draw.map(utils::warn))
-    .add_observer(erase.map(utils::warn));
+    .init_resource::<Grid>();
 }
 
 #[derive(Reflect, Component, Clone)]
@@ -48,11 +44,8 @@ impl Default for TerrainType {
     }
 }
 
-#[derive(Event, Clone, Copy, Debug)]
-pub struct Draw;
-
 pub fn draw(
-    _trigger: Trigger<Draw>,
+    trigger: Trigger<Pointer<Drag>>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
@@ -60,6 +53,10 @@ pub fn draw(
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
 ) -> Result<()> {
+    if PointerButton::Primary != trigger.button {
+        return Ok(());
+    }
+
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
     let terrain_type = terrain_list.get_selected();
@@ -97,16 +94,17 @@ pub fn draw(
     Ok(())
 }
 
-#[derive(Event, Clone, Copy, Debug)]
-pub struct Erase;
-
 pub fn erase(
-    _trigger: Trigger<Erase>,
+    trigger: Trigger<Pointer<Drag>>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
     mut commands: Commands,
 ) -> Result<()> {
+    if PointerButton::Secondary != trigger.button {
+        return Ok(());
+    }
+
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
 
     if let Some(cell_entity) = grid.remove(&coord) {

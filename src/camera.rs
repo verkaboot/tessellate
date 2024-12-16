@@ -1,30 +1,14 @@
-use bevy::{
-    input::mouse::{AccumulatedMouseMotion, MouseWheel},
-    prelude::*,
-    utils,
-};
+use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 
 use canvas::{tool::ToolData, SIZE};
 use error::Result;
-use input::{self, key_pressed, mouse_pressed};
+use leafwing_input_manager::prelude::ActionState;
 
-use crate::controls;
+use crate::{controls, msg::TerrainCanvasDragged};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, setup).add_systems(
-        Update,
-        (
-            pan.map(utils::warn).run_if(
-                key_pressed(controls::camera::PAN)
-                    .and(mouse_pressed(controls::camera::MOUSE))
-                    .and(not(key_pressed(controls::camera::ZOOM))),
-            ),
-            zoom.map(utils::warn).run_if(
-                key_pressed(controls::camera::ZOOM).and(mouse_pressed(controls::camera::MOUSE)),
-            ),
-            zoom_scroll.map(utils::warn),
-        ),
-    );
+    app.add_systems(Startup, setup)
+        .add_systems(Update, pan.map(utils::warn));
 }
 
 #[derive(Component)]
@@ -40,15 +24,22 @@ pub fn setup(mut commands: Commands) {
     ));
 }
 
-// TODO: Use the new input system on camera, when clicking on a canvas that allows camera movement.
-fn pan(
-    mut query: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
-    mouse_data: Res<AccumulatedMouseMotion>,
+pub fn pan(
+    mut event: EventReader<TerrainCanvasDragged>,
+    mut camera_q: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
+    action_q: Query<&ActionState<input::Action>>,
 ) -> Result<()> {
-    let (mut camera_transform, camera_projection) = query.get_single_mut()?;
-    let delta = mouse_data.delta;
-    camera_transform.translation.x -= camera_projection.scale * delta.x;
-    camera_transform.translation.y -= camera_projection.scale * -delta.y;
+    for e in event.read() {
+        let action_state = action_q.get_single()?;
+        if !action_state.pressed(&input::Action::PanCamera) {
+            return Ok(());
+        }
+
+        let (mut camera_transform, camera_projection) = camera_q.get_single_mut()?;
+        let delta = e.0.delta;
+        camera_transform.translation.x -= camera_projection.scale * delta.x;
+        camera_transform.translation.y -= camera_projection.scale * -delta.y;
+    }
 
     Ok(())
 }

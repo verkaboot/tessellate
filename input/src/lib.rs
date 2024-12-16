@@ -2,15 +2,22 @@ pub mod interaction;
 pub mod trigger;
 
 use bevy::prelude::*;
+use leafwing_input_manager::prelude::*;
 
 pub fn plugin(app: &mut App) {
-    app.add_plugins((trigger::plugin, interaction::plugin));
+    app.add_plugins((trigger::plugin, interaction::plugin))
+        .add_plugins(InputManagerPlugin::<Action>::default())
+        .add_systems(Startup, setup);
 }
 
-pub fn key_pressed(key: KeyCode) -> impl Fn(Res<ButtonInput<KeyCode>>) -> bool {
-    move |keyboard_input: Res<ButtonInput<KeyCode>>| keyboard_input.pressed(key)
+#[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
+pub enum Action {
+    PanCamera,
 }
 
-pub fn mouse_pressed(button: MouseButton) -> impl Fn(Res<ButtonInput<MouseButton>>) -> bool {
-    move |mouse_input: Res<ButtonInput<MouseButton>>| mouse_input.pressed(button)
+fn setup(mut commands: Commands) {
+    use Action::*;
+
+    let input_map = InputMap::new([(PanCamera, KeyCode::Space)]);
+    commands.spawn(InputManagerBundle::with_map(input_map));
 }
