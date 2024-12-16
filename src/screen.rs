@@ -1,13 +1,13 @@
-use bevy::{prelude::*, utils};
+use bevy::prelude::*;
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
-use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init, Drag};
+use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init};
 use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::{key, Filter, Input, On};
-use crate::{controls, terrain};
+use crate::msg::{key, mouse, not_key, On};
+use crate::{camera, controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -106,8 +106,16 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .on_filtered::<Drag>([(key(KeyCode::AltLeft), Filter::NotPressed)], terrain::Draw)
-                .on_filtered::<Drag>([(key(KeyCode::AltLeft), Filter::Pressed)], terrain::Erase);
+                // .on::<Pointer<Drag>>(camera::Pan, [mouse(MouseButton::Right)])
+                .on::<Pointer<Drag>>(
+                    terrain::Draw,
+                    [not_key(KeyCode::AltLeft), mouse(MouseButton::Left)],
+                )
+                .on::<Pointer<Drag>>(
+                    terrain::Erase,
+                    [key(KeyCode::AltLeft), mouse(MouseButton::Left)],
+                );
+
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right

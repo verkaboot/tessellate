@@ -17,25 +17,18 @@ impl CustomObserve for EntityCommands<'_> {
 }
 
 pub trait On {
-    fn on<E: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self;
-    fn on_filtered<E: Event>(
+    fn on<E: Event>(
         &mut self,
-        key: impl IntoIterator<Item = (Input, Filter)> + Copy + Eq + Send + Sync + 'static,
         effect: impl Event + Copy + Clone,
+        input_filter: impl IntoIterator<Item = (Input, Filter)> + Copy + Eq + Send + Sync + 'static,
     ) -> &mut Self;
 }
 
 impl<T: CustomObserve> On for T {
-    fn on<E: Event>(&mut self, effect: impl Event + Copy + Clone) -> &mut Self {
-        self.obs(move |_trigger: Trigger<E>, mut commands: Commands| {
-            commands.trigger(effect.clone());
-        })
-    }
-
-    fn on_filtered<E: Event>(
+    fn on<E: Event>(
         &mut self,
-        input_filter: impl IntoIterator<Item = (Input, Filter)> + Copy + Eq + Send + Sync + 'static,
         effect: impl Event + Copy + Clone,
+        input_filter: impl IntoIterator<Item = (Input, Filter)> + Copy + Eq + Send + Sync + 'static,
     ) -> &mut Self {
         self.obs(
             move |_trigger: Trigger<E>,
@@ -62,12 +55,24 @@ pub enum Input {
     Mouse(MouseButton),
 }
 
-pub fn key(key_code: KeyCode) -> Input {
-    Input::Key(key_code)
-}
-
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Filter {
     Pressed,
     NotPressed,
+}
+
+pub fn key(key_code: KeyCode) -> (Input, Filter) {
+    (Input::Key(key_code), Filter::Pressed)
+}
+
+pub fn not_key(key_code: KeyCode) -> (Input, Filter) {
+    (Input::Key(key_code), Filter::NotPressed)
+}
+
+pub fn mouse(mouse_button: MouseButton) -> (Input, Filter) {
+    (Input::Mouse(mouse_button), Filter::Pressed)
+}
+
+pub fn not_mouse(mouse_button: MouseButton) -> (Input, Filter) {
+    (Input::Mouse(mouse_button), Filter::NotPressed)
 }

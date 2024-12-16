@@ -1,4 +1,8 @@
-use bevy::{input::mouse::MouseWheel, prelude::*, utils};
+use bevy::{
+    input::mouse::{AccumulatedMouseMotion, MouseWheel},
+    prelude::*,
+    utils,
+};
 
 use canvas::{tool::ToolData, SIZE};
 use error::Result;
@@ -39,10 +43,10 @@ pub fn setup(mut commands: Commands) {
 // TODO: Use the new input system on camera, when clicking on a canvas that allows camera movement.
 fn pan(
     mut query: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
-    mouse_data: Res<ToolData>,
+    mouse_data: Res<AccumulatedMouseMotion>,
 ) -> Result<()> {
     let (mut camera_transform, camera_projection) = query.get_single_mut()?;
-    let delta = mouse_data.screen_delta();
+    let delta = mouse_data.delta;
     camera_transform.translation.x -= camera_projection.scale * delta.x;
     camera_transform.translation.y -= camera_projection.scale * -delta.y;
 

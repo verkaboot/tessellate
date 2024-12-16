@@ -1,6 +1,5 @@
-use bevy::{ecs::system::IntoAdapterSystem, prelude::*, utils};
+use bevy::{prelude::*, utils};
 use canvas::{tool::ToolData, SIZE};
-use input::trigger::Drag;
 use ui::widget::prelude::SelectList;
 use ui_macros::SelectList;
 
@@ -61,7 +60,6 @@ pub fn draw(
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
 ) -> Result<()> {
-    println!("draw");
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
     let terrain_type = terrain_list.get_selected();
@@ -109,7 +107,6 @@ pub fn erase(
     mut grid: ResMut<Grid>,
     mut commands: Commands,
 ) -> Result<()> {
-    println!("erase");
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
 
     if let Some(cell_entity) = grid.remove(&coord) {
