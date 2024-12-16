@@ -36,6 +36,7 @@ pub fn setup(mut commands: Commands) {
     ));
 }
 
+// TODO: Use the new input system on camera, when clicking on a canvas that allows camera movement.
 fn pan(
     mut query: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
     mouse_data: Res<ToolData>,

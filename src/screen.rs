@@ -6,7 +6,7 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::On;
+use crate::msg::{key, Filter, Input, On};
 use crate::{controls, terrain};
 
 pub(super) fn plugin(app: &mut App) {
@@ -106,8 +106,8 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .on_key::<Drag>([], [KeyCode::AltLeft], terrain::Draw)
-                .on_key::<Drag>([KeyCode::AltLeft], [], terrain::Erase);
+                .on_filtered::<Drag>([(key(KeyCode::AltLeft), Filter::NotPressed)], terrain::Draw)
+                .on_filtered::<Drag>([(key(KeyCode::AltLeft), Filter::Pressed)], terrain::Erase);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
