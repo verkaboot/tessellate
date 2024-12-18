@@ -6,8 +6,7 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::msg::TerrainCanvasDragged;
-use crate::{camera, controls, terrain};
+use crate::{camera, controls, event, paint, terrain};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -73,25 +72,25 @@ pub fn setup(
                 side_bar
                     .button()
                     .queue(Icon::Brush)
-                    .observe(controls::paint::set_brush(&ToolType::Paint));
+                    .observe(paint::set_brush(&ToolType::Paint));
                 side_bar
                     .button()
                     .queue(Icon::Eraser)
-                    .observe(controls::paint::set_brush(&ToolType::Erase));
+                    .observe(paint::set_brush(&ToolType::Erase));
                 side_bar
                     .button()
                     .queue(Icon::Layer)
-                    .observe(controls::paint::select_layer);
+                    .observe(paint::select_layer);
             });
             row.canvas()
-                .observe(controls::paint::activate_tool)
-                .observe(controls::paint::stop_tool);
+                .observe(paint::activate_tool)
+                .observe(paint::stop_tool);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
                         .button()
                         .queue(Icon::ColorPicker)
-                        .observe(controls::paint::change_color);
+                        .observe(paint::change_color);
                     // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
@@ -108,12 +107,18 @@ pub fn setup(
             row.canvas()
                 .observe(
                     |trigger: Trigger<Pointer<Drag>>,
-                     mut event: EventWriter<TerrainCanvasDragged>| {
-                        event.send(TerrainCanvasDragged(trigger.event.clone()));
+                     mut msg: EventWriter<event::PanCamera>,
+                     key: Res<ButtonInput<KeyCode>>| {
+                        if trigger.button == controls::camera::POINTER_BUTTON
+                            && key.pressed(controls::camera::PAN)
+                        {
+                            msg.send(event::PanCamera {
+                                delta: trigger.delta,
+                            });
+                        }
                     },
                 )
-                .observe(terrain::draw.map(utils::warn))
-                .observe(terrain::erase.map(utils::warn));
+                .observe(terrain::draw.map(utils::warn));
 
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {

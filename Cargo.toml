@@ -29,7 +29,6 @@ error = { path = "./error" }
 input = { path = "./input" }
 ui = { path = "./ui" }
 ui_macros = { path = "./ui_macros" }
-leafwing-input-manager = "0.16.0"
 
 [features]
 default = [

@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.15" }
-leafwing-input-manager = "0.16.0"

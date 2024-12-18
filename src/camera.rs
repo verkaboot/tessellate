@@ -1,10 +1,9 @@
 use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 
-use canvas::{tool::ToolData, SIZE};
+use canvas::SIZE;
 use error::Result;
-use leafwing_input_manager::prelude::ActionState;
 
-use crate::{controls, msg::TerrainCanvasDragged};
+use crate::event::PanCamera;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup)
@@ -25,18 +24,11 @@ pub fn setup(mut commands: Commands) {
 }
 
 pub fn pan(
-    mut event: EventReader<TerrainCanvasDragged>,
+    mut event: EventReader<PanCamera>,
     mut camera_q: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
-    action_q: Query<&ActionState<input::Action>>,
 ) -> Result<()> {
-    for e in event.read() {
-        let action_state = action_q.get_single()?;
-        if !action_state.pressed(&input::Action::PanCamera) {
-            return Ok(());
-        }
-
-        let (mut camera_transform, camera_projection) = camera_q.get_single_mut()?;
-        let delta = e.0.delta;
+    let (mut camera_transform, camera_projection) = camera_q.get_single_mut()?;
+    for PanCamera { delta } in event.read() {
         camera_transform.translation.x -= camera_projection.scale * delta.x;
         camera_transform.translation.y -= camera_projection.scale * -delta.y;
     }
@@ -44,15 +36,14 @@ pub fn pan(
     Ok(())
 }
 
-fn zoom(
-    mut query: Query<&mut OrthographicProjection, With<Camera2d>>,
-    mouse_data: Res<ToolData>,
+pub fn zoom(
+    drag: Trigger<Pointer<Drag>>,
+    mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) -> Result<()> {
     const CAMERA_ZOOM_RATE: f32 = -0.005;
     let mut camera_projection = query.get_single_mut()?;
-    let delta_y = mouse_data.screen_delta().y;
-    camera_projection.scale =
-        (camera_projection.scale * (1.0 - (delta_y * CAMERA_ZOOM_RATE))).clamp(MIN_ZOOM, MAX_ZOOM);
+    camera_projection.scale = (camera_projection.scale * (1.0 - (drag.delta.y * CAMERA_ZOOM_RATE)))
+        .clamp(MIN_ZOOM, MAX_ZOOM);
 
     Ok(())
 }
