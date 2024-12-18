@@ -5,14 +5,21 @@ use ui_macros::SelectList;
 
 use error::Result;
 
-use crate::grid::{Grid, GridCoord, GridSettings};
+use crate::{
+    event,
+    grid::{Grid, GridCoord, GridSettings},
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(GridSettings {
         cell_size: UVec2::new(SIZE.x, SIZE.y),
     })
     .insert_resource(TerrainList::new(TerrainType::default()))
-    .init_resource::<Grid>();
+    .init_resource::<Grid>()
+    .add_systems(
+        Update,
+        draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
+    );
 }
 
 #[derive(Reflect, Component, Clone)]
@@ -45,7 +52,6 @@ impl Default for TerrainType {
 }
 
 pub fn draw(
-    trigger: Trigger<Pointer<Drag>>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
@@ -53,10 +59,6 @@ pub fn draw(
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
 ) -> Result<()> {
-    if PointerButton::Primary != trigger.button {
-        return Ok(());
-    }
-
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
     let cell_pos = coord.to_world_pos(*grid_settings);
     let terrain_type = terrain_list.get_selected();

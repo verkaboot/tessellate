@@ -105,20 +105,8 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .observe(
-                    |trigger: Trigger<Pointer<Drag>>,
-                     mut msg: EventWriter<event::PanCamera>,
-                     key: Res<ButtonInput<KeyCode>>| {
-                        if trigger.button == controls::camera::POINTER_BUTTON
-                            && key.pressed(controls::camera::PAN)
-                        {
-                            msg.send(event::PanCamera {
-                                delta: trigger.delta,
-                            });
-                        }
-                    },
-                )
-                .observe(terrain::draw.map(utils::warn));
+                .observe(event::pan_camera)
+                .observe(event::draw_terrain);
 
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
