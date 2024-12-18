@@ -3,11 +3,14 @@ use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 use canvas::SIZE;
 use error::Result;
 
-use crate::event::PanCamera;
+use crate::event::{PanCamera, ZoomCamera};
+
+const CAMERA_ZOOM_RATE: f32 = -0.005;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(Startup, setup)
-        .add_systems(Update, pan.map(utils::warn));
+    app.add_systems(Startup, setup);
+    app.add_systems(Update, pan.map(utils::warn));
+    app.add_systems(Update, zoom.map(utils::warn));
 }
 
 #[derive(Component)]
@@ -37,14 +40,14 @@ pub fn pan(
 }
 
 pub fn zoom(
-    drag: Trigger<Pointer<Drag>>,
+    mut event: EventReader<ZoomCamera>,
     mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) -> Result<()> {
-    const CAMERA_ZOOM_RATE: f32 = -0.005;
     let mut camera_projection = query.get_single_mut()?;
-    camera_projection.scale = (camera_projection.scale * (1.0 - (drag.delta.y * CAMERA_ZOOM_RATE)))
-        .clamp(MIN_ZOOM, MAX_ZOOM);
-
+    for ZoomCamera { delta } in event.read() {
+        camera_projection.scale = (camera_projection.scale * (1.0 - (delta.y * CAMERA_ZOOM_RATE)))
+            .clamp(MIN_ZOOM, MAX_ZOOM);
+    }
     Ok(())
 }
 

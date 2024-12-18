@@ -107,7 +107,8 @@ pub fn setup(
             row.canvas()
                 .observe(event::draw_terrain)
                 .observe(event::erase_terrain)
-                .observe(event::pan_camera);
+                .observe(event::pan_camera)
+                .observe(event::zoom_camera);
 
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {

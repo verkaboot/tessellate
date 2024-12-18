@@ -13,17 +13,20 @@ use crate::{
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(GridSettings {
         cell_size: UVec2::new(SIZE.x, SIZE.y),
-    })
-    .insert_resource(TerrainList::new(TerrainType::default()))
-    .init_resource::<Grid>()
-    .add_systems(
+    });
+    app.insert_resource(TerrainList::new(TerrainType::default()));
+    app.init_resource::<Grid>();
+
+    app.add_systems(
         Update,
-        (
-            draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
-            erase
-                .map(utils::warn)
-                .run_if(on_event::<event::EraseTerrain>),
-        ),
+        draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
+    );
+
+    app.add_systems(
+        Update,
+        erase
+            .map(utils::warn)
+            .run_if(on_event::<event::EraseTerrain>),
     );
 }
 
