@@ -4,6 +4,7 @@ use crate::controls;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_event::<DrawTerrain>();
+    app.add_event::<EraseTerrain>();
     app.add_event::<PanCamera>();
 }
 
@@ -13,6 +14,15 @@ pub struct DrawTerrain;
 pub fn draw_terrain(trigger: Trigger<Pointer<Drag>>, mut msg: EventWriter<DrawTerrain>) {
     if trigger.button == controls::terrain::DRAW_BUTTON {
         msg.send(DrawTerrain);
+    }
+}
+
+#[derive(Event)]
+pub struct EraseTerrain;
+
+pub fn erase_terrain(trigger: Trigger<Pointer<Drag>>, mut msg: EventWriter<EraseTerrain>) {
+    if trigger.button == controls::terrain::ERASE_BUTTON {
+        msg.send(EraseTerrain);
     }
 }
 

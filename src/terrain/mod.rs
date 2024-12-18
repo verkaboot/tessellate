@@ -18,7 +18,12 @@ pub(super) fn plugin(app: &mut App) {
     .init_resource::<Grid>()
     .add_systems(
         Update,
-        draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
+        (
+            draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
+            erase
+                .map(utils::warn)
+                .run_if(on_event::<event::EraseTerrain>),
+        ),
     );
 }
 
@@ -97,16 +102,11 @@ pub fn draw(
 }
 
 pub fn erase(
-    trigger: Trigger<Pointer<Drag>>,
     tool_data: Res<ToolData>,
     grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
     mut commands: Commands,
 ) -> Result<()> {
-    if PointerButton::Secondary != trigger.button {
-        return Ok(());
-    }
-
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
 
     if let Some(cell_entity) = grid.remove(&coord) {
