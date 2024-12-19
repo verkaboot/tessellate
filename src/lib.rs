@@ -1,4 +1,5 @@
 mod background;
+pub mod button;
 mod camera;
 mod controls;
 mod dev;
@@ -17,10 +18,12 @@ impl Plugin for AppPlugin {
         // Workspace Plugins
         app.add_plugins((
             background::plugin,
+            button::plugin,
             camera::plugin,
             canvas::plugin,
             event::plugin,
             input::plugin,
+            paint::plugin,
             screen::plugin,
             terrain::plugin,
             ui::plugin,

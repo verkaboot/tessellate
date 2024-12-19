@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils};
+use bevy::prelude::*;
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
 use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init};
@@ -6,7 +6,7 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::{camera, controls, event, paint, terrain};
+use crate::event;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -72,19 +72,19 @@ pub fn setup(
                 side_bar
                     .button()
                     .queue(Icon::Brush)
-                    .observe(paint::set_brush(&ToolType::Paint));
+                    .observe(event::button::set_brush(ToolType::Paint));
                 side_bar
                     .button()
                     .queue(Icon::Eraser)
-                    .observe(paint::set_brush(&ToolType::Erase));
+                    .observe(event::button::set_brush(ToolType::Erase));
                 side_bar
                     .button()
                     .queue(Icon::Layer)
-                    .observe(paint::select_layer);
+                    .observe(event::button::select_layer);
             });
             row.canvas()
-                .observe(paint::activate_tool)
-                .observe(paint::stop_tool)
+                .observe(event::paint::activate_tool)
+                .observe(event::paint::stop_tool)
                 .observe(event::camera::pan)
                 .observe(event::camera::zoom);
             row.panel(PanelDirection::Tall)
@@ -92,7 +92,7 @@ pub fn setup(
                     side_bar_right
                         .button()
                         .queue(Icon::ColorPicker)
-                        .observe(paint::change_color);
+                        .observe(event::button::change_color);
                     // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
