@@ -38,9 +38,9 @@ impl<T: Spawn> SliderWidget for T {
             Node {
                 flex_direction: FlexDirection::Column,
                 padding: UiRect::axes(Px(10.0), Px(2.0)),
-                min_width: Px(120.0),
+                width: Percent(100.0),
                 height: Auto,
-                align_items: AlignItems::Center,
+                align_items: AlignItems::Stretch,
                 justify_content: JustifyContent::Center,
                 ..default()
             },
@@ -63,7 +63,7 @@ impl<T: Spawn> SliderWidget for T {
                         Name::new("Label"),
                         Text(label.into()),
                         TextFont {
-                            font_size: 16.0,
+                            font_size: FONT_SIZE,
                             ..default()
                         },
                     ));
@@ -73,7 +73,7 @@ impl<T: Spawn> SliderWidget for T {
                             Name::new("Value"),
                             Text("-".into()),
                             TextFont {
-                                font_size: 16.0,
+                                font_size: FONT_SIZE,
                                 ..default()
                             },
                             WatchResource::<V>::new(),
