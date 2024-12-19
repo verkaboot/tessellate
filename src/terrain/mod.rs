@@ -10,8 +10,9 @@ use crate::event;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(TerrainList::new(TerrainType::default()));
-    app.insert_resource(Grid::new(GridSettings {
-        cell_size: UVec2::new(SIZE.x, SIZE.y),
+    app.insert_resource(Grid::<TerrainCell>::new(GridSettings {
+        cell_size: SIZE,
+        offset: SIZE.as_vec2() / 2.0,
     }));
 
     app.add_systems(
@@ -27,6 +28,8 @@ pub(super) fn plugin(app: &mut App) {
             .run_if(on_event::<event::terrain::Erase>),
     );
 }
+
+pub struct TerrainCell;
 
 #[derive(Reflect, Component, Clone)]
 #[reflect(Component)]
@@ -59,7 +62,7 @@ impl Default for TerrainType {
 
 pub fn draw(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid>,
+    mut grid: ResMut<Grid<TerrainCell>>,
     terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
@@ -103,7 +106,7 @@ pub fn draw(
 
 pub fn erase(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid>,
+    mut grid: ResMut<Grid<TerrainCell>>,
     mut commands: Commands,
 ) -> Result<()> {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);

@@ -1,25 +1,30 @@
-use bevy::{prelude::*, utils::HashMap};
+use std::marker::PhantomData;
 
-#[derive(Reflect, Debug, Copy, Clone)]
-pub struct GridSettings {
-    pub cell_size: UVec2,
-}
+use bevy::{prelude::*, utils::HashMap};
 
 #[derive(Reflect, Resource, Debug, Clone, Deref, DerefMut)]
 #[reflect(Resource)]
-pub struct Grid {
+pub struct Grid<T> {
     #[deref]
     cells: HashMap<GridCoord, Entity>,
     pub settings: GridSettings,
+    phantom_data: PhantomData<T>,
 }
 
-impl Grid {
+impl<T> Grid<T> {
     pub fn new(settings: GridSettings) -> Self {
         Grid {
             cells: HashMap::new(),
             settings,
+            phantom_data: PhantomData::<T>,
         }
     }
+}
+
+#[derive(Reflect, Debug, Copy, Clone)]
+pub struct GridSettings {
+    pub cell_size: UVec2,
+    pub offset: Vec2,
 }
 
 #[derive(Reflect, Component, Hash, Debug, PartialEq, Eq, Clone, Copy, DerefMut, Deref)]
@@ -34,22 +39,22 @@ impl GridCoord {
     pub fn from_world_pos(world_pos: Vec2, grid_settings: GridSettings) -> Self {
         // Adjust for off-by-one when dividing negative numbers.
         let x = if world_pos.x >= 0.0 {
-            world_pos.x as i32
+            (world_pos.x + grid_settings.offset.x) as i32
         } else {
-            (world_pos.x - grid_settings.cell_size.x as f32) as i32
+            (world_pos.x + grid_settings.offset.x - grid_settings.cell_size.x as f32) as i32
         };
 
         let y = if world_pos.y >= 0.0 {
-            world_pos.y as i32
+            (world_pos.y + grid_settings.offset.y) as i32
         } else {
-            (world_pos.y - grid_settings.cell_size.y as f32) as i32
+            (world_pos.y + grid_settings.offset.y - grid_settings.cell_size.y as f32) as i32
         };
 
         (IVec2 { x, y } / grid_settings.cell_size.as_ivec2()).into()
     }
 
     pub fn to_world_pos(&self, grid_settings: GridSettings) -> Vec2 {
-        self.0.as_vec2() * grid_settings.cell_size.as_vec2()
+        (self.as_vec2() * grid_settings.cell_size.as_vec2()) - grid_settings.offset
     }
 }
 
@@ -66,6 +71,7 @@ mod coord {
     fn grid_settings() -> GridSettings {
         GridSettings {
             cell_size: UVec2 { x: 8, y: 8 },
+            offset: Vec2::new(0.0, 0.0),
         }
     }
 

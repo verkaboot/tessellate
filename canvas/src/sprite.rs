@@ -123,6 +123,8 @@ fn update_canvas_sprite(
     }
 }
 
-fn match_sprites_to_grid(grid: Res<Grid>) {
+pub struct SpriteCell;
+
+fn match_sprites_to_grid(grid: Res<Grid<SpriteCell>>) {
     if grid.is_changed() {}
 }
