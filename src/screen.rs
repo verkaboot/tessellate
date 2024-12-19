@@ -84,7 +84,9 @@ pub fn setup(
             });
             row.canvas()
                 .observe(paint::activate_tool)
-                .observe(paint::stop_tool);
+                .observe(paint::stop_tool)
+                .observe(event::pan_camera)
+                .observe(event::zoom_camera);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
