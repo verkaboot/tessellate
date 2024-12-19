@@ -4,5 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.15" }
+bevy = { version = "0.14" }
 derive_more = { version = "1.0", features = ["from"] }

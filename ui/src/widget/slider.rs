@@ -1,8 +1,8 @@
 use bevy::ui::RelativeCursorPosition;
 use bevy::utils;
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
-use input::trigger::{Drag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 
+use crate::interaction::{OnDrag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 use crate::theme::*;
 use crate::widget::Spawn;
 use error::Result;
@@ -18,141 +18,165 @@ pub trait SliderValue: Resource + Copy + Clone + std::fmt::Debug {
 }
 
 pub trait SliderWidget {
-    fn slider<V: SliderValue>(
-        &mut self,
-        label: &str,
-        min_value: f32,
-        max_value: f32,
-    ) -> EntityCommands;
+    fn slider<V: SliderValue>(&mut self, label: &str, min_value: f32, max_value: f32) -> EntityCommands;
 }
 
 impl<T: Spawn> SliderWidget for T {
-    fn slider<V: SliderValue>(
-        &mut self,
-        label: &str,
-        min_value: f32,
-        max_value: f32,
-    ) -> EntityCommands {
-        let mut entity = self.ui_spawn((
+    fn slider<V: SliderValue>(&mut self, label: &str, min_value: f32, max_value: f32) -> EntityCommands {
+        let mut entity = self.spawn((
             Name::new("Slider"),
-            Node {
-                flex_direction: FlexDirection::Column,
-                padding: UiRect::axes(Px(10.0), Px(2.0)),
-                width: Percent(100.0),
-                height: Auto,
-                align_items: AlignItems::Stretch,
-                justify_content: JustifyContent::Center,
+            NodeBundle {
+                style: Style {
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect::axes(Px(10.0), Px(2.0)),
+                    min_width: Px(120.0),
+                    height: Auto,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(SLIDER_BACKGROUND),
+                border_radius: BorderRadius::all(Px(4.0)),
                 ..default()
-            },
-            BackgroundColor(SLIDER_BACKGROUND),
-            BorderRadius::all(Px(4.0)),
+            }
         ));
 
         entity.with_children(|slider| {
             slider
-                .ui_spawn((
+                .spawn((
                     Name::new("Label Container"),
-                    Node {
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::SpaceBetween,
+                    NodeBundle {
+                        style: Style {
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::SpaceBetween,
+                            ..default()
+                        },
                         ..default()
                     },
                 ))
                 .with_children(|label_container| {
-                    label_container.ui_spawn((
+                    label_container.spawn((
                         Name::new("Label"),
-                        Text(label.into()),
-                        TextFont {
-                            font_size: FONT_SIZE,
-                            ..default()
-                        },
+                        TextBundle::from_section(
+                            label,
+                            TextStyle {
+                                font_size: 16.0,
+                                color: TEXT,
+                                ..default()
+                            },
+                        ),
                     ));
 
                     label_container
-                        .ui_spawn((
+                        .spawn((
                             Name::new("Value"),
-                            Text("-".into()),
-                            TextFont {
-                                font_size: FONT_SIZE,
+                            TextBundle::from_section(
+                                "-",
+                                TextStyle {
+                                    font_size: 16.0,
+                                    color: TEXT,
+                                    ..default()
+                                },
+                            )
+                            .with_text_justify(JustifyText::Right)
+                            .with_style(Style {
+                                width: Px(40.0),
+                                overflow: Overflow {
+                                    x: OverflowAxis::Clip,
+                                    y: OverflowAxis::Visible,
+                                },
                                 ..default()
-                            },
+                            }),
                             WatchResource::<V>::new(),
                         ))
-                        .observe(update_text::<V>);
+                        .observe(update_text::<V>.map(utils::warn));
                 });
 
             slider
-                .ui_spawn((
+                .spawn((
                     Name::new("Slider Slot"),
-                    Node {
-                        width: Percent(100.0),
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::SpaceBetween,
-                        padding: UiRect::vertical(Px(KNOB_PADDING)),
+                    NodeBundle {
+                        style: Style {
+                            width: Percent(100.0),
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::SpaceBetween,
+                            padding: UiRect::vertical(Px(KNOB_PADDING)),
+                            ..default()
+                        },
                         ..default()
                     },
                     SliderSlot,
                 ))
                 .with_children(|slot| {
-                    slot.ui_spawn((
+                    slot.spawn((
                         Name::new("Slot Graphic"),
-                        Node {
-                            position_type: PositionType::Absolute,
-                            width: Percent(100.0),
-                            height: Px(KNOB_HEIGHT),
-                            border: UiRect::all(Px(1.0)),
-                            ..default()
-                        },
-                        BorderColor(SLIDER_BACKGROUND),
-                        BackgroundColor(SLIDER_SLOT),
-                        BorderRadius::all(Percent(100.0)),
-                    ));
-
-                    let graphic_fill = slot
-                        .ui_spawn((
-                            Name::new("Slot Graphic Fill"),
-                            Node {
+                        NodeBundle {
+                            style: Style {
                                 position_type: PositionType::Absolute,
-                                width: Percent(50.0),
+                                width: Percent(100.0),
                                 height: Px(KNOB_HEIGHT),
                                 border: UiRect::all(Px(1.0)),
                                 ..default()
                             },
-                            BorderColor(SLIDER_BACKGROUND),
-                            BackgroundColor(SLIDER_SLOT_FILL),
-                            BorderRadius::percent(100.0, 0.0, 0.0, 100.0),
+                            border_color: BorderColor(SLIDER_BACKGROUND),
+                            background_color: BackgroundColor(SLIDER_SLOT),
+                            border_radius: BorderRadius::all(Percent(100.0)),
+                            ..default()
+                        },
+                    ));
+
+                    let graphic_fill = slot
+                        .spawn((
+                            Name::new("Slot Graphic Fill"),
+                            NodeBundle {
+                                style: Style {
+                                    position_type: PositionType::Absolute,
+                                    width: Percent(50.0),
+                                    height: Px(KNOB_HEIGHT),
+                                    border: UiRect::all(Px(1.0)),
+                                    ..default()
+                                },
+                                border_color: BorderColor(SLIDER_BACKGROUND),
+                                background_color: BackgroundColor(SLIDER_SLOT_FILL),
+                                border_radius: BorderRadius::percent(100.0, 0.0, 0.0, 100.0),
+                                ..default()
+                            },
                             GraphicFill,
                         ))
                         .id();
 
-                    slot.ui_spawn((
+                    slot.spawn((
                         Name::new("KnobContainer"),
                         KnobContainer,
                         RelativeCursorPosition::default(),
-                        Button,
-                        Node {
-                            width: Percent(100.0),
-                            // Make container smaller than the graphic to fit knob
-                            margin: UiRect::horizontal(Px(KNOB_WIDTH * 0.5)),
+                        ButtonBundle {
+                            style: Style {
+                                width: Percent(100.0),
+                                // Make container smaller than the graphic to fit knob
+                                margin: UiRect::horizontal(Px(KNOB_WIDTH * 0.5)),
+                                ..default()
+                            },
                             ..default()
                         },
                     ))
                     .with_children(|knob_container| {
                         knob_container
-                            .ui_spawn((
+                            .spawn((
                                 Name::new("Slider Knob"),
-                                Button,
-                                Node {
-                                    height: Px(KNOB_HEIGHT),
-                                    width: Px(KNOB_WIDTH),
-                                    border: UiRect::all(Px(1.0)),
-                                    // Center the knob
-                                    margin: UiRect::left(Px(KNOB_WIDTH * -0.5)),
+                                ButtonBundle {
+                                    style: Style {
+                                        height: Px(KNOB_HEIGHT),
+                                        width: Px(KNOB_WIDTH),
+                                        border: UiRect::all(Px(1.0)),
+                                        // Center the knob
+                                        margin: UiRect::left(Px(KNOB_WIDTH * -0.5)),
+                                        ..default()
+                                    },
+                                    border_radius: BorderRadius::all(Percent(100.0)),
+                                    background_color: BackgroundColor(SLIDER_KNOB),
+                                    border_color: BorderColor(SLIDER_KNOB_OUTLINE),
                                     ..default()
                                 },
-                                BorderRadius::all(Percent(100.0)),
-                                BackgroundColor(SLIDER_KNOB),
-                                BorderColor(SLIDER_KNOB_OUTLINE),
                                 SliderKnob,
                                 SliderValueRange {
                                     min: min_value,
@@ -207,7 +231,8 @@ fn on_press<V: SliderValue>(
 ) -> Result<()> {
     let cursor_pos = cursor_q.get(trigger.entity())?;
     let children = children_q.get(trigger.entity())?;
-    let knob_entity = children.iter().find(|&&child| knob_q.contains(child));
+    let knob_entity = children.iter()
+        .find(|&&child| knob_q.contains(child));
     if let Some(knob_entity) = knob_entity {
         let (range,) = knob_q.get(*knob_entity)?;
         if let Some(Vec2 { x, y: _ }) = cursor_pos.normalized {
@@ -223,7 +248,7 @@ fn on_press<V: SliderValue>(
 
 // When we drag the knob
 fn on_drag<V: SliderValue>(
-    trigger: Trigger<Drag>,
+    trigger: Trigger<OnDrag>,
     mut resource: ResMut<V>,
     container_q: Query<&RelativeCursorPosition, With<KnobContainer>>,
     knob_q: Query<(&Parent, &SliderValueRange), With<SliderKnob>>,
@@ -243,8 +268,8 @@ fn on_drag<V: SliderValue>(
 fn update_knob_position<T: Event + std::fmt::Debug, V: SliderValue>(
     trigger: Trigger<T>,
     slider_value: Res<V>,
-    mut knob_q: Query<(&mut Node, &FillEntity, &SliderValueRange), With<SliderKnob>>,
-    mut fill_q: Query<&mut Node, (With<GraphicFill>, Without<SliderKnob>)>,
+    mut knob_q: Query<(&mut Style, &FillEntity, &SliderValueRange), With<SliderKnob>>,
+    mut fill_q: Query<&mut Style, (With<GraphicFill>, Without<SliderKnob>)>,
 ) -> Result<()> {
     let (knob_style, fill_entity, range) = &mut knob_q.get_mut(trigger.entity())?;
     let mut fill_style = fill_q.get_mut(fill_entity.0)?;
@@ -261,8 +286,10 @@ fn update_knob_position<T: Event + std::fmt::Debug, V: SliderValue>(
 
 fn update_text<V: SliderValue>(
     trigger: Trigger<OnResourceUpdated<V>>,
-    mut writer: TextUiWriter,
     resource: Res<V>,
-) {
-    *writer.text(trigger.entity(), 0) = format!("{0:.2}", (*resource).to_f32());
+    mut text_q: Query<&mut Text>,
+) -> Result<()> {
+    let mut text = text_q.get_mut(trigger.entity())?;
+    text.sections[0].value = format!("{0:.2}", (*resource).to_f32());
+    Ok(())
 }

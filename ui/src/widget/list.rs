@@ -8,13 +8,16 @@ pub trait ListWidget {
 
 impl<T: Spawn> ListWidget for T {
     fn list(&mut self) -> EntityCommands {
-        self.ui_spawn((
+        self.spawn((
             Name::new("List"),
-            Node {
-                width: Percent(100.0),
-                height: Auto,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Auto,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
                 ..default()
             },
         ))

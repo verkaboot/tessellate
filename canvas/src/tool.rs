@@ -42,7 +42,11 @@ pub fn update_position(
     let screen_pos = window
         .cursor_position()
         .ok_or(Error::Custom("Cursor not found in window".to_owned()))?;
-    let world_pos = camera.viewport_to_world_2d(camera_transform, screen_pos)?;
+    let world_pos = camera
+        .viewport_to_world_2d(camera_transform, screen_pos)
+        .ok_or(Error::Custom(
+            "Unable to get world position of cursor".to_owned(),
+        ))?;
     m.world_pos = [world_pos, m.world_pos[0], m.world_pos[1], m.world_pos[2]];
     m.screen_pos = [
         screen_pos,

@@ -1,12 +1,13 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils};
 use canvas::brush::{BrushHardness, BrushSize};
 use canvas::tool::ToolType;
-use input::trigger::{trigger_on_resource_updated, trigger_watch_resource_init};
+use leafwing_input_manager::InputManagerBundle;
 use ui::icon::Icon;
+use ui::interaction::{trigger_on_resource_updated, trigger_watch_resource_init};
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::event;
+use crate::input;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
@@ -49,13 +50,13 @@ fn top_bar(root: &mut ChildBuilder) {
     root.panel(PanelDirection::Wide).with_children(|top_panel| {
         top_panel
             .button()
-            .queue(Icon::PaintView)
+            .add(Icon::PaintView)
             .observe(set_root::<UiMode>(UiMode::Paint));
         top_panel
             .button()
-            .queue(Icon::TerrainView)
+            .add(Icon::TerrainView)
             .observe(set_root::<UiMode>(UiMode::Terrain));
-        top_panel.text::<CurrentState<UiMode>>();
+        top_panel.text::<CurrentState<UiMode>>("Mode\n");
     });
 }
 
@@ -71,28 +72,26 @@ pub fn setup(
             row.panel(PanelDirection::Tall).with_children(|side_bar| {
                 side_bar
                     .button()
-                    .queue(Icon::Brush)
-                    .observe(event::button::set_brush(ToolType::Paint));
+                    .add(Icon::Brush)
+                    .observe(input::paint::set_brush(&ToolType::Paint));
                 side_bar
                     .button()
-                    .queue(Icon::Eraser)
-                    .observe(event::button::set_brush(ToolType::Erase));
+                    .add(Icon::Eraser)
+                    .observe(input::paint::set_brush(&ToolType::Erase));
                 side_bar
                     .button()
-                    .queue(Icon::Layer)
-                    .observe(event::button::select_layer);
+                    .add(Icon::Layer)
+                    .observe(input::paint::select_layer);
             });
             row.canvas()
-                .observe(event::paint::activate_tool)
-                .observe(event::paint::stop_tool)
-                .observe(event::camera::pan)
-                .observe(event::camera::zoom);
+                .observe(input::paint::activate_tool)
+                .observe(input::paint::stop_tool);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
                         .button()
-                        .queue(Icon::ColorPicker)
-                        .observe(event::button::change_color);
+                        .add(Icon::ColorPicker)
+                        .observe(input::paint::change_color);
                     // TODO: Make a way to not need to pass in materials as arguments
                     side_bar_right.color_picker(hue_wheel_material, hsv_box_material);
                     side_bar_right.slider::<BrushSize>("Brush Size", 1.0, 200.0);
@@ -102,25 +101,27 @@ pub fn setup(
         root.panel(PanelDirection::Wide);
     });
 
-    commands.ui_root(UiMode::Terrain).with_children(|root| {
-        top_bar(root);
-        root.flex_row().with_children(|row| {
-            row.panel(PanelDirection::Tall);
-            row.canvas()
-                .observe(event::terrain::draw)
-                .observe(event::terrain::erase)
-                .observe(event::camera::pan)
-                .observe(event::camera::zoom);
-
-            row.panel(PanelDirection::Tall)
-                .with_children(|side_bar_right| {
-                    side_bar_right
-                        .inset_panel()
-                        .with_children(|terrain_list_panel| {
-                            terrain_list_panel.list();
-                        });
-                });
+    commands
+        .ui_root(UiMode::Terrain)
+        .insert(InputManagerBundle::with_map(
+            input::terrain::Action::input_map(),
+        ))
+        .with_children(|root| {
+            top_bar(root);
+            root.flex_row().with_children(|row| {
+                row.panel(PanelDirection::Tall);
+                row.canvas()
+                    .observe(input::terrain::draw_terrain.map(utils::warn))
+                    .observe(input::terrain::erase_terrain.map(utils::warn));
+                row.panel(PanelDirection::Tall)
+                    .with_children(|side_bar_right| {
+                        side_bar_right
+                            .inset_panel()
+                            .with_children(|terrain_list_panel| {
+                                terrain_list_panel.list();
+                            });
+                    });
+            });
+            root.panel(PanelDirection::Wide);
         });
-        root.panel(PanelDirection::Wide);
-    });
 }

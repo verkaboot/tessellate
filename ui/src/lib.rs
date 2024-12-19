@@ -1,4 +1,5 @@
 pub mod icon;
+pub mod interaction;
 pub mod theme;
 pub mod widget;
 
@@ -9,5 +10,5 @@ pub mod macros {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_plugins(widget::plugin);
+    app.add_plugins((interaction::plugin, widget::plugin));
 }

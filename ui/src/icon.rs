@@ -23,14 +23,17 @@ impl EntityCommand for Icon {
         let icon = world
             .spawn((
                 Name::new("Icon"),
-                Node {
-                    position_type: PositionType::Absolute,
-                    width: Px(42.0),
-                    height: Px(42.0),
-                    ..default()
-                },
-                ImageNode {
-                    image: image_handle,
+                ImageBundle {
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        width: Px(42.0),
+                        height: Px(42.0),
+                        ..default()
+                    },
+                    image: UiImage {
+                        texture: image_handle,
+                        ..default()
+                    },
                     ..default()
                 },
             ))

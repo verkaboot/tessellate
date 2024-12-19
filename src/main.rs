@@ -1,10 +1,10 @@
 // Disable console on Windows for non-dev builds.
 #![cfg_attr(not(feature = "dev"), windows_subsystem = "windows")]
 
+use animaboot::AppPlugin;
 use bevy::{asset::load_internal_binary_asset, prelude::*};
 use bevy::{window::WindowResolution, winit::WinitSettings};
 use bevy_framepace::{FramepaceSettings, Limiter};
-use tessellate::AppPlugin;
 
 fn main() -> AppExit {
     let mut app = App::new();
@@ -14,7 +14,7 @@ fn main() -> AppExit {
         DefaultPlugins
             .set(WindowPlugin {
                 primary_window: Some(Window {
-                    title: "Verkaboot Tessellate".into(),
+                    title: "Animaboot".into(),
                     resolution: WindowResolution::new(1920., 1080.).with_scale_factor_override(1.0),
                     present_mode: bevy::window::PresentMode::AutoNoVsync,
                     ..default()
@@ -34,7 +34,7 @@ fn main() -> AppExit {
     // Build default font into the binary
     load_internal_binary_asset!(
         app,
-        TextFont::default().font,
+        TextStyle::default().font,
         "../assets/fonts/NotoSans.ttf",
         |bytes: &[u8], _path: String| { Font::try_from_bytes(bytes.to_vec()).unwrap() }
     );

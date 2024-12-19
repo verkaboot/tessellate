@@ -9,27 +9,33 @@ pub trait FlexWidget {
 
 impl<T: Spawn> FlexWidget for T {
     fn flex_row(&mut self) -> EntityCommands {
-        self.ui_spawn((
+        self.spawn((
             Name::new("Flex Row"),
-            Node {
-                width: Percent(100.0),
-                height: Percent(100.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                flex_direction: FlexDirection::Row,
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    flex_direction: FlexDirection::Row,
+                    ..default()
+                },
                 ..default()
             },
         ))
     }
     fn flex_col(&mut self) -> EntityCommands {
-        self.ui_spawn((
+        self.spawn((
             Name::new("Flex Col"),
-            Node {
-                width: Percent(100.0),
-                height: Percent(100.0),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                flex_direction: FlexDirection::Column,
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    flex_direction: FlexDirection::Column,
+                    ..default()
+                },
                 ..default()
             },
         ))
