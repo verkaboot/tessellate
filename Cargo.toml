@@ -1,14 +1,14 @@
 [workspace]
-members = [".",  "ui", "ui_macros", "canvas", "error"]
+members = [".", "ui", "ui_macros", "canvas", "error", "input"]
 
 [package]
-name = "animaboot"
+name = "tessellate"
 authors = ["bokubeam <bokubeam@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.14" }
+bevy = { version = "0.15.0" }
 rand = "0.8"
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
@@ -20,13 +20,13 @@ tracing = { version = "0.1", features = [
   "max_level_debug",
   "release_max_level_warn",
 ] }
-bevy_framepace = "0.17.1"
-bevy-inspector-egui = "0.25.2"
-leafwing-input-manager = "0.15.0"
+bevy_framepace = { git = "https://github.com/eero-lehtinen/bevy_framepace", branch = "bevy-15" }
+bevy-inspector-egui = "0.28"
 
 # Workspace Crates
 canvas = { path = "./canvas" }
 error = { path = "./error" }
+input = { path = "./input" }
 ui = { path = "./ui" }
 ui_macros = { path = "./ui_macros" }
 

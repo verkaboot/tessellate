@@ -1,6 +1,5 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
-
-use crate::interaction::OnPress;
+use input::trigger::OnPress;
 
 use super::text::TextValue;
 
@@ -28,16 +27,13 @@ impl Containers for Commands<'_, '_> {
         self.spawn((
             Name::new(format!("UI Root: {root_state:?}")),
             root_state,
-            NodeBundle {
-                style: Style {
-                    width: Percent(100.0),
-                    height: Percent(100.0),
-                    justify_content: JustifyContent::Start,
-                    align_items: AlignItems::Start,
-                    flex_direction: FlexDirection::Column,
-                    position_type: PositionType::Absolute,
-                    ..default()
-                },
+            Node {
+                width: Percent(100.0),
+                height: Percent(100.0),
+                justify_content: JustifyContent::Start,
+                align_items: AlignItems::Start,
+                flex_direction: FlexDirection::Column,
+                position_type: PositionType::Absolute,
                 ..default()
             },
         ))

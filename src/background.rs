@@ -37,21 +37,18 @@ fn checkered_background(
 
     commands.spawn((
         Name::new("BackgroundImage"),
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2 {
-                    x: size.x as f32,
-                    y: size.y as f32,
-                }),
-                ..default()
+        Sprite {
+            custom_size: Some(Vec2 {
+                x: size.x as f32,
+                y: size.y as f32,
+            }),
+            image: image_handle.clone(),
+            image_mode: SpriteImageMode::Tiled {
+                tile_x: true,
+                tile_y: true,
+                stretch_value: 128.0,
             },
-            texture: image_handle.clone(),
             ..default()
-        },
-        ImageScaleMode::Tiled {
-            tile_x: true,
-            tile_y: true,
-            stretch_value: 128.0,
         },
         RenderLayers::from_layers(&[1]),
         BackgroundImage,
@@ -88,12 +85,10 @@ pub struct BackgroundCamera;
 fn background_camera(mut commands: Commands) {
     commands.spawn((
         Name::new("BackgroundCamera"),
-        Camera2dBundle {
-            camera: Camera {
-                order: -1,
-                clear_color: ClearColorConfig::Custom(Color::srgb(0.9, 0.9, 0.9)),
-                ..default()
-            },
+        Camera2d,
+        Camera {
+            order: -1,
+            clear_color: ClearColorConfig::Custom(Color::srgb(0.9, 0.9, 0.9)),
             ..default()
         },
         RenderLayers::from_layers(&[1]),
@@ -104,18 +99,17 @@ fn background_camera(mut commands: Commands) {
 fn on_window_resize(
     mut window_resize_evr: EventReader<WindowResized>,
     windows: Query<&Window>,
-    mut background_q: Query<(Entity, &mut Sprite), With<BackgroundImage>>,
+    mut background_q: Query<&mut Sprite, With<BackgroundImage>>,
     mut images: ResMut<Assets<Image>>,
-    mut commands: Commands,
 ) -> Result<()> {
     for e in window_resize_evr.read() {
         let image = generate_background_image();
         let image_handle = images.add(image);
         let window = windows.get(e.window)?;
         let size: UVec2 = window.physical_size();
-        let (entity, mut sprite) = background_q.get_single_mut()?;
+        let mut sprite = background_q.get_single_mut()?;
         sprite.custom_size = Some(Vec2::new(size.x as f32, size.y as f32));
-        commands.entity(entity).insert(image_handle);
+        sprite.image = image_handle;
     }
 
     Ok(())

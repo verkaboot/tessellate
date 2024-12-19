@@ -31,8 +31,8 @@ impl FromWorld for CanvasPipeline {
                     texture_storage_2d(TextureFormat::Rgba8Unorm, StorageTextureAccess::WriteOnly),
                     uniform_buffer::<u32>(false),
                     storage_buffer_read_only::<MousePositions>(false),
-                    uniform_buffer::<f32>(false), // BrushSize
-                    uniform_buffer::<f32>(false), // BrushHardness
+                    uniform_buffer::<f32>(false),      // BrushSize
+                    uniform_buffer::<f32>(false),      // BrushHardness
                     uniform_buffer::<[f32; 4]>(false), // BrushColor
                     storage_buffer_read_only::<Vec<Vec2>>(false),
                 ),
@@ -47,6 +47,7 @@ impl FromWorld for CanvasPipeline {
             shader: shader.clone(),
             shader_defs: vec![],
             entry_point: Cow::from("init"),
+            zero_initialize_workgroup_memory: false,
         });
 
         let paint_normal_pipeline =
@@ -57,6 +58,7 @@ impl FromWorld for CanvasPipeline {
                 shader: shader.clone(),
                 shader_defs: vec![],
                 entry_point: Cow::from("paint_normal"),
+                zero_initialize_workgroup_memory: false,
             });
 
         let paint_erase_pipeline =
@@ -67,6 +69,7 @@ impl FromWorld for CanvasPipeline {
                 shader,
                 shader_defs: vec![],
                 entry_point: Cow::from("paint_erase"),
+                zero_initialize_workgroup_memory: false,
             });
 
         CanvasPipeline {

@@ -1,8 +1,11 @@
 mod background;
+pub mod button;
 mod camera;
+mod controls;
 mod dev;
+pub mod event;
 mod grid;
-mod input;
+mod paint;
 mod screen;
 mod terrain;
 
@@ -14,13 +17,16 @@ impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         // Workspace Plugins
         app.add_plugins((
-            input::plugin,
+            background::plugin,
+            button::plugin,
             camera::plugin,
             canvas::plugin,
-            background::plugin,
-            ui::plugin,
+            event::plugin,
+            input::plugin,
+            paint::plugin,
             screen::plugin,
             terrain::plugin,
+            ui::plugin,
         ));
 
         #[cfg(feature = "dev")]

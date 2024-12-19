@@ -53,62 +53,50 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     let sprite_image_handle = images.add(sprite_image);
 
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(SIZE.x as f32, SIZE.y as f32, 0.0)),
-            texture: sprite_image_handle.clone(),
+        Sprite {
+            image: sprite_image_handle.clone(),
+            flip_y: true,
+            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
+            anchor: Anchor::BottomLeft,
             ..default()
         },
+        Transform::from_translation(Vec3::new(SIZE.x as f32, SIZE.y as f32, 0.0)),
         CanvasSprite::default(),
     ));
 
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(SIZE.x as f32, 0.0, 0.0)),
-            texture: sprite_image_handle.clone(),
+        Sprite {
+            image: sprite_image_handle.clone(),
+            flip_y: true,
+            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
+            anchor: Anchor::BottomLeft,
             ..default()
         },
+        Transform::from_translation(Vec3::new(SIZE.x as f32, 0.0, 0.0)),
         CanvasSprite::default(),
     ));
 
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                flip_y: true,
-                custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(0.0, SIZE.y as f32, 0.0)),
-            texture: sprite_image_handle.clone(),
+        Sprite {
+            image: sprite_image_handle.clone(),
+            flip_y: true,
+            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
+            anchor: Anchor::BottomLeft,
             ..default()
         },
+        Transform::from_translation(Vec3::new(0.0, SIZE.y as f32, 0.0)),
         CanvasSprite::default(),
     ));
 
     commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                flip_y: true,
-                custom_size: Some(SIZE.as_vec2()),
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            transform: Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-            texture: sprite_image_handle.clone(),
+        Sprite {
+            image: sprite_image_handle.clone(),
+            flip_y: true,
+            custom_size: Some(SIZE.as_vec2()),
+            anchor: Anchor::BottomLeft,
             ..default()
         },
+        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
         CanvasSprite::default(),
     ));
 
