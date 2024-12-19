@@ -6,11 +6,14 @@ use error::Result;
 use crate::event::{PanCamera, ZoomCamera};
 
 const CAMERA_ZOOM_RATE: f32 = -0.005;
+const MIN_ZOOM: f32 = 1. / 16.;
+const MAX_ZOOM: f32 = 16.0;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Startup, setup);
     app.add_systems(Update, pan.map(utils::warn));
     app.add_systems(Update, zoom.map(utils::warn));
+    app.add_systems(Update, zoom_scroll.map(utils::warn));
 }
 
 #[derive(Component)]
@@ -50,9 +53,6 @@ pub fn zoom(
     }
     Ok(())
 }
-
-const MIN_ZOOM: f32 = 1. / 16.;
-const MAX_ZOOM: f32 = 8.0;
 
 fn zoom_scroll(
     mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
