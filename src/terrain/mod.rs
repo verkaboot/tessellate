@@ -19,14 +19,15 @@ pub(super) fn plugin(app: &mut App) {
 
     app.add_systems(
         Update,
-        draw.map(utils::warn).run_if(on_event::<event::DrawTerrain>),
+        draw.map(utils::warn)
+            .run_if(on_event::<event::terrain::Draw>),
     );
 
     app.add_systems(
         Update,
         erase
             .map(utils::warn)
-            .run_if(on_event::<event::EraseTerrain>),
+            .run_if(on_event::<event::terrain::Erase>),
     );
 }
 

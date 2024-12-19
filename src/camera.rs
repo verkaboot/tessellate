@@ -3,7 +3,7 @@ use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 use canvas::SIZE;
 use error::Result;
 
-use crate::event::{PanCamera, ZoomCamera};
+use crate::event;
 
 const CAMERA_ZOOM_RATE: f32 = -0.005;
 const MIN_ZOOM: f32 = 1. / 16.;
@@ -30,11 +30,11 @@ pub fn setup(mut commands: Commands) {
 }
 
 pub fn pan(
-    mut event: EventReader<PanCamera>,
+    mut event: EventReader<event::camera::Pan>,
     mut camera_q: Query<(&mut Transform, &OrthographicProjection), With<MainCamera>>,
 ) -> Result<()> {
     let (mut camera_transform, camera_projection) = camera_q.get_single_mut()?;
-    for PanCamera { delta } in event.read() {
+    for event::camera::Pan { delta } in event.read() {
         camera_transform.translation.x -= camera_projection.scale * delta.x;
         camera_transform.translation.y -= camera_projection.scale * -delta.y;
     }
@@ -43,11 +43,11 @@ pub fn pan(
 }
 
 pub fn zoom(
-    mut event: EventReader<ZoomCamera>,
+    mut event: EventReader<event::camera::Zoom>,
     mut query: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) -> Result<()> {
     let mut camera_projection = query.get_single_mut()?;
-    for ZoomCamera { delta } in event.read() {
+    for event::camera::Zoom { delta } in event.read() {
         camera_projection.scale = (camera_projection.scale * (1.0 - (delta.y * CAMERA_ZOOM_RATE)))
             .clamp(MIN_ZOOM, MAX_ZOOM);
     }

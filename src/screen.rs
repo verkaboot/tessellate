@@ -85,8 +85,8 @@ pub fn setup(
             row.canvas()
                 .observe(paint::activate_tool)
                 .observe(paint::stop_tool)
-                .observe(event::pan_camera)
-                .observe(event::zoom_camera);
+                .observe(event::camera::pan)
+                .observe(event::camera::zoom);
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
                     side_bar_right
@@ -107,10 +107,10 @@ pub fn setup(
         root.flex_row().with_children(|row| {
             row.panel(PanelDirection::Tall);
             row.canvas()
-                .observe(event::draw_terrain)
-                .observe(event::erase_terrain)
-                .observe(event::pan_camera)
-                .observe(event::zoom_camera);
+                .observe(event::terrain::draw)
+                .observe(event::terrain::erase)
+                .observe(event::camera::pan)
+                .observe(event::camera::zoom);
 
             row.panel(PanelDirection::Tall)
                 .with_children(|side_bar_right| {
