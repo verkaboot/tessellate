@@ -7,6 +7,8 @@ use bevy::{
     sprite::Anchor,
 };
 
+use grid::Grid;
+
 use super::SIZE;
 
 pub(super) fn plugin(app: &mut App) {
@@ -88,17 +90,19 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         CanvasSprite::default(),
     ));
 
-    commands.spawn((
-        Sprite {
-            image: sprite_image_handle.clone(),
-            flip_y: true,
-            custom_size: Some(SIZE.as_vec2()),
-            anchor: Anchor::BottomLeft,
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
-        CanvasSprite::default(),
-    ));
+    commands
+        .spawn((
+            Sprite {
+                image: sprite_image_handle.clone(),
+                flip_y: true,
+                custom_size: Some(SIZE.as_vec2()),
+                anchor: Anchor::BottomLeft,
+                ..default()
+            },
+            Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            CanvasSprite::default(),
+        ))
+        .with_child((Text2d::new("Sprite")));
 
     commands.insert_resource(CanvasImages {
         layered_texture: layered_texture_handle,
@@ -107,6 +111,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     });
 }
 
+// GPU data for sprite transform
 #[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default, Reflect)]
 pub struct CanvasSprite(pub Vec2);
 
@@ -116,4 +121,8 @@ fn update_canvas_sprite(
     for (mut canvas_sprite, global_transform) in &mut canvas_sprite_q {
         *canvas_sprite = CanvasSprite(global_transform.translation().xy());
     }
+}
+
+fn match_sprites_to_grid(grid: Res<Grid>) {
+    if grid.is_changed() {}
 }

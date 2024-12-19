@@ -4,7 +4,6 @@ mod camera;
 mod controls;
 mod dev;
 pub mod event;
-mod grid;
 mod paint;
 mod screen;
 mod terrain;

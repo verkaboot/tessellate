@@ -1,14 +1,12 @@
 use bevy::{prelude::*, utils};
+
 use canvas::{tool::ToolData, SIZE};
+use error::Result;
+use grid::{Grid, GridCoord, GridSettings};
 use ui::widget::prelude::SelectList;
 use ui_macros::SelectList;
 
-use error::Result;
-
-use crate::{
-    event,
-    grid::{Grid, GridCoord, GridSettings},
-};
+use crate::event;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(GridSettings {
@@ -55,7 +53,7 @@ impl Default for TerrainType {
     fn default() -> Self {
         TerrainType {
             label: "Default".to_owned(),
-            color: Color::srgba(0.5, 0.7, 0.8, 0.7),
+            color: Color::srgba(0.0, 0.0, 0.0, 1.0),
         }
     }
 }
@@ -93,7 +91,7 @@ pub fn draw(
                 anchor: bevy::sprite::Anchor::BottomLeft,
                 ..default()
             },
-            Transform::from_xyz(cell_pos.x, cell_pos.y, 0.0),
+            Transform::from_xyz(cell_pos.x, cell_pos.y, -1.0),
             coord,
             terrain_type.clone(),
         ))

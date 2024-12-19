@@ -1,10 +1,9 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
-use crate::{
-    grid::{GridCoord, GridSettings},
-    terrain::{TerrainList, TerrainType},
-};
+use grid::{GridCoord, GridSettings};
+
+use crate::terrain::{TerrainList, TerrainType};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins(WorldInspectorPlugin::new());
