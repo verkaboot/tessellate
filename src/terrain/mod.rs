@@ -9,11 +9,10 @@ use ui_macros::SelectList;
 use crate::event;
 
 pub(super) fn plugin(app: &mut App) {
-    app.insert_resource(GridSettings {
-        cell_size: UVec2::new(SIZE.x, SIZE.y),
-    });
     app.insert_resource(TerrainList::new(TerrainType::default()));
-    app.init_resource::<Grid>();
+    app.insert_resource(Grid::new(GridSettings {
+        cell_size: UVec2::new(SIZE.x, SIZE.y),
+    }));
 
     app.add_systems(
         Update,
@@ -60,14 +59,13 @@ impl Default for TerrainType {
 
 pub fn draw(
     tool_data: Res<ToolData>,
-    grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
     terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
 ) -> Result<()> {
-    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
-    let cell_pos = coord.to_world_pos(*grid_settings);
+    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
+    let cell_pos = coord.to_world_pos(grid.settings);
     let terrain_type = terrain_list.get_selected();
 
     if let Some(&old_cell) = (*grid).get(&coord) {
@@ -105,11 +103,10 @@ pub fn draw(
 
 pub fn erase(
     tool_data: Res<ToolData>,
-    grid_settings: Res<GridSettings>,
     mut grid: ResMut<Grid>,
     mut commands: Commands,
 ) -> Result<()> {
-    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], *grid_settings);
+    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
 
     if let Some(cell_entity) = grid.remove(&coord) {
         commands.entity(cell_entity).despawn_recursive();

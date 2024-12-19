@@ -102,7 +102,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
             Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
             CanvasSprite::default(),
         ))
-        .with_child((Text2d::new("Sprite")));
+        .with_child(Text2d::new("Sprite"));
 
     commands.insert_resource(CanvasImages {
         layered_texture: layered_texture_handle,

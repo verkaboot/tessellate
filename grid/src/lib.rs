@@ -1,14 +1,26 @@
 use bevy::{prelude::*, utils::HashMap};
 
-#[derive(Reflect, Resource, Debug, Copy, Clone)]
-#[reflect(Resource)]
+#[derive(Reflect, Debug, Copy, Clone)]
 pub struct GridSettings {
     pub cell_size: UVec2,
 }
 
-#[derive(Reflect, Default, Resource, Debug, Clone, Deref, DerefMut)]
+#[derive(Reflect, Resource, Debug, Clone, Deref, DerefMut)]
 #[reflect(Resource)]
-pub struct Grid(HashMap<GridCoord, Entity>);
+pub struct Grid {
+    #[deref]
+    cells: HashMap<GridCoord, Entity>,
+    pub settings: GridSettings,
+}
+
+impl Grid {
+    pub fn new(settings: GridSettings) -> Self {
+        Grid {
+            cells: HashMap::new(),
+            settings,
+        }
+    }
+}
 
 #[derive(Reflect, Component, Hash, Debug, PartialEq, Eq, Clone, Copy, DerefMut, Deref)]
 #[reflect(Component)]
