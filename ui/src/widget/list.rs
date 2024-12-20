@@ -8,7 +8,7 @@ pub trait ListWidget {
 
 impl<T: Spawn> ListWidget for T {
     fn list(&mut self) -> EntityCommands {
-        self.ui_spawn((
+        self.spawn_((
             Name::new("List"),
             Node {
                 width: Percent(100.0),
