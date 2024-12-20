@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use super::Spawn;
+use spawn::Spawn;
 
 pub trait ListWidget {
     fn list(&mut self) -> EntityCommands;

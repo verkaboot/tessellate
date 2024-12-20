@@ -1,7 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
+use spawn::Spawn;
+
 use crate::theme::*;
-use crate::widget::Spawn;
 
 pub trait PanelWidget {
     fn panel(&mut self, direction: PanelDirection) -> EntityCommands;

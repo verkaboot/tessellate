@@ -3,8 +3,6 @@ use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*, utils};
 use crate::interaction::{OnResourceUpdated, WatchResource};
 use error::Result;
 
-use super::Spawn;
-
 pub trait ListWidget {
     fn select_list<L: SelectList + Resource>(&mut self) -> EntityCommands;
 }

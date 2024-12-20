@@ -3,8 +3,7 @@ use bevy::{
     prelude::*,
     ui::{RelativeCursorPosition, Val::*},
 };
-
-use super::Spawn;
+use spawn::Spawn;
 
 pub trait CanvasWidget {
     fn canvas(&mut self) -> EntityCommands;

@@ -4,8 +4,8 @@ use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 use input::trigger::{Drag, OnPress, OnResourceUpdated, OnUiNodeSizeChange, WatchResource};
 
 use crate::theme::*;
-use crate::widget::Spawn;
 use error::Result;
+use spawn::Spawn;
 
 pub const PHI: f32 = 1.618;
 pub const KNOB_HEIGHT: f32 = 14.0;

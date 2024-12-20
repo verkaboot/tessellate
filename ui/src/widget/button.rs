@@ -1,9 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 use input::interaction::InteractionPalette;
+use spawn::Spawn;
 
 use crate::theme::BUTTON_BACKGROUND;
-
-use super::Spawn;
 
 pub trait ButtonWidget {
     fn button(&mut self) -> EntityCommands;

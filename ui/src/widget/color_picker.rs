@@ -4,8 +4,7 @@ use bevy::{
     render::render_resource::{AsBindGroup, ShaderRef},
     ui::Val::*,
 };
-
-use super::Spawn;
+use spawn::Spawn;
 
 pub trait ColorPickerWidget {
     fn color_picker(

@@ -1,8 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*};
 
 use input::trigger::{OnResourceUpdated, WatchResource};
+use spawn::Spawn;
 
-use super::Spawn;
 use crate::theme::{self};
 
 pub trait TextValue: Resource + Copy + Clone + std::fmt::Debug + std::fmt::Display {}

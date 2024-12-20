@@ -1,7 +1,8 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
+use spawn::Spawn;
+
 use crate::theme::*;
-use crate::widget::Spawn;
 
 pub trait InsetPanelWidget {
     fn inset_panel(&mut self) -> EntityCommands;

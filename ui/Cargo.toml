@@ -8,4 +8,5 @@ bevy = { version = "0.15" }
 
 error = { path = "../error" }
 input = { path = "../input" }
+spawn = { path = "../spawn" }
 ui_macros = { path = "../ui_macros" }

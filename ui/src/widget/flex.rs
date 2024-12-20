@@ -1,6 +1,6 @@
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
-use super::Spawn;
+use spawn::Spawn;
 
 pub trait FlexWidget {
     fn flex_row(&mut self) -> EntityCommands;

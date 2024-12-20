@@ -1,5 +1,15 @@
 [workspace]
-members = [".", "ui", "ui_macros", "canvas", "error", "input", "grid", "event"]
+members = [
+  ".",
+  "canvas",
+  "error",
+  "event",
+  "grid",
+  "input",
+  "spawn",
+  "ui",
+  "ui_macros",
+]
 
 [package]
 name = "tessellate"
@@ -29,6 +39,7 @@ error = { path = "./error" }
 event = { path = "./event" }
 grid = { path = "./grid" }
 input = { path = "./input" }
+spawn = { path = "./spawn" }
 ui = { path = "./ui" }
 ui_macros = { path = "./ui_macros" }
 
