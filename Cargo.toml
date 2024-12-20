@@ -1,6 +1,5 @@
 [workspace]
-members = [".", 
-"ui", "ui_macros", "canvas", "error", "input", "grid", "event"]
+members = [".", "ui", "ui_macros", "canvas", "error", "input", "grid", "event"]
 
 [package]
 name = "tessellate"

@@ -13,7 +13,7 @@ use canvas::{
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(PreStartup, setup)
-        .add_systems(Update, update_canvas_sprite);
+        .add_systems(Update, update_sprite_position_for_gpu);
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
@@ -104,7 +104,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     });
 }
 
-fn update_canvas_sprite(
+fn update_sprite_position_for_gpu(
     mut canvas_sprite_q: Query<(&mut CanvasSprite, &GlobalTransform), Changed<GlobalTransform>>,
 ) {
     for (mut canvas_sprite, global_transform) in &mut canvas_sprite_q {
@@ -112,9 +112,11 @@ fn update_canvas_sprite(
     }
 }
 
-pub struct SpriteCell;
+pub struct ArtTile {
+    image: Handle<Image>,
+}
 
-fn match_sprites_to_grid(event: EventReader<event::terrain::Updated>, grid: Res<Grid<SpriteCell>>) {
+fn match_sprites_to_grid(event: EventReader<event::terrain::Updated>, grid: Res<Grid<ArtTile>>) {
     if grid.is_changed() {}
 }
 

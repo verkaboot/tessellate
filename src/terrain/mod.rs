@@ -8,7 +8,7 @@ use ui_macros::SelectList;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(TerrainList::new(TerrainType::default()));
-    app.insert_resource(Grid::<TerrainCell>::new(GridSettings {
+    app.insert_resource(Grid::<TerrainTile>::new(GridSettings {
         cell_size: SIZE,
         offset: SIZE.as_vec2() / 2.0,
     }));
@@ -27,7 +27,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub struct TerrainCell;
+pub struct TerrainTile;
 
 #[derive(Reflect, Component, Clone)]
 #[reflect(Component)]
@@ -60,7 +60,7 @@ impl Default for TerrainType {
 
 pub fn draw(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid<TerrainCell>>,
+    mut grid: ResMut<Grid<TerrainTile>>,
     terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
@@ -107,7 +107,7 @@ pub fn draw(
 
 pub fn erase(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid<TerrainCell>>,
+    mut grid: ResMut<Grid<TerrainTile>>,
     mut commands: Commands,
     mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
