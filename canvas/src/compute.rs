@@ -1,11 +1,13 @@
-use crate::{brush::BrushHardness, sprite::CanvasSprite};
+use crate::{
+    bind_groups::{CanvasImages, CanvasSprite},
+    brush::BrushHardness,
+};
 
 use super::{
     bind_groups::{self},
     brush::{BrushColor, BrushSize},
     pipeline::CanvasPipeline,
     render_node::CanvasNode,
-    sprite::CanvasImages,
     tool::ToolData,
 };
 use bevy::{

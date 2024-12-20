@@ -1,26 +1,19 @@
 use bevy::{
     prelude::*,
-    render::{
-        extract_component::ExtractComponent, extract_resource::ExtractResource,
-        render_asset::RenderAssetUsages, render_resource::*,
-    },
+    render::{render_asset::RenderAssetUsages, render_resource::*},
     sprite::Anchor,
 };
 
 use grid::Grid;
 
-use super::SIZE;
+use canvas::{
+    bind_groups::{CanvasImages, CanvasSprite},
+    SIZE,
+};
 
 pub(super) fn plugin(app: &mut App) {
-    app.register_type::<CanvasSprite>()
+    app.add_systems(PreStartup, setup)
         .add_systems(Update, update_canvas_sprite);
-}
-
-#[derive(Resource, Clone, ExtractResource)]
-pub struct CanvasImages {
-    pub layered_texture: Handle<Image>,
-    pub sprite_image: Handle<Image>,
-    pub active_layer: u32,
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
@@ -111,10 +104,6 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     });
 }
 
-// GPU data for sprite transform
-#[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default, Reflect)]
-pub struct CanvasSprite(pub Vec2);
-
 fn update_canvas_sprite(
     mut canvas_sprite_q: Query<(&mut CanvasSprite, &GlobalTransform), Changed<GlobalTransform>>,
 ) {
@@ -125,6 +114,9 @@ fn update_canvas_sprite(
 
 pub struct SpriteCell;
 
-fn match_sprites_to_grid(grid: Res<Grid<SpriteCell>>) {
+fn match_sprites_to_grid(event: EventReader<event::terrain::Updated>, grid: Res<Grid<SpriteCell>>) {
     if grid.is_changed() {}
 }
+
+// Add an event for when terrain is created or removed,
+// then read that event to make changes to the canvas sprites.

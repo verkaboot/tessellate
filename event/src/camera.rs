@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::controls;
-
 #[derive(Event)]
 pub struct Pan {
     pub delta: Vec2,
@@ -12,8 +10,7 @@ pub fn pan(
     mut msg: EventWriter<Pan>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
-    if trigger.button == controls::camera::POINTER_BUTTON && !input.pressed(controls::camera::ZOOM)
-    {
+    if trigger.button == input::camera::POINTER_BUTTON && !input.pressed(input::camera::ZOOM) {
         msg.send(Pan {
             delta: trigger.delta,
         });
@@ -30,7 +27,7 @@ pub fn zoom(
     mut msg: EventWriter<Zoom>,
     input: Res<ButtonInput<KeyCode>>,
 ) {
-    if trigger.button == controls::camera::POINTER_BUTTON && input.pressed(controls::camera::ZOOM) {
+    if trigger.button == input::camera::POINTER_BUTTON && input.pressed(input::camera::ZOOM) {
         msg.send(Zoom {
             delta: trigger.delta,
         });

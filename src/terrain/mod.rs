@@ -6,8 +6,6 @@ use grid::{Grid, GridCoord, GridSettings};
 use ui::widget::prelude::SelectList;
 use ui_macros::SelectList;
 
-use crate::event;
-
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(TerrainList::new(TerrainType::default()));
     app.insert_resource(Grid::<TerrainCell>::new(GridSettings {
@@ -66,6 +64,7 @@ pub fn draw(
     terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
+    mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
     let cell_pos = coord.to_world_pos(grid.settings);
@@ -101,6 +100,8 @@ pub fn draw(
     // Add the new cell to the hashmap for easy grid lookup
     grid.insert(coord, entity);
 
+    event.send(event::terrain::Updated { coord });
+
     Ok(())
 }
 
@@ -108,12 +109,15 @@ pub fn erase(
     tool_data: Res<ToolData>,
     mut grid: ResMut<Grid<TerrainCell>>,
     mut commands: Commands,
+    mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
     let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
 
     if let Some(cell_entity) = grid.remove(&coord) {
         commands.entity(cell_entity).despawn_recursive();
     }
+
+    event.send(event::terrain::Updated { coord });
 
     Ok(())
 }

@@ -2157,6 +2157,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "event"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "canvas",
+ "grid 0.1.0",
+ "input",
+]
+
+[[package]]
 name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4437,6 +4447,7 @@ dependencies = [
  "bevy_framepace",
  "canvas",
  "error",
+ "event",
  "grid 0.1.0",
  "input",
  "log",

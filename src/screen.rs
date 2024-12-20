@@ -6,8 +6,6 @@ use ui::icon::Icon;
 use ui::widget::color_picker::{ColorPickerWidget, HsvBoxMaterial, HueWheelMaterial};
 use ui::widget::prelude::*;
 
-use crate::event;
-
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         Update,

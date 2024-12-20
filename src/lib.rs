@@ -1,9 +1,8 @@
+mod art_tile;
 mod background;
 pub mod button;
 mod camera;
-mod controls;
 mod dev;
-pub mod event;
 mod paint;
 mod screen;
 mod terrain;
@@ -16,6 +15,7 @@ impl Plugin for AppPlugin {
     fn build(&self, app: &mut App) {
         // Workspace Plugins
         app.add_plugins((
+            art_tile::plugin,
             background::plugin,
             button::plugin,
             camera::plugin,

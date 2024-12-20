@@ -1,5 +1,6 @@
 [workspace]
-members = [".", "ui", "ui_macros", "canvas", "error", "input", "grid"]
+members = [".", 
+"ui", "ui_macros", "canvas", "error", "input", "grid", "event"]
 
 [package]
 name = "tessellate"
@@ -26,6 +27,7 @@ bevy-inspector-egui = "0.28"
 # Workspace Crates
 canvas = { path = "./canvas" }
 error = { path = "./error" }
+event = { path = "./event" }
 grid = { path = "./grid" }
 input = { path = "./input" }
 ui = { path = "./ui" }

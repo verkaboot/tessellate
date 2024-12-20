@@ -3,8 +3,6 @@ use bevy::{input::mouse::MouseWheel, prelude::*, utils};
 use canvas::SIZE;
 use error::Result;
 
-use crate::event;
-
 const CAMERA_ZOOM_RATE: f32 = -0.005;
 const MIN_ZOOM: f32 = 1. / 16.;
 const MAX_ZOOM: f32 = 16.0;

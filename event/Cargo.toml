@@ -1,12 +1,11 @@
 [package]
-name = "canvas"
+name = "event"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 bevy = { version = "0.15" }
-bytemuck = "1.17.1"
 
-error = { path = "../error" }
 grid = { path = "../grid" }
-ui = { path = "../ui" }
+input = { path = "../input" }
+canvas = { path = "../canvas" }

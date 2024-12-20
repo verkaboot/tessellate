@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use canvas::tool::ToolData;
 
-use crate::event;
-
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, tool);
     app.add_systems(Update, tool_stop);

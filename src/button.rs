@@ -1,7 +1,5 @@
 use bevy::prelude::*;
-use canvas::{brush::BrushColor, sprite::CanvasImages, tool::ToolData};
-
-use crate::event;
+use canvas::{bind_groups::CanvasImages, brush::BrushColor, tool::ToolData};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, set_brush);

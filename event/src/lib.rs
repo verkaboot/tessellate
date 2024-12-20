@@ -5,7 +5,7 @@ pub mod terrain;
 
 use bevy::prelude::*;
 
-pub(super) fn plugin(app: &mut App) {
+pub fn plugin(app: &mut App) {
     app.add_event::<camera::Pan>();
     app.add_event::<camera::Zoom>();
     app.add_event::<button::SetBrush>();
@@ -15,4 +15,5 @@ pub(super) fn plugin(app: &mut App) {
     app.add_event::<paint::StopTool>();
     app.add_event::<terrain::Draw>();
     app.add_event::<terrain::Erase>();
+    app.add_event::<terrain::Updated>();
 }

@@ -1,17 +1,26 @@
-use crate::sprite::CanvasSprite;
-
 use super::{
     brush::{BrushColor, BrushHardness, BrushSize},
     pipeline::CanvasPipeline,
-    sprite::CanvasImages,
     tool::ToolData,
 };
 use bevy::{
     prelude::*,
     render::{
+        extract_component::ExtractComponent, extract_resource::ExtractResource,
         render_asset::RenderAssets, render_resource::*, renderer::RenderDevice, texture::GpuImage,
     },
 };
+
+// GPU data for sprite transform
+#[derive(Component, ExtractComponent, DerefMut, Deref, Clone, Copy, Debug, Default, Reflect)]
+pub struct CanvasSprite(pub Vec2);
+
+#[derive(Resource, Clone, ExtractResource)]
+pub struct CanvasImages {
+    pub layered_texture: Handle<Image>,
+    pub sprite_image: Handle<Image>,
+    pub active_layer: u32,
+}
 
 #[derive(Resource)]
 pub struct CanvasImageBindGroups {
