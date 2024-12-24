@@ -33,7 +33,7 @@ impl<T: Spawn> SliderWidget for T {
         min_value: f32,
         max_value: f32,
     ) -> EntityCommands {
-        let mut entity = self.spawn_((
+        let mut entity = self.custom_spawn((
             Name::new("Slider"),
             Node {
                 flex_direction: FlexDirection::Column,

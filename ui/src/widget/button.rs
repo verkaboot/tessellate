@@ -10,7 +10,7 @@ pub trait ButtonWidget {
 
 impl<T: Spawn> ButtonWidget for T {
     fn button(&mut self) -> EntityCommands {
-        self.spawn_((
+        self.custom_spawn((
             Name::new("ButtonParent"),
             Button,
             Node {

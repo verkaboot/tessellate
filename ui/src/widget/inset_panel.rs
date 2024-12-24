@@ -10,7 +10,7 @@ pub trait InsetPanelWidget {
 
 impl<T: Spawn> InsetPanelWidget for T {
     fn inset_panel(&mut self) -> EntityCommands {
-        self.spawn_((
+        self.custom_spawn((
             Name::new("Panel"),
             Node {
                 width: Percent(100.0),

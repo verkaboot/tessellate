@@ -13,7 +13,7 @@ pub trait TextWidget {
 
 impl<T: Spawn> TextWidget for T {
     fn text<V: TextValue>(&mut self) -> EntityCommands {
-        let mut entity = self.spawn_((
+        let mut entity = self.custom_spawn((
             Name::new("Text"),
             Text("-".into()),
             TextFont {

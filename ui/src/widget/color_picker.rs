@@ -20,7 +20,7 @@ impl<T: Spawn> ColorPickerWidget for T {
         mut hue_wheel_material: ResMut<Assets<HueWheelMaterial>>,
         mut hsv_box_material: ResMut<Assets<HsvBoxMaterial>>,
     ) -> EntityCommands {
-        let mut entity = self.spawn_((
+        let mut entity = self.custom_spawn((
             Name::new("ColorPicker Parent"),
             Node {
                 width: Px(300.0),
