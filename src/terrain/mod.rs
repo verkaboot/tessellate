@@ -115,9 +115,8 @@ pub fn erase(
 
     if let Some(cell_entity) = grid.remove(&coord) {
         commands.entity(cell_entity).despawn_recursive();
+        event.send(event::terrain::Updated { coord });
     }
-
-    event.send(event::terrain::Updated { coord });
 
     Ok(())
 }

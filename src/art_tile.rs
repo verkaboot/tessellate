@@ -4,7 +4,7 @@ use bevy::{
     sprite::Anchor,
 };
 
-use grid::Grid;
+use grid::{Grid, GridSettings};
 
 use canvas::{
     bind_groups::{CanvasImages, CanvasSprite},
@@ -12,8 +12,14 @@ use canvas::{
 };
 
 pub(super) fn plugin(app: &mut App) {
+    app.insert_resource(Grid::<ArtTile>::new(GridSettings {
+        cell_size: SIZE,
+        offset: SIZE.as_vec2() / 2.0,
+    }));
+
     app.add_systems(PreStartup, setup)
-        .add_systems(Update, update_sprite_position_for_gpu);
+        .add_systems(Update, update_sprite_position_for_gpu)
+        .add_systems(Update, match_sprites_to_grid);
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
@@ -116,8 +122,13 @@ pub struct ArtTile {
     image: Handle<Image>,
 }
 
-fn match_sprites_to_grid(event: EventReader<event::terrain::Updated>, grid: Res<Grid<ArtTile>>) {
-    if grid.is_changed() {}
+fn match_sprites_to_grid(
+    mut event: EventReader<event::terrain::Updated>,
+    grid: Res<Grid<ArtTile>>,
+) {
+    for event in event.read() {
+        println!("{:?}", event.coord);
+    }
 }
 
 // Add an event for when terrain is created or removed,
