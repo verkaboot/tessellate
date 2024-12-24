@@ -1,5 +1,5 @@
 @group(0) @binding(0) var input: texture_storage_2d_array<rgba8unorm, read_write>;
-@group(0) @binding(1) var sprite_image: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(1) var composite_view: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(2) var<uniform> active_layer: u32;
 @group(0) @binding(3) var<storage> mouse_positions: array<vec2<f32>, 4>;
 @group(0) @binding(4) var<uniform> brush_size: f32;
@@ -37,7 +37,7 @@ fn paint_normal(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     }
 
     // Draw composite layers
-    textureStore(sprite_image, location, composite_layers(location));
+    textureStore(composite_view, location, composite_layers(location));
 }
 
 @compute @workgroup_size(8, 8, 1)
@@ -66,7 +66,7 @@ fn paint_erase(@builtin(global_invocation_id) invocation_id: vec3<u32>) {
     }
 
     // Draw composite layers
-    textureStore(sprite_image, location, composite_layers(location));
+    textureStore(composite_view, location, composite_layers(location));
 
 }
 

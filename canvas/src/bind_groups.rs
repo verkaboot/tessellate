@@ -17,8 +17,11 @@ pub struct CanvasSprite(pub Vec2);
 
 #[derive(Resource, Clone, ExtractResource)]
 pub struct CanvasImages {
+    // The layered information used on the GPU for drawing. This is not displayed directly,
+    // but instead is composited into sprite_image.
     pub layered_texture: Handle<Image>,
-    pub sprite_image: Handle<Image>,
+    // The composite image that is displayed to the user.
+    pub composite_view: Handle<Image>,
     pub active_layer: u32,
 }
 
@@ -40,7 +43,7 @@ pub fn prepare(
     canvas_sprite_q: Query<&CanvasSprite>,
 ) {
     let layered_texture = gpu_images.get(&canvas_images.layered_texture).unwrap();
-    let sprite_image = gpu_images.get(&canvas_images.sprite_image).unwrap();
+    let composite_view = gpu_images.get(&canvas_images.composite_view).unwrap();
 
     let active_layer_buffer = render_device.create_buffer_with_data(&BufferInitDescriptor {
         label: None,
@@ -118,7 +121,7 @@ pub fn prepare(
         &pipeline.texture_bind_group_layout,
         &BindGroupEntries::sequential((
             &layered_texture.texture_view,
-            &sprite_image.texture_view,
+            &composite_view.texture_view,
             active_layer_binding,
             mouse_pos_binding,
             brush_size_binding,

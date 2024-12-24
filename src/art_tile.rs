@@ -53,42 +53,6 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
     let sprite_image_handle = images.add(sprite_image);
 
-    commands.spawn((
-        Sprite {
-            image: sprite_image_handle.clone(),
-            flip_y: true,
-            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-            anchor: Anchor::BottomLeft,
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(SIZE.x as f32, SIZE.y as f32, 0.0)),
-        CanvasSprite::default(),
-    ));
-
-    commands.spawn((
-        Sprite {
-            image: sprite_image_handle.clone(),
-            flip_y: true,
-            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-            anchor: Anchor::BottomLeft,
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(SIZE.x as f32, 0.0, 0.0)),
-        CanvasSprite::default(),
-    ));
-
-    commands.spawn((
-        Sprite {
-            image: sprite_image_handle.clone(),
-            flip_y: true,
-            custom_size: Some(Vec2::new(SIZE.x as f32, SIZE.y as f32)),
-            anchor: Anchor::BottomLeft,
-            ..default()
-        },
-        Transform::from_translation(Vec3::new(0.0, SIZE.y as f32, 0.0)),
-        CanvasSprite::default(),
-    ));
-
     commands
         .spawn((
             Sprite {
@@ -105,7 +69,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
 
     commands.insert_resource(CanvasImages {
         layered_texture: layered_texture_handle,
-        sprite_image: sprite_image_handle,
+        composite_view: sprite_image_handle,
         active_layer: 0,
     });
 }
