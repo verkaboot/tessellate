@@ -104,6 +104,11 @@ fn match_sprites_to_grid(
                 None => "".to_owned(),
             });
             println!("{}: {:?}", tile_coord, debug_data);
+            if let Some(data) = art_grid.get(&tile_coord) {
+                if let Some(entity_commands) = commands.get_entity(data.entity) {
+                    entity_commands.despawn_recursive();
+                }
+            }
             if terrain_data.iter().any(|cell| cell.is_some()) {
                 let entity = commands
                     .spawn((
@@ -130,12 +135,6 @@ fn match_sprites_to_grid(
                     ))
                     .id();
                 art_grid.insert(tile_coord, entity, ArtTile);
-            } else {
-                if let Some(data) = art_grid.get(&tile_coord) {
-                    if let Some(entity_commands) = commands.get_entity(data.entity) {
-                        entity_commands.despawn_recursive();
-                    }
-                }
             }
         }
     }

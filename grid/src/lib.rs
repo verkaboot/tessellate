@@ -5,7 +5,7 @@ use bevy::{prelude::*, utils::HashMap};
 #[derive(Reflect, Resource, Debug, Clone)]
 #[reflect(Resource)]
 pub struct Grid<T> {
-    cells: HashMap<GridCoord, GridData<T>>,
+    pub cells: HashMap<GridCoord, GridData<T>>,
     pub settings: GridSettings,
     phantom_data: PhantomData<T>,
 }
