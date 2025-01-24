@@ -14,7 +14,7 @@ use canvas::{
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(Grid::<ArtTile>::new(GridSettings {
         cell_size: SIZE,
-        offset: SIZE.as_vec2() / 2.0,
+        offset: SIZE.as_vec2(),
     }));
 
     app.add_systems(PreStartup, setup_canvas_textures)
@@ -53,6 +53,7 @@ pub fn setup_canvas_textures(mut commands: Commands, mut images: ResMut<Assets<I
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
     let composite_view_handle = images.add(composite_image);
 
+    // TODO: The app crashes without an initial sprite. Figure out a way to prevent that.
     commands
         .spawn((
             Sprite {
@@ -62,7 +63,7 @@ pub fn setup_canvas_textures(mut commands: Commands, mut images: ResMut<Assets<I
                 anchor: Anchor::BottomLeft,
                 ..default()
             },
-            Transform::from_translation(Vec3::new(0.0, 0.0, 0.0)),
+            Transform::from_translation(Vec3::new(-100000.0, 0.0, 0.0)),
             CanvasSprite::default(),
         ))
         .with_child(Text2d::new("Sprite"));
@@ -93,33 +94,38 @@ fn match_sprites_to_grid(
     canvas_image: Res<CanvasImage>,
 ) {
     for event in event.read() {
-        println!("{:?}", event);
-        match event {
-            event::terrain::Updated::Added { coord } => {
-                let entity = commands
-                    .spawn((
-                        Sprite {
-                            image: canvas_image.composite_view.clone(),
-                            flip_y: true,
-                            custom_size: Some(SIZE.as_vec2()),
-                            anchor: Anchor::BottomLeft,
-                            ..default()
-                        },
-                        Transform::from_translation(coord.to_world_pos(grid.settings).extend(0.0)),
-                        CanvasSprite::default(),
-                    ))
-                    .with_child(Text2d::new("Sprite"))
-                    .id();
-                grid.insert(*coord, entity);
-            }
-            event::terrain::Updated::Removed { coord } => {
-                if let Some(entity) = grid.get(coord) {
-                    if let Some(entity_commands) = commands.get_entity(*entity) {
-                        entity_commands.despawn_recursive();
-                    }
-                }
-            }
+        let affected_tiles = event.terrain_coord.corners();
+        for coord in affected_tiles {
+            let entity = commands
+                .spawn((
+                    Sprite {
+                        image: canvas_image.composite_view.clone(),
+                        flip_y: true,
+                        custom_size: Some(SIZE.as_vec2()),
+                        anchor: Anchor::BottomLeft,
+                        ..default()
+                    },
+                    Transform::from_translation(coord.to_world_pos(grid.settings).extend(0.0)),
+                    CanvasSprite::default(),
+                ))
+                .with_child((
+                    Text2d::new("Sprite"),
+                    Transform::from_xyz(
+                        grid.settings.cell_size.x as f32 / 2.0,
+                        grid.settings.cell_size.y as f32 / 2.0,
+                        1.0,
+                    ),
+                ))
+                .id();
+            grid.insert(coord, entity);
         }
+
+        // Remove
+        // if let Some(entity) = grid.get(coord) {
+        //     if let Some(entity_commands) = commands.get_entity(*entity) {
+        //         entity_commands.despawn_recursive();
+        //     }
+        // }
     }
 }
 

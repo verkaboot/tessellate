@@ -66,11 +66,11 @@ pub fn draw(
     mut commands: Commands,
     mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
-    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
-    let cell_pos = coord.to_world_pos(grid.settings);
+    let terrain_coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
+    let cell_pos = terrain_coord.to_world_pos(grid.settings);
     let terrain_type = terrain_list.get_selected();
 
-    if let Some(&old_cell) = (*grid).get(&coord) {
+    if let Some(&old_cell) = (*grid).get(&terrain_coord) {
         let old_terrain_type = cells.get(old_cell)?;
         if old_terrain_type == terrain_type {
             // Return early if the existing terrain type is the same
@@ -92,15 +92,15 @@ pub fn draw(
                 ..default()
             },
             Transform::from_xyz(cell_pos.x, cell_pos.y, -1.0),
-            coord,
+            terrain_coord,
             terrain_type.clone(),
         ))
         .id();
 
     // Add the new cell to the hashmap for easy grid lookup
-    grid.insert(coord, entity);
+    grid.insert(terrain_coord, entity);
 
-    event.send(event::terrain::Updated::Added { coord });
+    event.send(event::terrain::Updated { terrain_coord });
 
     Ok(())
 }
@@ -111,11 +111,11 @@ pub fn erase(
     mut commands: Commands,
     mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
-    let coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
+    let terrain_coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
 
-    if let Some(cell_entity) = grid.remove(&coord) {
+    if let Some(cell_entity) = grid.remove(&terrain_coord) {
         commands.entity(cell_entity).despawn_recursive();
-        event.send(event::terrain::Updated::Removed { coord });
+        event.send(event::terrain::Updated { terrain_coord });
     }
 
     Ok(())

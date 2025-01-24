@@ -19,14 +19,6 @@ impl<T> Grid<T> {
             phantom_data: PhantomData::<T>,
         }
     }
-
-    pub fn insert(&mut self, key: GridCoord, value: Entity) -> Option<Entity> {
-        self.cells.insert(key, value)
-    }
-
-    pub fn get(&self, key: &GridCoord) -> Option<&Entity> {
-        self.cells.get(key)
-    }
 }
 
 #[derive(Reflect, Debug, Copy, Clone)]
@@ -64,11 +56,28 @@ impl GridCoord {
     pub fn to_world_pos(&self, grid_settings: GridSettings) -> Vec2 {
         (self.as_vec2() * grid_settings.cell_size.as_vec2()) - grid_settings.offset
     }
+
+    pub fn corners(&self) -> [GridCoord; 4] {
+        [
+            *self,
+            *self + GridCoord::new(1, 0),
+            *self + GridCoord::new(0, 1),
+            *self + GridCoord::new(1, 1),
+        ]
+    }
 }
 
 impl From<IVec2> for GridCoord {
     fn from(value: IVec2) -> Self {
         Self(value)
+    }
+}
+
+impl std::ops::Add for GridCoord {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self(self.0 + other.0)
     }
 }
 
