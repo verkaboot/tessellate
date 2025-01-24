@@ -2,13 +2,18 @@ use std::marker::PhantomData;
 
 use bevy::{prelude::*, utils::HashMap};
 
-#[derive(Reflect, Resource, Debug, Clone, Deref, DerefMut)]
+#[derive(Reflect, Resource, Debug, Clone)]
 #[reflect(Resource)]
 pub struct Grid<T> {
-    #[deref]
-    cells: HashMap<GridCoord, Entity>,
+    cells: HashMap<GridCoord, GridData<T>>,
     pub settings: GridSettings,
     phantom_data: PhantomData<T>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct GridData<T> {
+    pub entity: Entity,
+    pub data: T,
 }
 
 impl<T> Grid<T> {
@@ -18,6 +23,18 @@ impl<T> Grid<T> {
             settings,
             phantom_data: PhantomData::<T>,
         }
+    }
+
+    pub fn insert(&mut self, coord: GridCoord, entity: Entity, data: T) -> Option<GridData<T>> {
+        self.cells.insert(coord, GridData { entity, data })
+    }
+
+    pub fn get(&self, coord: &GridCoord) -> Option<&GridData<T>> {
+        self.cells.get(coord)
+    }
+
+    pub fn remove(&mut self, coord: &GridCoord) -> Option<GridData<T>> {
+        self.cells.remove(coord)
     }
 }
 
@@ -54,15 +71,23 @@ impl GridCoord {
     }
 
     pub fn to_world_pos(&self, grid_settings: GridSettings) -> Vec2 {
-        (self.as_vec2() * grid_settings.cell_size.as_vec2()) - grid_settings.offset
+        (self.as_vec2() * grid_settings.cell_size.as_vec2()) + grid_settings.offset
     }
 
     pub fn corners(&self) -> [GridCoord; 4] {
         [
-            *self,
-            *self + GridCoord::new(1, 0),
-            *self + GridCoord::new(0, 1),
-            *self + GridCoord::new(1, 1),
+            *self + GridCoord::new(1, 1), // ne
+            *self + GridCoord::new(1, 0), // se
+            *self,                        // sw
+            *self + GridCoord::new(0, 1), // nw
+        ]
+    }
+    pub fn inverse_corners(&self) -> [GridCoord; 4] {
+        [
+            *self + GridCoord::new(-1, -1), // ne
+            *self + GridCoord::new(-1, 0),  // se
+            *self,                          // sw
+            *self + GridCoord::new(0, -1),  // nw
         ]
     }
 }
@@ -78,6 +103,12 @@ impl std::ops::Add for GridCoord {
 
     fn add(self, other: Self) -> Self::Output {
         Self(self.0 + other.0)
+    }
+}
+
+impl std::fmt::Display for GridCoord {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {})", self.0.x, self.0.y)
     }
 }
 

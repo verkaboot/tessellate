@@ -8,9 +8,9 @@ use ui_macros::SelectList;
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(TerrainList::new(TerrainType::default()));
-    app.insert_resource(Grid::<TerrainTile>::new(GridSettings {
+    app.insert_resource(Grid::<TerrainType>::new(GridSettings {
         cell_size: SIZE,
-        offset: SIZE.as_vec2() / 2.0,
+        offset: Vec2::ZERO,
     }));
 
     app.add_systems(
@@ -27,9 +27,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub struct TerrainTile;
-
-#[derive(Reflect, Component, Clone)]
+#[derive(Debug, Reflect, Component, Clone)]
 #[reflect(Component)]
 pub struct TerrainType {
     pub label: String,
@@ -60,7 +58,7 @@ impl Default for TerrainType {
 
 pub fn draw(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid<TerrainTile>>,
+    mut grid: ResMut<Grid<TerrainType>>,
     terrain_list: Res<TerrainList>,
     cells: Query<&TerrainType, With<GridCoord>>,
     mut commands: Commands,
@@ -70,14 +68,14 @@ pub fn draw(
     let cell_pos = terrain_coord.to_world_pos(grid.settings);
     let terrain_type = terrain_list.get_selected();
 
-    if let Some(&old_cell) = (*grid).get(&terrain_coord) {
-        let old_terrain_type = cells.get(old_cell)?;
+    if let Some(old_cell) = (*grid).get(&terrain_coord) {
+        let old_terrain_type = cells.get(old_cell.entity)?;
         if old_terrain_type == terrain_type {
             // Return early if the existing terrain type is the same
             return Ok(());
         } else {
             // Despawn the old cell
-            commands.entity(old_cell).despawn_recursive();
+            commands.entity(old_cell.entity).despawn_recursive();
         }
     }
 
@@ -95,10 +93,19 @@ pub fn draw(
             terrain_coord,
             terrain_type.clone(),
         ))
+        // Debug coord text
+        .with_child((
+            Text2d::new(terrain_coord.to_string()),
+            Transform::from_xyz(
+                grid.settings.cell_size.x as f32 / 2.0,
+                grid.settings.cell_size.y as f32 / 2.0,
+                1.0,
+            ),
+        ))
         .id();
 
     // Add the new cell to the hashmap for easy grid lookup
-    grid.insert(terrain_coord, entity);
+    grid.insert(terrain_coord, entity, terrain_type.clone());
 
     event.send(event::terrain::Updated { terrain_coord });
 
@@ -107,14 +114,14 @@ pub fn draw(
 
 pub fn erase(
     tool_data: Res<ToolData>,
-    mut grid: ResMut<Grid<TerrainTile>>,
+    mut grid: ResMut<Grid<TerrainType>>,
     mut commands: Commands,
     mut event: EventWriter<event::terrain::Updated>,
 ) -> Result<()> {
     let terrain_coord = GridCoord::from_world_pos(tool_data.world_pos[0], grid.settings);
 
-    if let Some(cell_entity) = grid.remove(&terrain_coord) {
-        commands.entity(cell_entity).despawn_recursive();
+    if let Some(cell) = grid.remove(&terrain_coord) {
+        commands.entity(cell.entity).despawn_recursive();
         event.send(event::terrain::Updated { terrain_coord });
     }
 

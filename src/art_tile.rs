@@ -11,10 +11,12 @@ use canvas::{
     SIZE,
 };
 
+use crate::terrain::TerrainType;
+
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(Grid::<ArtTile>::new(GridSettings {
         cell_size: SIZE,
-        offset: SIZE.as_vec2(),
+        offset: SIZE.as_vec2() / 2.0,
     }));
 
     app.add_systems(PreStartup, setup_canvas_textures)
@@ -83,49 +85,59 @@ fn update_sprite_position_for_gpu(
     }
 }
 
-pub struct ArtTile {
-    image: Handle<Image>,
-}
+pub struct ArtTile;
+// image: Handle<Image>,
 
 fn match_sprites_to_grid(
     mut commands: Commands,
     mut event: EventReader<event::terrain::Updated>,
-    mut grid: ResMut<Grid<ArtTile>>,
+    mut art_grid: ResMut<Grid<ArtTile>>,
+    terrain_grid: Res<Grid<TerrainType>>,
     canvas_image: Res<CanvasImage>,
 ) {
     for event in event.read() {
-        let affected_tiles = event.terrain_coord.corners();
-        for coord in affected_tiles {
-            let entity = commands
-                .spawn((
-                    Sprite {
-                        image: canvas_image.composite_view.clone(),
-                        flip_y: true,
-                        custom_size: Some(SIZE.as_vec2()),
-                        anchor: Anchor::BottomLeft,
-                        ..default()
-                    },
-                    Transform::from_translation(coord.to_world_pos(grid.settings).extend(0.0)),
-                    CanvasSprite::default(),
-                ))
-                .with_child((
-                    Text2d::new("Sprite"),
-                    Transform::from_xyz(
-                        grid.settings.cell_size.x as f32 / 2.0,
-                        grid.settings.cell_size.y as f32 / 2.0,
-                        1.0,
-                    ),
-                ))
-                .id();
-            grid.insert(coord, entity);
+        let affected_tiles = event.terrain_coord.inverse_corners();
+        for tile_coord in affected_tiles {
+            let terrain_data = tile_coord.corners().map(|coord| terrain_grid.get(&coord));
+            let debug_data = terrain_data.map(|d| match d {
+                Some(t) => t.data.label.clone(),
+                None => "".to_owned(),
+            });
+            println!("{}: {:?}", tile_coord, debug_data);
+            if terrain_data.iter().any(|cell| cell.is_some()) {
+                let entity = commands
+                    .spawn((
+                        Sprite {
+                            image: canvas_image.composite_view.clone(),
+                            flip_y: true,
+                            custom_size: Some(SIZE.as_vec2()),
+                            anchor: Anchor::BottomLeft,
+                            ..default()
+                        },
+                        Transform::from_translation(
+                            tile_coord.to_world_pos(art_grid.settings).extend(0.0),
+                        ),
+                        CanvasSprite::default(),
+                    ))
+                    // Debug coord text
+                    .with_child((
+                        Text2d::new(format!("{}", tile_coord)),
+                        Transform::from_xyz(
+                            art_grid.settings.cell_size.x as f32 / 2.0,
+                            art_grid.settings.cell_size.y as f32 / 2.0,
+                            1.0,
+                        ),
+                    ))
+                    .id();
+                art_grid.insert(tile_coord, entity, ArtTile);
+            } else {
+                if let Some(data) = art_grid.get(&tile_coord) {
+                    if let Some(entity_commands) = commands.get_entity(data.entity) {
+                        entity_commands.despawn_recursive();
+                    }
+                }
+            }
         }
-
-        // Remove
-        // if let Some(entity) = grid.get(coord) {
-        //     if let Some(entity_commands) = commands.get_entity(*entity) {
-        //         entity_commands.despawn_recursive();
-        //     }
-        // }
     }
 }
 
