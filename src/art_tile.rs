@@ -87,18 +87,46 @@ pub struct ArtTile {
 }
 
 fn match_sprites_to_grid(
+    mut commands: Commands,
     mut event: EventReader<event::terrain::Updated>,
-    grid: Res<Grid<ArtTile>>,
+    mut grid: ResMut<Grid<ArtTile>>,
+    canvas_image: Res<CanvasImage>,
 ) {
     for event in event.read() {
-        println!("{:?}", event.coord);
+        println!("{:?}", event);
+        match event {
+            event::terrain::Updated::Added { coord } => {
+                let entity = commands
+                    .spawn((
+                        Sprite {
+                            image: canvas_image.composite_view.clone(),
+                            flip_y: true,
+                            custom_size: Some(SIZE.as_vec2()),
+                            anchor: Anchor::BottomLeft,
+                            ..default()
+                        },
+                        Transform::from_translation(coord.to_world_pos(grid.settings).extend(0.0)),
+                        CanvasSprite::default(),
+                    ))
+                    .with_child(Text2d::new("Sprite"))
+                    .id();
+                grid.insert(*coord, entity);
+            }
+            event::terrain::Updated::Removed { coord } => {
+                if let Some(entity) = grid.get(coord) {
+                    if let Some(entity_commands) = commands.get_entity(*entity) {
+                        entity_commands.despawn_recursive();
+                    }
+                }
+            }
+        }
     }
 }
 
 /*
 
 Need to decide whether it's worth it to start out with
-texture atlases, and you are drawing on parts of the atlas.
+texture atlases, where you would be drawing on parts of the atlas.
 I think it is worth it to start out this way, because it
 actually simplifies keeping track of the art, and I think
 it might actually help the artists to budget their tiles better

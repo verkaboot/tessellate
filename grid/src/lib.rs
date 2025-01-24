@@ -19,6 +19,14 @@ impl<T> Grid<T> {
             phantom_data: PhantomData::<T>,
         }
     }
+
+    pub fn insert(&mut self, key: GridCoord, value: Entity) -> Option<Entity> {
+        self.cells.insert(key, value)
+    }
+
+    pub fn get(&self, key: &GridCoord) -> Option<&Entity> {
+        self.cells.get(key)
+    }
 }
 
 #[derive(Reflect, Debug, Copy, Clone)]

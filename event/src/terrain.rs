@@ -19,7 +19,8 @@ pub fn erase(trigger: Trigger<Pointer<Drag>>, mut msg: EventWriter<Erase>) {
     }
 }
 
-#[derive(Event)]
-pub struct Updated {
-    pub coord: GridCoord,
+#[derive(Event, Debug)]
+pub enum Updated {
+    Added { coord: GridCoord },
+    Removed { coord: GridCoord },
 }

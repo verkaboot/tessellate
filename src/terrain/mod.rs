@@ -100,7 +100,7 @@ pub fn draw(
     // Add the new cell to the hashmap for easy grid lookup
     grid.insert(coord, entity);
 
-    event.send(event::terrain::Updated { coord });
+    event.send(event::terrain::Updated::Added { coord });
 
     Ok(())
 }
@@ -115,7 +115,7 @@ pub fn erase(
 
     if let Some(cell_entity) = grid.remove(&coord) {
         commands.entity(cell_entity).despawn_recursive();
-        event.send(event::terrain::Updated { coord });
+        event.send(event::terrain::Updated::Removed { coord });
     }
 
     Ok(())
