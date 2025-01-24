@@ -1,5 +1,5 @@
 use crate::{
-    bind_groups::{CanvasImages, CanvasSprite},
+    bind_groups::{CanvasImage, CanvasSprite},
     brush::BrushHardness,
 };
 
@@ -28,7 +28,7 @@ pub struct CanvasComputeLabel;
 impl Plugin for CanvasComputePlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            ExtractResourcePlugin::<CanvasImages>::default(),
+            ExtractResourcePlugin::<CanvasImage>::default(),
             ExtractResourcePlugin::<ToolData>::default(),
             ExtractResourcePlugin::<BrushSize>::default(),
             ExtractResourcePlugin::<BrushHardness>::default(),

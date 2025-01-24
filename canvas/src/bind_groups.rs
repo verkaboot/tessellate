@@ -16,7 +16,7 @@ use bevy::{
 pub struct CanvasSprite(pub Vec2);
 
 #[derive(Resource, Clone, ExtractResource)]
-pub struct CanvasImages {
+pub struct CanvasImage {
     // The layered information used on the GPU for drawing. This is not displayed directly,
     // but instead is composited into sprite_image.
     pub layered_texture: Handle<Image>,
@@ -34,7 +34,7 @@ pub fn prepare(
     mut commands: Commands,
     pipeline: Res<CanvasPipeline>,
     gpu_images: Res<RenderAssets<GpuImage>>,
-    canvas_images: Res<CanvasImages>,
+    canvas_images: Res<CanvasImage>,
     mouse_data: Res<ToolData>,
     brush_size: Res<BrushSize>,
     brush_hardness: Res<BrushHardness>,

@@ -7,7 +7,7 @@ use bevy::{
 use grid::{Grid, GridSettings};
 
 use canvas::{
-    bind_groups::{CanvasImages, CanvasSprite},
+    bind_groups::{CanvasImage, CanvasSprite},
     SIZE,
 };
 
@@ -17,12 +17,12 @@ pub(super) fn plugin(app: &mut App) {
         offset: SIZE.as_vec2() / 2.0,
     }));
 
-    app.add_systems(PreStartup, setup)
+    app.add_systems(PreStartup, setup_canvas_textures)
         .add_systems(Update, update_sprite_position_for_gpu)
         .add_systems(Update, match_sprites_to_grid);
 }
 
-pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
+pub fn setup_canvas_textures(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     let mut layered_texture = Image::new_fill(
         Extent3d {
             width: SIZE.x,
@@ -38,7 +38,7 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
     let layered_texture_handle = images.add(layered_texture);
 
-    let mut sprite_image = Image::new_fill(
+    let mut composite_image = Image::new_fill(
         Extent3d {
             width: SIZE.x,
             height: SIZE.y,
@@ -49,14 +49,14 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         TextureFormat::Rgba8Unorm,
         RenderAssetUsages::RENDER_WORLD,
     );
-    sprite_image.texture_descriptor.usage =
+    composite_image.texture_descriptor.usage =
         TextureUsages::COPY_DST | TextureUsages::STORAGE_BINDING | TextureUsages::TEXTURE_BINDING;
-    let sprite_image_handle = images.add(sprite_image);
+    let composite_view_handle = images.add(composite_image);
 
     commands
         .spawn((
             Sprite {
-                image: sprite_image_handle.clone(),
+                image: composite_view_handle.clone(),
                 flip_y: true,
                 custom_size: Some(SIZE.as_vec2()),
                 anchor: Anchor::BottomLeft,
@@ -67,9 +67,9 @@ pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         ))
         .with_child(Text2d::new("Sprite"));
 
-    commands.insert_resource(CanvasImages {
+    commands.insert_resource(CanvasImage {
         layered_texture: layered_texture_handle,
-        composite_view: sprite_image_handle,
+        composite_view: composite_view_handle,
         active_layer: 0,
     });
 }
@@ -95,5 +95,18 @@ fn match_sprites_to_grid(
     }
 }
 
-// Add an event for when terrain is created or removed,
-// then read that event to make changes to the canvas sprites.
+/*
+
+Need to decide whether it's worth it to start out with
+texture atlases, and you are drawing on parts of the atlas.
+I think it is worth it to start out this way, because it
+actually simplifies keeping track of the art, and I think
+it might actually help the artists to budget their tiles better
+by thinking about them in terms of what is going to be shown
+on the screen at the same time.
+
+So, we will need to init the atlas, and then every time a
+sprite is created, it references a map with the neighbor
+contraints and an atlas index that matches that constraint.
+
+*/

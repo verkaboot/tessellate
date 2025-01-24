@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use canvas::{bind_groups::CanvasImages, brush::BrushColor, tool::ToolData};
+use canvas::{bind_groups::CanvasImage, brush::BrushColor, tool::ToolData};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(Update, set_brush);
@@ -15,7 +15,7 @@ pub fn set_brush(mut event: EventReader<event::button::SetBrush>, mut tool_data:
 
 pub fn select_layer(
     mut event: EventReader<event::button::SelectLayer>,
-    mut canvas: ResMut<CanvasImages>,
+    mut canvas: ResMut<CanvasImage>,
 ) {
     for event::button::SelectLayer in event.read() {
         canvas.active_layer += 1;
