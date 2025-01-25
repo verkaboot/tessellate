@@ -30,8 +30,18 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Debug, Reflect, Component, Clone)]
 #[reflect(Component)]
 pub struct TerrainType {
+    pub id: TerrainId,
     pub label: String,
     pub color: Color,
+}
+
+#[derive(Reflect, Clone, Debug, Deref, DerefMut)]
+pub struct TerrainId(u32);
+
+impl From<u32> for TerrainId {
+    fn from(value: u32) -> Self {
+        Self(value)
+    }
 }
 
 impl PartialEq for TerrainType {
@@ -50,6 +60,7 @@ pub struct TerrainList {
 impl Default for TerrainType {
     fn default() -> Self {
         TerrainType {
+            id: 0.into(),
             label: "Default".to_owned(),
             color: Color::srgba(0.0, 0.0, 0.0, 1.0),
         }

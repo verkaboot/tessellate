@@ -11,7 +11,7 @@ use canvas::{
     SIZE,
 };
 
-use crate::terrain::TerrainType;
+use crate::terrain::{TerrainId, TerrainType};
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(Grid::<ArtTile>::new(GridSettings {
@@ -85,29 +85,50 @@ fn update_sprite_position_for_gpu(
     }
 }
 
+#[derive(Reflect)]
 pub struct ArtTile;
 // image: Handle<Image>,
 
 fn match_sprites_to_grid(
     mut commands: Commands,
     mut event: EventReader<event::terrain::Updated>,
-    mut art_grid: ResMut<Grid<ArtTile>>,
+    mut art_tile_grid: ResMut<Grid<ArtTile>>,
     terrain_grid: Res<Grid<TerrainType>>,
     canvas_image: Res<CanvasImage>,
 ) {
     for event in event.read() {
-        let affected_tiles = event.terrain_coord.inverse_corners();
-        for tile_coord in affected_tiles {
-            let terrain_data = tile_coord.corners().map(|coord| terrain_grid.get(&coord));
-            if let Some(data) = art_grid.get(&tile_coord) {
-                if let Some(entity_commands) = commands.get_entity(data.entity) {
+        // Because of the offset between the terrain grid and the
+        // art tile grid, they must get corners in opposite
+        // directions to cancel out the drift.
+
+        // These are the art tiles that need to me updated
+        // based on the changed terrain tile.
+        let affected_art_tiles = event.terrain_coord.inverse_corners();
+
+        for art_tile_coord in affected_art_tiles {
+            // Get the terrain pattern that will be used as a key
+            // for the HashMap that stores the art tile images
+            let terrain_pattern: [Option<TerrainId>; 4] = art_tile_coord.corners().map(|coord| {
+                terrain_grid
+                    .get(&coord)
+                    .map(|terrain_type| terrain_type.data.id.clone())
+            });
+
+            // Remove all existing art tiles before spawning new ones.
+            if let Some(art_grid_data) = art_tile_grid.remove(&art_tile_coord) {
+                if let Some(entity_commands) = commands.get_entity(art_grid_data.entity) {
                     entity_commands.despawn_recursive();
                 }
             }
-            if terrain_data.iter().any(|cell| cell.is_some()) {
+
+            if terrain_pattern.iter().any(|cell| cell.is_some()) {
                 let entity = commands
                     .spawn((
                         Sprite {
+                            // Set the sprite image based on the four surrounding
+                            // terrain tiles. These are the HashMap Key that
+                            // point to the image texture for that terrain
+                            // pattern.
                             image: canvas_image.composite_view.clone(),
                             flip_y: true,
                             custom_size: Some(SIZE.as_vec2()),
@@ -115,21 +136,23 @@ fn match_sprites_to_grid(
                             ..default()
                         },
                         Transform::from_translation(
-                            tile_coord.to_world_pos(art_grid.settings).extend(0.0),
+                            art_tile_coord
+                                .to_world_pos(art_tile_grid.settings)
+                                .extend(0.0),
                         ),
                         CanvasSprite::default(),
                     ))
                     // Debug coord text
                     .with_child((
-                        Text2d::new(format!("{}", tile_coord)),
+                        Text2d::new(format!("{}", art_tile_coord)),
                         Transform::from_xyz(
-                            art_grid.settings.cell_size.x as f32 / 2.0,
-                            art_grid.settings.cell_size.y as f32 / 2.0,
+                            art_tile_grid.settings.cell_size.x as f32 / 2.0,
+                            art_tile_grid.settings.cell_size.y as f32 / 2.0,
                             1.0,
                         ),
                     ))
                     .id();
-                art_grid.insert(tile_coord, entity, ArtTile);
+                art_tile_grid.insert(art_tile_coord, entity, ArtTile);
             }
         }
     }
