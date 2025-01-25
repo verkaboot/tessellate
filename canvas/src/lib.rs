@@ -17,7 +17,7 @@ pub fn plugin(app: &mut App) {
     app.register_type::<bind_groups::CanvasSprite>()
         .add_plugins(CanvasComputePlugin)
         .insert_resource(BrushSize(8.0))
-        .insert_resource(BrushHardness(0.5))
+        .insert_resource(BrushHardness(1.0))
         .insert_resource(BrushColor::new(
             Color::linear_rgba(1.0, 0.0, 0.0, 1.0).to_linear(),
         ))

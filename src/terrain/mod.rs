@@ -99,7 +99,7 @@ pub fn draw(
             Transform::from_xyz(
                 grid.settings.cell_size.x as f32 / 2.0,
                 grid.settings.cell_size.y as f32 / 2.0,
-                1.0,
+                2.0,
             ),
         ))
         .id();
