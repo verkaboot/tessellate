@@ -99,11 +99,6 @@ fn match_sprites_to_grid(
         let affected_tiles = event.terrain_coord.inverse_corners();
         for tile_coord in affected_tiles {
             let terrain_data = tile_coord.corners().map(|coord| terrain_grid.get(&coord));
-            let debug_data = terrain_data.map(|d| match d {
-                Some(t) => t.data.label.clone(),
-                None => "".to_owned(),
-            });
-            println!("{}: {:?}", tile_coord, debug_data);
             if let Some(data) = art_grid.get(&tile_coord) {
                 if let Some(entity_commands) = commands.get_entity(data.entity) {
                     entity_commands.despawn_recursive();
